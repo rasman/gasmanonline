@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1">
+<context>
+    <name>Form</name>
+    <message>
+        <location filename="gasgraph/src/gasgraph_test.ui" line="16"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GasMchn</name>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="44"/>
+        <source>CKT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="45"/>
+        <source>ALV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="46"/>
+        <source>ART</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="47"/>
+        <source>VRG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="48"/>
+        <source>MUS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="49"/>
+        <source>FAT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="gasmchn/src/gasmchn.cpp" line="50"/>
+        <source>VEN</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>gasanibutton</name>
+    <message>
+        <location filename="gasanibutton/src/gasanibutton.ui" line="14"/>
+        <source>gasanibutton</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>gasgraph</name>
+    <message>
+        <location filename="gasgraph/src/gasgraph.ui" line="14"/>
+        <source>gasgraph</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>gasmchn</name>
+    <message>
+        <location filename="gasmchn/src/gasmchn.ui" line="14"/>
+        <source>gasmchn</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+</TS>
