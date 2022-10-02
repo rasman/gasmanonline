@@ -13,8 +13,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11 -Wall
 
-INCLUDEPATH += /usr/include/libxml2 \
-../gasgraph\
+INCLUDEPATH +=  ../gasgraph\
 ../gasanibutton\
 ../gasgauge\
 ../gasmchn
@@ -113,10 +112,7 @@ HEADERS += \
 
 unix {
     INCLUDEPATH += /usr/lib/x86_64-linux-gnu/
-    LIBS += -lqca-qt5 -lxml2 -lxslt
     CONFIG += cryptp
-    QTPLUGIN += loggerPlugin opensslPlugin softstorePlugin
-    QTPLUGIN += qca_logger qca_ossl qca_softstore
 }
 
 # Default rules for deployment.

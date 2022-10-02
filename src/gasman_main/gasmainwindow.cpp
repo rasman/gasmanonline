@@ -22,19 +22,7 @@
 #include "gastabwidget.h"
 #include "gasviewcommon.h"
 
-#include "gasprintpreview.h"
-
-#ifdef Q_OS_LINUX
-#include <libxml2/libxml/parser.h>
-#endif
-#ifndef Q_OS_UNIX
-#	include <libxml/xmlmemory.h>
-#	include <libxml/xmlIO.h>
-#endif
-#include <libxslt/xslt.h>
-#include <libxslt/xsltInternals.h>
-#include <libxslt/transform.h>
-#include <libxslt/xsltutils.h>    
+#include "gasprintpreview.h" 
 
 GasMainWindow *gasMainWindow = 0;
 
@@ -1252,40 +1240,6 @@ GasChildWindow* GasMainWindow::FirstGraphWindow(GasDoc *pdoc)
 
 void GasMainWindow::transform()
 {
-	if (!glm->instance()->validLicenseExists())
-	{
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE "), tr("Transform not available in student mode"));
-		return;
-	}
-
-	GasChildWindow* child = activeChildForced();
-	GasDoc* doc = child->doc();
-	if (doc->GetDescription() == "" && !editDescription())
-		return;
-
-#ifdef Q_OS_MACX 
-	QString transformName = QFileDialog::getOpenFileName(this, tr("Choose a transform file"),
-		TransDir(), tr("XML Transform (*.xsl *.xslt )"), NULL, QFileDialog::DontUseNativeDialog);
-#else
-	QString transformName = QFileDialog::getOpenFileName(this, tr("Choose a transform file"),
-		TransDir(), tr("XML Transform (*.xsl *.xslt )"));
-#endif
-	if (transformName.isEmpty())
-		return;
-
-	QString textFileName = getExportFileName(tr("Export transformed xml"), tr("Text Files"), tr(".txt"));
-	if (textFileName.isEmpty())
-		return;
-
-	QDomDocument dom = doc->toXml(NULL, "none", "none", m_bPrintGraphs, m_bPrintout, true);
-	if (!saveTransform(dom, transformName, textFileName))
-	{
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE "), tr("Cannot read XML Transform."));
-		return;
-	}
-
-	QFileInfo fi(transformName);
-	setTransDir(fi.path());
 }
 
 //Export data to html format
@@ -1343,47 +1297,7 @@ void GasMainWindow::writeHtmlToFile(GasDoc* doc, const QString& htmlFileName, bo
 
 bool GasMainWindow::saveTransform(QDomDocument& dom, const QString& transformFileName, const QString& outputFileName)
 {
-	// write dom document to temporary file so libxslt can
-	// handle the data type
-	QTemporaryFile tmp;
-	if (tmp.open())
-		tmp.write(dom.toByteArray());
-
-	tmp.reset(); // move pointer back to beginning of file
-
-	xsltStylesheetPtr cur = NULL;
-
-    xmlSubstituteEntitiesDefault(1);
-	xmlLoadExtDtdDefaultValue = 1;
-	cur = xsltParseStylesheetFile((const xmlChar *)transformFileName.toLatin1().data());
-	if (cur != NULL)
-	{
-		const char *params[16 + 1];
-		int nbparams = 0;
-		params[nbparams] = NULL;
-		xmlDocPtr doc2, res;
-
-		doc2 = xmlParseFile(tmp.fileName().toLatin1().data());
-		res = xsltApplyStylesheet(cur, doc2, params);
-		FILE* output = fopen(outputFileName.toLatin1().data(), "w");
-		if (!output)
-		{
-#ifndef Q_OS_UNIX
-			qDebug() << errno;
-#endif
-			return false;
-		}
-		xsltSaveResultToFile(output, res, cur);
-		fclose(output);
-
-		// cleanup
-		xsltFreeStylesheet(cur);
-		xmlFreeDoc(res);
-		xmlFreeDoc(doc2);
-	}
-	xsltCleanupGlobals();
-	xmlCleanupParser();
-	return cur != NULL;
+	return true;
 }
 
 // Create an output .png file and return its name. If imageName is empty, the file will be a temp
