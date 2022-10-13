@@ -68,11 +68,6 @@ GasApplication::~GasApplication()
 QString GasApplication::checkFile(const QString& file, const QString& alias)
 {
 	QString dirPath = qApp->applicationDirPath();
-#ifdef Q_OS_UNIX // Mac specific code
-	dirPath += "/../Resources/";
-#else // Win32/X11 anti-Mac specific code
-	dirPath += "/";
-#endif
 
 	QString newName = dirPath + (alias.isEmpty() ? file : alias);
 
