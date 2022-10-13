@@ -1,4 +1,4 @@
-$QT5_REPO/qt5-build/qtbase/bin/qmake ../src/gasman.pro
+$QT5_REPO/qt5-build/qtbase/bin/qmake $GASMAN_REPO/src/gasman.pro
 
 emmake make -j4
 
