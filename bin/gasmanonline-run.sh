@@ -1,0 +1,1 @@
+sudo /usr/bin/python3 $EMSDK_REPO/upstream/emscripten/emrun.py --browser firefox --port 80 --no_emrun_detect --serve_after_close gasman_main/gasman.html
