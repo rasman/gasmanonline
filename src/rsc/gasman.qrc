@@ -36,14 +36,11 @@
         <file>images/stopall.png</file>
         <file>images/timer.png</file>
         <file>images/up.png</file>
-        <file>images/whatsthis.png</file>
         <file>images/zoomin.png</file>
         <file>images/zoomout.png</file>
         <file>images/star.png</file>
         <file>images/expand.png</file>
         <file>images/collapse.png</file>
-        <file>safeCopy/gas_en_US.xsl</file>
-        <file>safeCopy/gas_zh_CN.xsl</file>
         <file>safeCopy/gasman_en_US.ini</file>
         <file>safeCopy/gasman_zh_CN.ini</file>
     </qresource>
