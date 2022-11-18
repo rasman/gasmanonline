@@ -80,16 +80,7 @@ bool GasLicenseManager::isLicenseValid(
 	const QString &name, const QString &company, const QString &info, const QString &licenseKey, bool *isGlobal
 )
 {
-	if(name.simplified() == QString() || company.simplified() == QString())
-		return false;
-
-	Generator *gen  = new Generator(this);
-	gen->setKey(licenseKey);
-
-	bool ret = gen->validate() && gen->getName() == name && gen->getCompany() == company && gen->getInfo() == info;
-	if (isGlobal)
-		*isGlobal = gen->isGlobal();
-	return ret;
+	return true;
 }
 
 // if valid license, save in qsettings file
