@@ -1435,20 +1435,21 @@ void GasMainWindow::updateFileMenu()
 	// edit
 	bool enable = activeChild() != 0;
 
+	openDocumentAction->setEnabled(false);
 	closeDocumentAction->setEnabled(enable);
 	closeAllDocumentsAction->setEnabled(enable);
-	saveDocumentAction->setEnabled(enable);
-	saveDocumentAsAction->setEnabled(enable);
+	saveDocumentAction->setEnabled(false);
+	saveDocumentAsAction->setEnabled(false);
 	runAction->setEnabled(enable);
 	runAllAction->setEnabled(enable && allChildren().size() > 1);
 	rewindAllAction->setEnabled(enable && CountRewindable() > 0);
 #ifndef Q_OS_UNIX
 	sendAction->setEnabled(enable);
 #endif
-	printPreviewAction->setEnabled(enable);
+	printPreviewAction->setEnabled(false);
 
-	menuExport_to->setEnabled(enable);
-	printAction->setEnabled(enable);
+	menuExport_to->setEnabled(false);
+	printAction->setEnabled(false);
 
 	if (!activeChild() || activeChild()->doc()->m_bClosed) return;
 
@@ -2210,7 +2211,7 @@ void GasMainWindow::createMenus()
 
 	fileMenu->addAction(newDocumentAction);
 	fileMenu->addAction(openDocumentAction);
-	fileMenu->addAction(openRecentMenu->menuAction());
+	// fileMenu->addAction(openRecentMenu->menuAction());
 	fileMenu->addAction(saveDocumentAction);
 	fileMenu->addAction(saveDocumentAsAction);
 	fileMenu->addAction(closeDocumentAction);
