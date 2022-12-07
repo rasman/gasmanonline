@@ -8,6 +8,18 @@ disabled. Follow below instructions to run a local web server deployment:
 4. Run $GASMAN_REPO/bin/gasmanonline-run.sh to start the application.
 5. Navigate to http://localhost/gasman.html in your browser of choice to view the application.
 
+FOR FUTURE MAINTAINERS:
+Due to differences between Qt's desktop and WebAssembly modules, certain
+Gas Man features had to be disabled on the browser version in order to get
+the application building. The list of features currently needing re-implementation
+is found below. Details of removal and reasons for removal can be found in commit
+history.
+
+- Opening gas configurations from file
+- Exporting gas configuations to file
+- Editing simulation description is broken
+- Drag and drop tab/window functionality is finnicky, using deprecated Qt functions
+
 The rest of the README is left as is
 
 
