@@ -34,7 +34,7 @@ first.depends = $(first) copydata
 export(first.depends)
 export(copydata.commands)
 QMAKE_EXTRA_TARGETS += first copydata
-QMAKE_LFLAGS = --preload-file $$OUT_PWD/gasman.ini
+# QMAKE_LFLAGS += --preload-file $$OUT_PWD/gasman.ini
 
 RESOURCES = $$PWD/../rsc/gasman.qrc
 

@@ -3,10 +3,36 @@ Functionality for modules unavailable in Qt for Webassembly have been
 disabled. Follow below instructions to run a local web server deployment:
 
 1. Clone the emsdk repo with "git clone https://github.com/emscripten-core/emsdk.git".
-2. Follow further emsdk install steps found here, using version 1.39.8: https://emscripten.org/docs/getting_started/downloads.html
+2. Follow further emsdk install steps found here, using version 1.39.8, which is compatible with qt 5.15.4-7: https://emscripten.org/docs/getting_started/downloads.html
+(./emsdk install 1.39.8
+./emsdk activate --embedded 1.39.8
+source "emsdk_env.sh" )
 3. Add environment variables EMSDK_REPO and GASMAN_REPO equal to the paths of the emsdk and Gas Man Online repos, respectively.
 4. Run $GASMAN_REPO/bin/gasmanonline-run.sh to start the application.
-5. Navigate to http://localhost/gasman.html in your browser of choice to view the application.
+5. Navigate to http://localhost:8081/gasman.html in your browser of choice to view the application.
+
+Alternative run:
+from the build/gasman_main directory can run: python3 ../../qtwasmserver.py --all
+This is appears the best way of running code for external client to use. Recommend rewriting it to better suit needs
+
+
+TO COMPILE:
+From https://doc.qt.io/qt-5/wasm.html
+Download Qt source from web
+git clone https://code.qt.io/qt/qt5.git
+cd qt5
+git checkout 5.15
+perl init-repository --module-subset=default,-qtwebengine
+cd ..
+mkdir qt5-build
+cd qt5-build/
+../qt5/configure -feature-thread -xplatform wasm-emscripten -nomake examples -nomake tests -opensource -confirm-license -developer-build 
+gmake -j4
+QT5_REPO=$PWD
+
+Ensure EMSDK_REPO and GASMAN_REPO set as above
+Then run $GASMAN_REPO/bin/build-again.sh
+
 
 FOR FUTURE MAINTAINERS:
 Due to differences between Qt's desktop and WebAssembly modules, certain
@@ -21,7 +47,6 @@ history.
 - Drag and drop tab/window functionality is finnicky, using deprecated Qt functions
 
 The rest of the README is left as is
-
 
 
 Release Notes

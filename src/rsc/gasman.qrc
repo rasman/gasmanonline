@@ -43,11 +43,12 @@
         <file>images/collapse.png</file>
         <file>safeCopy/gasman_en_US.ini</file>
         <file>safeCopy/gasman_zh_CN.ini</file>
+        <file>../gasman_main/gasman.ini</file>
     </qresource>
-    <qresource prefix="/" lang="en">
+    <qresource lang="en" prefix="/">
         <file alias="images/splash.png">images/splash_en.png</file>
     </qresource>
-    <qresource prefix="/" lang="zh">
+    <qresource lang="zh" prefix="/">
         <file alias="images/splash.png">images/splash_zh_CN.png</file>
     </qresource>
 </RCC>
