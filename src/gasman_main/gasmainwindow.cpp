@@ -2,6 +2,7 @@
 #if QT_VERSION >=0x050000
 #include <QMessageBox>
 #endif
+#include <QRegularExpression>
 #include <QtDebug>
 #include <QWidget>
 #include <math.h>
@@ -22,7 +23,11 @@
 #include "gastabwidget.h"
 #include "gasviewcommon.h"
 
-#include "gasprintpreview.h" 
+#ifndef Q_OS_WASM
+#include "gasprintpreview.h"
+#else
+#include <emscripten/val.h>
+#endif
 
 GasMainWindow *gasMainWindow = 0;
 
@@ -42,7 +47,9 @@ GasMainWindow::GasMainWindow()
 	setIconSize(QSize(22, 22));
 #endif
 
+#ifndef Q_OS_WASM
 	gasPrintDocument = 0;
+#endif
 	//assistant = new Assistant();
 	gasMainWindow = this;
 
@@ -52,8 +59,10 @@ GasMainWindow::GasMainWindow()
 	createMenus();			//Create a Main Menu
 	createToolBar();		//Create a Tool Bar
 
+#ifndef Q_OS_WASM
 	//Create a printer with high resolution and set the page size
 	prn = new QPrinter(QPrinter::HighResolution);
+#endif
 
 	connect(mdi, SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(subWindowActivated(QMdiSubWindow *)));
 	connect(glm->instance(), SIGNAL(validLicenseRegistered()), this, SLOT(updateGasDocs()));
@@ -504,18 +513,14 @@ bool GasMainWindow::newFile() {
 	return true;
 }
 
-//Open a *.gas file by this name
+//Open a simulation file by name — dispatches by extension (.gas/.xml/.json)
 void GasMainWindow::open(const QString &fileName)
 {
-	//if(!glm->instance()->validLicenseExists())
-	//	if ( !checkCountSimulations() ) return;
-
 	if (fileName.isEmpty())
 		return;
 
 	foreach(GasDoc *doc, docs) {
 		if (doc->currentFile() == fileName) {
-			//If the simulation is open, show it
 			GasChildWindow *existing = doc->gasChildren()[0];
 			existing->show();
 			existing->raise();
@@ -524,8 +529,23 @@ void GasMainWindow::open(const QString &fileName)
 		}
 	}
 
+	const QString ext = QFileInfo(fileName).suffix().toLower();
 	GasDoc *gasdoc = newDoc();
-	if (!gasdoc->loadFile(fileName)) {
+	bool ok = false;
+
+	if (ext == "xml" || ext == "json") {
+		QFile f(fileName);
+		if (f.open(QIODevice::ReadOnly)) {
+			QByteArray data = f.readAll();
+			f.close();
+			ok = (ext == "xml") ? gasdoc->loadFromXmlContent(fileName, data)
+			                    : gasdoc->loadFromJsonContent(fileName, data);
+		}
+	} else {
+		ok = gasdoc->loadFile(fileName);
+	}
+
+	if (!ok) {
 		delete gasdoc;
 		return;
 	}
@@ -536,7 +556,6 @@ void GasMainWindow::open(const QString &fileName)
 	newControlDock(gasdoc);
 	updateTitle();
 	updateViewMenu();
-	//setUpdatesEnabled(true);
 }
 
 //Create a new document
@@ -553,15 +572,46 @@ GasDoc* GasMainWindow::newDoc()
 //Open an existing simulation
 void GasMainWindow::openFile()
 {
-#ifdef Q_OS_MACX 
+	const QString filter = tr("Gas Man\xC2\xAE Files (*.gas *.xml *.json)");
+#ifdef Q_OS_WASM
+	// Qt6 WebAssembly: use async browser file picker
+	QFileDialog::getOpenFileContent(filter,
+		[this](const QString &fileName, const QByteArray &fileContent) {
+			if (!fileName.isEmpty())
+				openFromContent(fileName, fileContent);
+		});
+#elif defined(Q_OS_MACX)
 	QString fileName = QFileDialog::getOpenFileName(this, tr("Choose a file to open"),
-		OpenDir(), tr("Gas Man\xC2\xAE Files (*.gas )"), NULL, QFileDialog::DontUseNativeDialog);
+		OpenDir(), filter, nullptr, QFileDialog::DontUseNativeDialog);
+	open(fileName);
 #else
 	QString fileName = QFileDialog::getOpenFileName(this, tr("Choose a file to open"),
-		OpenDir(), tr("Gas Man\xC2\xAE Files (*.gas )"));
-#endif
-
+		OpenDir(), filter);
 	open(fileName);
+#endif
+}
+
+//Open a simulation from in-memory content — dispatches by file extension
+void GasMainWindow::openFromContent(const QString &fileName, const QByteArray &fileContent)
+{
+	GasDoc *gasdoc = newDoc();
+	bool ok = false;
+	const QString ext = QFileInfo(fileName).suffix().toLower();
+
+	if (ext == "xml")
+		ok = gasdoc->loadFromXmlContent(fileName, fileContent);
+	else if (ext == "json")
+		ok = gasdoc->loadFromJsonContent(fileName, fileContent);
+	else
+		ok = gasdoc->loadFromContent(fileName, fileContent); // .gas binary
+
+	if (!ok) {
+		delete gasdoc;
+		return;
+	}
+	newControlDock(gasdoc);
+	updateTitle();
+	updateViewMenu();
 }
 
 //Close the current simulation
@@ -970,7 +1020,7 @@ void GasMainWindow::setDefaultOptions()
 		int pos = strNewScale.indexOf(' ');
 		GasGraphView::m_nDfltScaleMinutes = strNewScale.left(pos).toShort();
 		GasGraphView::m_szScale = strNewScale;
-		if ((pos = strNewScale.indexOf(QRegExp(QObject::tr("[HM]")), pos)) != -1)
+		if ((pos = strNewScale.indexOf(QRegularExpression(QObject::tr("[HM]")), pos)) != -1)
 			if (strNewScale.at(pos) == QObject::tr("[HM]").at(1))
 				GasGraphView::m_nDfltScaleMinutes *= 60;
 		gasApp->WriteProfile("Defaults", "GraphMinutes", GasGraphView::m_nDfltScaleMinutes);
@@ -1031,6 +1081,28 @@ void GasMainWindow::setDefaultOptions()
 	// save gascdefaults into .ini
 }
 
+// Returns a save-file path from a native dialog. Used by desktop export functions.
+// On WASM the XML/JSON/HTML export paths use QFileDialog::saveFileContent instead.
+#ifndef Q_OS_WASM
+QString GasMainWindow::getExportFileName(const QString& title, const QString& fileTypeDesc, const QString& fileExtension)
+{
+#ifdef Q_OS_MACX
+	QString fileName = QFileDialog::getSaveFileName(this, title, SaveDir(),
+		fileTypeDesc + " (*" + fileExtension + ")", NULL, QFileDialog::DontUseNativeDialog);
+#else
+	QString fileName = QFileDialog::getSaveFileName(this, title, SaveDir(), fileTypeDesc + " (*" + fileExtension + ")");
+#endif
+	if (!fileName.isEmpty()) {
+		if (QFileInfo(fileName).suffix().isEmpty())
+			fileName.append(fileExtension);
+	}
+	return fileName;
+}
+#endif // Q_OS_WASM
+
+// ── Desktop (non-WASM) print functions ────────────────────────────────────
+#ifndef Q_OS_WASM
+
 bool GasMainWindow::printHelper(const QPrinter::OutputFormat fmt, const QString& fname)
 {
 	GasChildWindow* child = activeChildForced();
@@ -1059,7 +1131,7 @@ void GasMainWindow::print()
 	{
 		if (!printHelper(QPrinter::NativeFormat, QString()))
 			return;
-		QPrintDialog *dlg = new QPrintDialog(prn, this);		//Show the print dialog
+		QPrintDialog *dlg = new QPrintDialog(prn, this);
 		if (dlg->exec() == QDialog::Accepted)
 			gasPrintDocument->print(prn);
 		delete dlg;
@@ -1087,7 +1159,7 @@ void GasMainWindow::updateGasPrintDoc(const QString& family, int fontSize)
 {
 	Q_ASSERT(prn != 0);
 	Q_ASSERT(gasPrintDocument != 0);
-    QSizeF pageSize = prn->pageRect().size(); // //pageLayout().paintRectPixels(resolution());
+    QSizeF pageSize = prn->pageRect().size();
 	pageSize.setWidth((pageSize.width() / prn->logicalDpiX()) * logicalDpiX());
 	pageSize.setHeight((pageSize.height() / prn->logicalDpiY()) * logicalDpiY());
 	gasPrintDocument->setPageSize(pageSize);
@@ -1097,22 +1169,6 @@ void GasMainWindow::updateGasPrintDoc(const QString& family, int fontSize)
 	f.setPointSize(fontSize);
 	f.setFixedPitch(true);
 	gasPrintDocument->setDefaultFont(f);
-}
-
-QString GasMainWindow::getExportFileName(const QString& title, const QString& fileTypeDesc, const QString& fileExtension)
-{
-#ifdef Q_OS_MACX 
-	QString fileName = QFileDialog::getSaveFileName(this, title, SaveDir(),
-		fileTypeDesc + " (*" + fileExtension + ")", NULL, QFileDialog::DontUseNativeDialog);
-#else
-	QString fileName = QFileDialog::getSaveFileName(this, title, SaveDir(), fileTypeDesc + " (*" + fileExtension + ")");
-#endif
-
-	if (!fileName.isEmpty()) {
-		if (QFileInfo(fileName).suffix().isEmpty())
-			fileName.append(fileExtension);
-	}
-	return fileName;
 }
 
 // helper to save html output to gasPrintDocument
@@ -1129,7 +1185,6 @@ void GasMainWindow::writeHtmlToGasPrintDoc(GasChildWindow* child)
 	if (out.string())
 		gasPrintDocument->setHtml(*out.string());
 }
-
 
 //Show the print preview dialog
 void GasMainWindow::printPreview()
@@ -1161,6 +1216,157 @@ void GasMainWindow::exportToPdf()
 	}
 }
 
+#else // Q_OS_WASM ─────────────────────────────────────────────────────────
+
+// Build a self-contained HTML page with the simulation summary + embedded
+// graph image (base64 PNG data URI).  No file I/O — works entirely in memory.
+QString GasMainWindow::buildPrintHtml(GasDoc *doc, const QByteArray &graphPng) const
+{
+	// graphPng is already base64-encoded (from GasGraphView::toArray())
+	const QString b64 = QString::fromLatin1(graphPng);
+
+	// Agent rows
+	QString agentRows;
+	for (int i = 0; i < doc->m_gasArray.size(); ++i) {
+		GasAnesthetic *a = doc->GetAgent(i);
+		agentRows += QString("<tr><td>%1</td><td>%2</td></tr>\n")
+			.arg(a->m_strName.toHtmlEscaped())
+			.arg(QString::number(doc->GetDEL(i), 'f', 1) + QLatin1String("%"));
+	}
+
+	const QString title = doc->GetDescription().toHtmlEscaped();
+
+	QString html;
+	html.reserve(4096 + b64.size());
+	html +=
+		"<!DOCTYPE html>\n"
+		"<html lang=\"en\">\n"
+		"<head>\n"
+		"<meta charset=\"utf-8\">\n"
+		"<title>Gas Man\xC2\xAE &mdash; " + title + "</title>\n"
+		"<style>\n"
+		"  body   { font-family: Arial, sans-serif; margin: 24px; color: #222; }\n"
+		"  h1     { font-size: 1.25em; margin-bottom: 2px; }\n"
+		"  h2     { font-size: 0.95em; color: #555; margin-top: 0; font-weight: normal; }\n"
+		"  table  { border-collapse: collapse; margin: 10px 0; }\n"
+		"  th, td { padding: 4px 12px; border: 1px solid #bbb; font-size: 0.88em; }\n"
+		"  th     { background: #e8e8e8; text-align: left; }\n"
+		"  img    { max-width: 100%; margin-top: 14px; display: block; }\n"
+		"  @media print {\n"
+		"    body { margin: 0; }\n"
+		"    .noprint { display: none; }\n"
+		"  }\n"
+		"</style>\n"
+		"</head>\n"
+		"<body>\n"
+		"<h1>Gas Man\xC2\xAE \xe2\x80\x94 Simulation Report</h1>\n"
+		"<h2>" + title + "</h2>\n"
+		"<table>\n"
+		"  <tr><th colspan=\"2\">Patient &amp; Circuit</th></tr>\n"
+		"  <tr><td>Weight</td><td>" + QString::number(doc->GetWeight(), 'f', 1) + " kg</td></tr>\n"
+		"  <tr><td>Circuit</td><td>" + doc->GetCircuit().toHtmlEscaped() + "</td></tr>\n"
+		"  <tr><td>FGF</td><td>" + QString::number(doc->GetFGF(), 'f', 1) + " L/min</td></tr>\n"
+		"  <tr><td>VA</td><td>" + QString::number(doc->GetVA(), 'f', 1) + " L/min</td></tr>\n"
+		"  <tr><td>CO</td><td>" + QString::number(doc->GetCO(), 'f', 1) + " L/min</td></tr>\n"
+		"</table>\n"
+		"<table>\n"
+		"  <tr><th>Agent</th><th>Dial</th></tr>\n"
+		+ agentRows +
+		"</table>\n"
+		"<img src=\"data:image/png;base64," + b64 + "\" alt=\"Simulation graph\">\n"
+		"</body>\n"
+		"</html>\n";
+
+	return html;
+}
+
+// Open a new browser window containing the print-ready HTML, then trigger
+// the browser's built-in print dialog.  Uses Emscripten JS interop —
+// window.open() is allowed because this is called from a user gesture.
+void GasMainWindow::print()
+{
+	if (!glm->instance()->validLicenseExists()) {
+		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
+			tr("Print not available in student mode"));
+		return;
+	}
+
+	GasChildWindow *child = activeChildForced();
+	if (!child) return;
+	if (child->doc()->GetDescription().isEmpty() && !editDescription())
+		return;
+
+	const QString html = buildPrintHtml(child->doc(),
+	                                    FirstGraphView(child->doc())->toArray());
+	const std::string stdHtml = html.toStdString();
+
+	emscripten::val window  = emscripten::val::global("window");
+	emscripten::val popup   = window.call<emscripten::val>("open",
+	                              std::string(""), std::string("_blank"));
+	if (!popup.as<bool>()) {
+		QMessageBox::warning(this, tr("Gas Man\xC2\xAE"),
+			tr("The browser blocked the print window.\n"
+			   "Please allow pop-ups for this page and try again."));
+		return;
+	}
+
+	emscripten::val doc = popup["document"];
+	doc.call<void>("open");
+	doc.call<void>("write", stdHtml);
+	doc.call<void>("close");
+	// document.write/close is synchronous — content is ready immediately.
+	// Calling print() on the popup triggers the browser's own print dialog.
+	popup.call<void>("print");
+}
+
+// Print preview on WASM: open the formatted page in a new window without
+// auto-triggering the print dialog.  The user can inspect it and use Ctrl+P.
+void GasMainWindow::printPreview()
+{
+	if (!glm->instance()->validLicenseExists()) {
+		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
+			tr("Print Preview not available in student mode"));
+		return;
+	}
+
+	GasChildWindow *child = activeChildForced();
+	if (!child) return;
+	if (child->doc()->GetDescription().isEmpty() && !editDescription())
+		return;
+
+	const QString html = buildPrintHtml(child->doc(),
+	                                    FirstGraphView(child->doc())->toArray());
+	const std::string stdHtml = html.toStdString();
+
+	emscripten::val window = emscripten::val::global("window");
+	emscripten::val popup  = window.call<emscripten::val>("open",
+	                             std::string(""), std::string("_blank"));
+	if (!popup.as<bool>()) {
+		QMessageBox::warning(this, tr("Gas Man\xC2\xAE"),
+			tr("The browser blocked the preview window.\n"
+			   "Please allow pop-ups for this page and try again."));
+		return;
+	}
+
+	emscripten::val doc = popup["document"];
+	doc.call<void>("open");
+	doc.call<void>("write", stdHtml);
+	doc.call<void>("close");
+	// No popup.call("print") here — user prints manually from the new window.
+}
+
+// PDF export is not available in the WASM build (requires QtPrintSupport).
+// Inform the user and suggest using XML/JSON export instead.
+void GasMainWindow::exportToPdf()
+{
+	QMessageBox::information(this, tr("Gas Man\xC2\xAE"),
+		tr("PDF export is not available in the browser version.\n\n"
+		   "To save your simulation, use File \xe2\x86\x92 Export \xe2\x86\x92 XML "
+		   "or JSON, which can be re-opened later."));
+}
+
+#endif // Q_OS_WASM ─────────────────────────────────────────────────────────
+
 
 bool GasMainWindow::editDescription()
 {
@@ -1191,35 +1397,80 @@ bool GasMainWindow::editDescription()
 //Export data to xml format
 void GasMainWindow::exportToXml()
 {
-	if (glm->instance()->validLicenseExists())
+	if (!glm->instance()->validLicenseExists()) {
+		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
+			tr("Export to XML not available in student mode"));
+		return;
+	}
+
+	GasChildWindow *child = activeChildForced();
+	if (child->doc()->GetDescription() == "" && !editDescription())
+		return;
+
+	GasDoc *document = child->doc();
+	QByteArray ba    = FirstGraphView(document)->toArray();
+
+	// Serialize XML to a byte array (works on all platforms)
+	QByteArray xmlBytes;
 	{
-		GasChildWindow *child = activeChildForced();
-		if (child->doc()->GetDescription() == "" && !editDescription())
-			return;
+		QBuffer buf(&xmlBytes);
+		buf.open(QIODevice::WriteOnly);
+		QTextStream stream(&buf);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		stream.setEncoding(QStringConverter::Utf8);
+#else
+		stream.setCodec(QTextCodec::codecForName("utf-8"));
+#endif
+		document->toXml(ba, "", fileName(gasApp->getIconFile()),
+		                m_bPrintGraphs, m_bPrintout, true).save(stream, 2);
+	}
 
-		QString saveFileName = getExportFileName(tr("Export to XML"), tr("XML Files"), tr(".xml"));
-
-		if (!saveFileName.isEmpty())
-		{
-			QFile file(saveFileName);
-			if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-				return;
-			QTextStream stream(&file);
-			stream.setCodec(QTextCodec::codecForName("utf-8"));
-
-			GasDoc *document = child->doc();
-
-			QByteArray ba = FirstGraphView(document)->toArray();
-
-			document->toXml(ba, "", fileName(gasApp->getIconFile()), m_bPrintGraphs, m_bPrintout, true).save(stream, 0);
-
+#ifdef Q_OS_WASM
+	QFileDialog::saveFileContent(xmlBytes, document->title() + ".xml");
+#else
+	QString saveFileName = getExportFileName(tr("Export to XML"), tr("XML Files"), tr(".xml"));
+	if (!saveFileName.isEmpty()) {
+		QFile file(saveFileName);
+		if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+			file.write(xmlBytes);
 			file.close();
 			QFileInfo fi(saveFileName);
 			setSaveDir(fi.path());
 		}
-	} else {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"), tr("Export to XML not available in student mode"));
 	}
+#endif
+}
+
+//Export data to JSON format
+void GasMainWindow::exportToJson()
+{
+	if (!glm->instance()->validLicenseExists()) {
+		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
+			tr("Export to JSON not available in student mode"));
+		return;
+	}
+
+	GasChildWindow *child = activeChildForced();
+	if (child->doc()->GetDescription() == "" && !editDescription())
+		return;
+
+	GasDoc *document = child->doc();
+	QByteArray jsonBytes = document->toJsonBytes(true);
+
+#ifdef Q_OS_WASM
+	QFileDialog::saveFileContent(jsonBytes, document->title() + ".json");
+#else
+	QString saveFileName = getExportFileName(tr("Export to JSON"), tr("JSON Files"), tr(".json"));
+	if (!saveFileName.isEmpty()) {
+		QFile file(saveFileName);
+		if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+			file.write(jsonBytes);
+			file.close();
+			QFileInfo fi(saveFileName);
+			setSaveDir(fi.path());
+		}
+	}
+#endif
 }
 
 GasGraphView* GasMainWindow::FirstGraphView(GasDoc* pdoc)
@@ -1245,19 +1496,27 @@ void GasMainWindow::transform()
 //Export data to html format
 void GasMainWindow::exportToHtml()
 {
-	if (glm->instance()->validLicenseExists())
-	{
-		GasChildWindow* child = activeChildForced();
-		if (child->doc()->GetDescription() == "" && !editDescription())
-			return;
-
-		QString fileName = getExportFileName(tr("Export to HTML"), tr("Web Page"), tr(".html"));
-		if (!fileName.isEmpty())
-			writeHtmlToFile(child->doc(), fileName, false);
-	} else {
+	if (!glm->instance()->validLicenseExists()) {
 		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE "), tr("Export to HTML not available in student mode"));
+		return;
 	}
 
+	GasChildWindow* child = activeChildForced();
+	if (child->doc()->GetDescription() == "" && !editDescription())
+		return;
+
+#ifdef Q_OS_WASM
+	// On WASM: generate the HTML in memory and trigger a browser download.
+	// writeHtmlToFile() requires the filesystem, so build a simple HTML page
+	// using the same printable-report generator and offer it as a download.
+	const QString html = buildPrintHtml(child->doc(),
+	                                    FirstGraphView(child->doc())->toArray());
+	QFileDialog::saveFileContent(html.toUtf8(), child->doc()->title() + ".html");
+#else
+	QString fileName = getExportFileName(tr("Export to HTML"), tr("Web Page"), tr(".html"));
+	if (!fileName.isEmpty())
+		writeHtmlToFile(child->doc(), fileName, false);
+#endif
 }
 
 void GasMainWindow::writeHtmlToFile(GasDoc* doc, const QString& htmlFileName, bool tmpImage)
@@ -1435,21 +1694,28 @@ void GasMainWindow::updateFileMenu()
 	// edit
 	bool enable = activeChild() != 0;
 
-	openDocumentAction->setEnabled(false);
+	openDocumentAction->setEnabled(true);
 	closeDocumentAction->setEnabled(enable);
 	closeAllDocumentsAction->setEnabled(enable);
-	saveDocumentAction->setEnabled(false);
-	saveDocumentAsAction->setEnabled(false);
+	saveDocumentAction->setEnabled(enable);
+	saveDocumentAsAction->setEnabled(enable);
 	runAction->setEnabled(enable);
 	runAllAction->setEnabled(enable && allChildren().size() > 1);
 	rewindAllAction->setEnabled(enable && CountRewindable() > 0);
 #ifndef Q_OS_UNIX
 	sendAction->setEnabled(enable);
 #endif
-	printPreviewAction->setEnabled(false);
+#ifdef Q_OS_WASM
+	// Browser-window print path — always available on WASM
+	printPreviewAction->setEnabled(enable);
+	printAction->setEnabled(enable);
+#else
+	// Native print path — desktop only
+	printPreviewAction->setEnabled(enable);
+	printAction->setEnabled(enable);
+#endif
 
-	menuExport_to->setEnabled(false);
-	printAction->setEnabled(false);
+	menuExport_to->setEnabled(enable);
 
 	if (!activeChild() || activeChild()->doc()->m_bClosed) return;
 
@@ -1937,27 +2203,27 @@ void GasMainWindow::createActions()
 {
 	newDocumentAction = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
 	newDocumentAction->setShortcutContext(Qt::ApplicationShortcut);
-	newDocumentAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+	newDocumentAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
 	connect(newDocumentAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
 	openDocumentAction = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
 	openDocumentAction->setShortcutContext(Qt::ApplicationShortcut);
-	openDocumentAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+	openDocumentAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
 	connect(openDocumentAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
 	closeDocumentAction = new QAction(tr("&Close Simulation"), this);
 	closeDocumentAction->setShortcutContext(Qt::ApplicationShortcut);
-	closeDocumentAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_W));
+	closeDocumentAction->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_W));
 	connect(closeDocumentAction, SIGNAL(triggered()), this, SLOT(closeFile()));
 
 	closeAllDocumentsAction = new QAction(tr("Close All"), this);
 	closeAllDocumentsAction->setShortcutContext(Qt::ApplicationShortcut);
-	closeAllDocumentsAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_W));
+	closeAllDocumentsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_W));
 	connect(closeAllDocumentsAction, SIGNAL(triggered()), this, SLOT(closeAllFiles()));
 
 	saveDocumentAction = new QAction(QIcon(":/images/save.png"), tr("&Save"), this);
 	saveDocumentAction->setShortcutContext(Qt::ApplicationShortcut);
-	saveDocumentAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+	saveDocumentAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
 	connect(saveDocumentAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 
 	saveDocumentAsAction = new QAction(tr("Save &As..."), this);
@@ -1965,7 +2231,7 @@ void GasMainWindow::createActions()
 
 	runAction = new QAction(QIcon(":/images/run.png"), tr("Run"), this);
 	runAction->setShortcutContext(Qt::ApplicationShortcut);
-	//runAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
+	//runAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Right));
 	connect(runAction, SIGNAL(triggered()), this, SLOT(runSimulation()));
 
 	runAllAction = new QAction(QIcon(":/images/runall.png"), tr("Run All"), this);
@@ -1978,13 +2244,16 @@ void GasMainWindow::createActions()
 #ifndef Q_OS_UNIX
 	sendAction = new QAction(QIcon(":/images/send.png"), tr("Sen&d..."), this);
 	connect(sendAction, SIGNAL(triggered()), this, SLOT(sendMail()));
-#endif	
+#endif
 	printPreviewAction = new QAction(QIcon(":/images/printpreview.png"), tr("Print Pre&view..."), this);
 	connect(printPreviewAction, SIGNAL(triggered()), this, SLOT(printPreview()));
 
 
 	xmlAction = new QAction(tr("XML..."), this);
 	connect(xmlAction, SIGNAL(triggered()), this, SLOT(exportToXml()));
+
+	jsonAction = new QAction(tr("JSON..."), this);
+	connect(jsonAction, SIGNAL(triggered()), this, SLOT(exportToJson()));
 
 	htmlAction = new QAction(tr("HTML..."), this);
 	connect(htmlAction, SIGNAL(triggered()), this, SLOT(exportToHtml()));
@@ -2007,7 +2276,7 @@ void GasMainWindow::createActions()
 
 	rewindAction = new QAction(QIcon(":/images/rewind.png"), tr("Re&wind"), this);
 	rewindAction->setShortcutContext(Qt::ApplicationShortcut);
-	//rewindAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
+	//rewindAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Left));
 	connect(rewindAction, SIGNAL(triggered()), this, SLOT(rewind()));
 
 	rewindAllAction = new QAction(QIcon(":/images/rewall.png"), tr("Rewind All"), this);
@@ -2016,39 +2285,39 @@ void GasMainWindow::createActions()
 
 	fastFwdAction = new QAction(QIcon(":/images/ffwd.png"), tr("&Fast Fwd"), this);
 	fastFwdAction->setShortcutContext(Qt::ApplicationShortcut);
-	//fastFwdAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Right));
+	//fastFwdAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Right));
 	connect(fastFwdAction, SIGNAL(triggered()), this, SLOT(fastFwd()));
 
 	zeroTimerAction = new QAction(QIcon(":/images/timer.png"), tr("&Zero Timer"), this);
 	zeroTimerAction->setShortcutContext(Qt::ApplicationShortcut);
-	zeroTimerAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z));
+	zeroTimerAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z));
 	connect(zeroTimerAction, SIGNAL(triggered()), this, SLOT(zeroTimer()));
 
 	clearAllAction = new QAction(tr("Clear &All"), this);
 	connect(clearAllAction, SIGNAL(triggered()), this, SLOT(clearAll()));
 
 	selectAllAction = new QAction(tr("&Select All"), this);
-	selectAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+	selectAllAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	connect(selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
 
 	copySelectionAction = new QAction(QIcon(":/images/cut.png"), tr("Copy Selec&tion"), this);
 	copySelectionAction->setShortcutContext(Qt::ApplicationShortcut);
-	copySelectionAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
+	copySelectionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
 	connect(copySelectionAction, SIGNAL(triggered()), this, SLOT(copySelection()));
 
 	copyDataAction = new QAction(QIcon(":/images/copy.png"), tr("&Copy Data"), this);
 	copyDataAction->setShortcutContext(Qt::ApplicationShortcut);
-	copyDataAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+	copyDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 	connect(copyDataAction, SIGNAL(triggered()), this, SLOT(copyData()));
 
 	liquidInjectAction = new QAction(QIcon(":/images/srynge_up.png"), tr("&Liquid Inject"), this);
 	liquidInjectAction->setShortcutContext(Qt::ApplicationShortcut);
-	liquidInjectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
+	liquidInjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
 	connect(liquidInjectAction, SIGNAL(triggered()), this, SLOT(liquidInject()));
 
 	unitDoseAction = new QAction(tr("Unit &Dose..."), this);
 	unitDoseAction->setShortcutContext(Qt::ApplicationShortcut);
-	unitDoseAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+	unitDoseAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
 	connect(unitDoseAction, SIGNAL(triggered()), this, SLOT(unitDose()));
 
 	setCostAction = new QAction(tr("Set &Cost..."), this);
@@ -2079,17 +2348,17 @@ void GasMainWindow::createActions()
 
 	pictureOnTopAction = new QAction(tr("Pictures On Top"), this);
 	pictureOnTopAction->setShortcutContext(Qt::ApplicationShortcut);
-	pictureOnTopAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_P));
+	pictureOnTopAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_P));
 	connect(pictureOnTopAction, SIGNAL(triggered()), this, SLOT(pictureOnTop()));
 
 	graphOnTopAction = new QAction(tr("Graphs On Top"), this);
 	graphOnTopAction->setShortcutContext(Qt::ApplicationShortcut);
-	graphOnTopAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_G));
+	graphOnTopAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_G));
 	connect(graphOnTopAction, SIGNAL(triggered()), this, SLOT(graphOnTop()));
 
 	controlOnTopAction = new QAction(tr("Controls On Top"), this);
 	controlOnTopAction->setShortcutContext(Qt::ApplicationShortcut);
-	controlOnTopAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+	controlOnTopAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_C));
 	connect(controlOnTopAction, SIGNAL(triggered()), this, SLOT(controlOnTop()));
 
 	newPanelViewMenu = new QMenu(tr("New &Picture"), this);
@@ -2114,19 +2383,19 @@ void GasMainWindow::createActions()
 	disableUptakeAction = new QAction(tr("Disable &Uptake"), this);
 	disableUptakeAction->setCheckable(true);
 	disableUptakeAction->setShortcutContext(Qt::ApplicationShortcut);
-	disableUptakeAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
+	disableUptakeAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
 	connect(disableUptakeAction, SIGNAL(toggled(bool)), this, SLOT(disableUptake(bool)));
 
 	disableReturnAction = new QAction(tr("Disable &Return"), this);
 	disableReturnAction->setCheckable(true);
 	disableReturnAction->setShortcutContext(Qt::ApplicationShortcut);
-	disableReturnAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+	disableReturnAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
 	connect(disableReturnAction, SIGNAL(toggled(bool)), this, SLOT(disableReturn(bool)));
 
 	enableVaporAction = new QAction(tr("Enable &Vapor"), this);
 	enableVaporAction->setCheckable(true);
 	enableVaporAction->setShortcutContext(Qt::ApplicationShortcut);
-	enableVaporAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
+	enableVaporAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
 	connect(enableVaporAction, SIGNAL(toggled(bool)), this, SLOT(enableVapor(bool)));
 
 	changePatientAction = new QAction(QIcon(":/images/patient.png"), tr("Change &Patient..."), this);
@@ -2165,8 +2434,10 @@ void GasMainWindow::createActions()
 	helpWorkbookAction->setShortcutContext(Qt::ApplicationShortcut);
 	connect(helpWorkbookAction, SIGNAL(triggered()), this, SLOT(showWorkbook()));
 
+#ifndef Q_OS_WASM
 	registerAction = new QAction(tr("&Register product..."), this);
 	connect(registerAction, SIGNAL(triggered()), this, SLOT(registerProduct()));
+#endif
 
 	aboutGasManAction = new QAction(QIcon(":/images/gasman.png"), tr("&About Gas Man\xC2\xAE..."), this);
 	connect(aboutGasManAction, SIGNAL(triggered()), this, SLOT(aboutGasMan()));
@@ -2180,12 +2451,12 @@ void GasMainWindow::createActions()
 
 	helpAction = new QAction(QIcon(":/images/whatsthis.png"), tr("Help"), this);
 	helpAction->setShortcutContext(Qt::ApplicationShortcut);
-	helpAction->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F1));
+	helpAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F1));
 	//connect( helpAction, SIGNAL( triggered() ), this, SLOT( showHelp() ) );
 
 	QShortcut * sc = new QShortcut(this);
 	sc->setAutoRepeat(false);
-	sc->setKey(QKeySequence(Qt::CTRL + Qt::Key_B));
+	sc->setKey(QKeySequence(Qt::CTRL | Qt::Key_B));
 	connect(sc, SIGNAL(activated()), this, SLOT(setBreakPoint()));
 
 }
@@ -2211,7 +2482,7 @@ void GasMainWindow::createMenus()
 
 	fileMenu->addAction(newDocumentAction);
 	fileMenu->addAction(openDocumentAction);
-	// fileMenu->addAction(openRecentMenu->menuAction());
+	fileMenu->addAction(openRecentMenu->menuAction());
 	fileMenu->addAction(saveDocumentAction);
 	fileMenu->addAction(saveDocumentAsAction);
 	fileMenu->addAction(closeDocumentAction);
@@ -2238,6 +2509,7 @@ void GasMainWindow::createMenus()
 
 	menuExport_to->addAction(pdfAction);
 	menuExport_to->addAction(xmlAction);
+	menuExport_to->addAction(jsonAction);
 	menuExport_to->addAction(htmlAction);
 	menuExport_to->addAction(transformAction);
 
@@ -2289,7 +2561,9 @@ void GasMainWindow::createMenus()
 	QMenu *helpMenu = new QMenu(tr("&Help"), menubar);
 	helpMenu->addAction(helpTopicAction);
 	helpMenu->addAction(helpWorkbookAction);
+#ifndef Q_OS_WASM
 	helpMenu->addAction(registerAction);
+#endif
 	helpMenu->addAction(aboutGasManAction);
 
 	QMenu *toolsMenu = new QMenu(tr("&Tools"), menubar);
@@ -2332,11 +2606,13 @@ void GasMainWindow::updateActiveGas()
 		actvChild->doc()->m_nActiveGas = nGas;
 }
 
+#ifndef Q_OS_WASM
 void GasMainWindow::registerProduct()
 {
 	GasRegisterDlg dlg;
 	dlg.exec();
 }
+#endif
 
 // update GasDoc's m_anesArray when valid license registered
 // THIS IS A BAD IDEA. THESE DOCS POINT INTO m_anesArray

@@ -27,7 +27,11 @@ static QString timestamp()
     return QString::number(stamp);
 }
 
+#ifdef Q_OS_WASM
+QString gasmanVersion = QString("5.0.%1").arg(timestamp());
+#else
 QString gasmanVersion = QString("4.3.%1").arg(timestamp());
+#endif
 
 QStringList listCompart = ( QStringList() << "CKT" << "ALV" << "VRG" << "MUS"
                             << "FAT" << "VEN" );	// For Internal Use; do not translate

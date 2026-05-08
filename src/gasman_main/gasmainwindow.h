@@ -5,9 +5,11 @@
 #if QT_VERSION >=0x050000
 #include <QMainWindow>
 #include <QtWidgets>
+#ifndef Q_OS_WASM
 #include <QtPrintSupport/QPrinter>
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPageSetupDialog>
+#endif // Q_OS_WASM
 #else
 #include <QtGui>
 #endif
@@ -40,7 +42,9 @@ public:
 	GasChildWindow* largestVisibleGraphic( );
 	void updateRecentFileActions();  
 
+#ifndef Q_OS_WASM
 	inline QPrinter *printer() const { return prn; }
+#endif
 	QMenu* createPopupMenu();
 	QAction *disableReturnAction;
 	QAction *disableUptakeAction;
@@ -64,6 +68,7 @@ public slots:
 
 private slots:
 	void newViewOrAdd();
+	void openFromContent(const QString &fileName, const QByteArray &fileContent); // WASM open helper
 	void groupSubWindows();
     void pictureOnTop();
     void graphOnTop();
@@ -88,7 +93,9 @@ private slots:
 						//page-related printer options
 	void newView(GasDoc* doc = 0, int nGas = 0, GasViewType viewType=PANEL);
 
+#ifndef Q_OS_WASM
 	void registerProduct();
+#endif
 	void showHelp();
 	void showWorkbook();
 	void setShowToolbar( bool set );
@@ -144,6 +151,7 @@ private slots:
 	void exportToPdf();
 
 	void exportToXml();
+	void exportToJson();
 	void exportToHtml();
 	void transform();
 	//void switchLanguage( QAction *action );	
@@ -165,13 +173,17 @@ private:
 	GasChildWindow* FirstGraphWindow(GasDoc *pdoc);
 
 	void newControlDock(GasDoc* gasdoc);
+#ifndef Q_OS_WASM
 	void updateGasPrintDoc(const QString& family, int fontSize);
-	void updateLocale();	
+	void updateLocale();
 	bool printHelper(const QPrinter::OutputFormat fmt, const QString& fname);
+	void writeHtmlToGasPrintDoc(GasChildWindow *child);
+#else
+	QString buildPrintHtml(GasDoc *doc, const QByteArray &graphPng) const;
+#endif
 	void writeHtmlToFile(GasDoc* doc, const QString& fileName, bool tmpImage);
 	bool saveTransform(QDomDocument& dom, const QString& transformFileName, const QString& outputFileName);
 	QString createOutputImageFile(QFile& imageFile, const QString& htmlFileName, const QString& imageName);
-	void writeHtmlToGasPrintDoc(GasChildWindow *child);
 	void createRecentMenu();
 	void createActions();
 	void createMenus();
@@ -194,12 +206,16 @@ private:
     QRect m_geometry;
 	QSignalMapper *windowMapper;
 	QPixmap shootscreen;
+#ifndef Q_OS_WASM
 	QPrinter *prn;
 	QTextDocument *gasPrintDocument;		//Text document for printing
+#endif
 	QString openDir;
 	QString saveDir;
 	QString transDir;
+#ifndef Q_OS_WASM
 	QString getExportFileName(const QString& title, const QString& fileTypeDesc, const QString& fileExtension);
+#endif
 
 	QAction *recentFileActs[MaxRecentFiles];
 	QAction *separatorAct;
@@ -258,9 +274,12 @@ private:
 	QAction *cascadeSubWindowsAction;
 	QAction *unitDoseAction;
 	QAction *xmlAction;
+	QAction *jsonAction;
 	QAction *htmlAction;
 	QAction *transformAction;
+#ifndef Q_OS_WASM
 	QAction *registerAction;
+#endif
 	QAction *pdfAction;
 	QAction *zeroTimerAction;
 

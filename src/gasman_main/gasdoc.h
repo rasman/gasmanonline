@@ -8,6 +8,9 @@
 #include <QElapsedTimer>
 #include <QTextStream>
 #include <QColor>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "gaslicensemanager.h"
 #include <QtXml/QDomDocument>
 #include "gasparser.h"
@@ -159,6 +162,14 @@ public:
     bool saveAs();
 	bool saveFile( const QString &fileName, bool setCurrent = true );	//save the data into the file
 	bool loadFile( const QString &fileName );							//load the data from the file
+	bool loadFromContent( const QString &fileName, const QByteArray &fileContent ); //load from memory (WASM)
+	QByteArray serializeToByteArray();									//serialize to memory (WASM save)
+
+	// XML / JSON export-import
+	QByteArray toJsonBytes( bool wantResults = true ) const;			//serialize to JSON
+	bool loadFromXmlContent( const QString &fileName, const QByteArray &content );  //import from XML
+	bool loadFromJsonContent( const QString &fileName, const QByteArray &content ); //import from JSON
+
 	void send();														//Sends a message with the document as an attachment
 	bool close();
 	

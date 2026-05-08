@@ -7,11 +7,13 @@ OBJECTS_DIR = objs
 
 TEMPLATE = app
 
-QT += core gui svg xml multimedia printsupport dbus
+QT += core gui svg xml multimedia
+# printsupport and dbus are not available in WebAssembly builds
+!wasm: QT += printsupport dbus
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11 -Wall
+CONFIG += c++17
 
 INCLUDEPATH +=  ../gasgraph\
 ../gasanibutton\

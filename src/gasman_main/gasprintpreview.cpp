@@ -228,7 +228,7 @@ GasPrintPreview::GasPrintPreview( const QTextDocument *document, QPrinter *prn, 
     tb->setToolButtonStyle( Qt::ToolButtonTextUnderIcon );
 
     QAction *a = new QAction( QIcon( ":/images/print.png" ), tr( "&Print..." ), this );
-    a->setShortcut( Qt::CTRL + Qt::Key_P );
+    a->setShortcut( Qt::CTRL | Qt::Key_P );
     connect( a, SIGNAL( triggered() ), this, SLOT( print() ) );
     tb->addAction(a);
 

@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <!--Set visual viewport size for mobile devices to the device size,
-        witch results in a scale of 1 and a 1:1 mapping between CSS pixels
+        which results in a scale of 1 and a 1:1 mapping between CSS pixels
         and Qt device independent pixels. -->
     <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0"/>
 
@@ -14,17 +14,17 @@
       /* Make the html body cover the entire (visual) viewport with no scroll bars. */
       html, body { padding: 0; margin: 0; overflow:hidden; height: 100vh }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas { border: 0px none; background-color: white; height:100%; width:100%;  }
+      canvas { border: 0px none; background-color: white; height:100%; width:100%; }
       /* The contenteditable property is set to true for the canvas in order to support
          clipboard events. Hide the resulting focus frame and set the cursor back to
          the default cursor. */
       canvas { outline: 0px solid transparent; caret-color: transparent; cursor:default }
     </style>
   </head>
-  <body onload="init()">
+  <body>
     <figure style="overflow:visible;" id="qtspinner">
       <center style="margin-top:1.5em; line-height:150%">
-        <img src="gasman-logo.png" style="display:block"></img>
+        <img src="gasman-logo.png" style="display:block">
         <strong>Qt for WebAssembly: gasman</strong>
         <div id="qtstatus"></div>
         <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
@@ -32,41 +32,39 @@
     </figure>
     <canvas id="qtcanvas" oncontextmenu="event.preventDefault()" contenteditable="true"></canvas>
 
-    <script type='text/javascript'>
-        function init() {
-          var spinner = document.querySelector('#qtspinner');
-          var canvas = document.querySelector('#qtcanvas');
-          var status = document.querySelector('#qtstatus')
+    <script type="module">
+      import { default as qtLoad } from './qtloader.js';
 
-          var qtLoader = QtLoader({
-              canvasElements : [canvas],
-              showLoader: function(loaderStatus) {
-                  spinner.style.display = 'block';
-                  canvas.style.display = 'none';
-                  status.innerHTML = loaderStatus + "...";
-              },
-              showError: function(errorText) {
-                  status.innerHTML = errorText;
-                  spinner.style.display = 'block';
-                  canvas.style.display = 'none';
-              },
-              showExit: function() {
-                  status.innerHTML = "Application exit";
-                  if (qtLoader.exitCode !== undefined)
-                      status.innerHTML += " with code " + qtLoader.exitCode;
-                  if (qtLoader.exitText !== undefined)
-                      status.innerHTML += " (" + qtLoader.exitText + ")";
-                  spinner.style.display = 'block';
-                  canvas.style.display = 'none';
-              },
-              showCanvas: function() {
-                  spinner.style.display = 'none';
-                  canvas.style.display = 'block';
-              },
-          });
-          qtLoader.loadEmscriptenModule("gasman");
+      const spinner = document.getElementById('qtspinner');
+      const canvas  = document.getElementById('qtcanvas');
+      const status  = document.getElementById('qtstatus');
+
+      spinner.style.display = 'block';
+      canvas.style.display  = 'none';
+
+      try {
+        await qtLoad({
+          qt: {
+            canvasElements: [canvas],
+            onLoaded: () => {
+              spinner.style.display = 'none';
+              canvas.style.display  = 'block';
+            },
+            onExit: (exitData) => {
+              let msg = 'Application exit';
+              if (exitData.code  !== undefined) msg += ' with code '  + exitData.code;
+              if (exitData.text  !== undefined) msg += ' ('           + exitData.text + ')';
+              status.innerHTML      = msg;
+              spinner.style.display = 'block';
+              canvas.style.display  = 'none';
+            },
+          }
+        });
+      } catch (e) {
+        status.innerHTML      = 'Failed to load: ' + e;
+        spinner.style.display = 'block';
+        canvas.style.display  = 'none';
       }
     </script>
-    <script type="text/javascript" src="qtloader.js"></script>
   </body>
 </html>

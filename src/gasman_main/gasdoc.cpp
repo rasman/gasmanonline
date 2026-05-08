@@ -3,7 +3,9 @@
 #if QT_VERSION >=0x050000
 #include <QtWidgets>
 #include <QMessageBox>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QtMultimedia/QSound>
+#endif
 #else
 #include <QtGui>
 #endif
@@ -1696,11 +1698,15 @@ void GasDoc::CallViews()
 		//for ( QWidget *wnd = QApplication::focusWidget(); wnd; wnd = wnd->parentWidget() ) {
 			//if ( childWindows.contains( qobject_cast<GasChildWindow *>( wnd ) ) ) {
 			if ( childWindows.contains( gasMainWindow->activeChild() ) ) {
-				if ( m_nBeep == 1 )
+				if ( m_nBeep == 1 ) {
 					QApplication::beep();
-				else {
+				} else {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 					QString path = gasApp->ReadProfile( "Signals", QString( "System_%1" ).arg( m_nBeep - 1 ), QString() ).toString();
 					if ( QFile::exists( path ) ) QSound::play( path );
+#else
+					QApplication::beep();
+#endif
 				}
 			}
 		//}
@@ -2880,10 +2886,18 @@ bool GasDoc::saveAs()
 {
 	if(glm->instance()->validLicenseExists())
 	{
+#ifdef Q_OS_WASM
+		// Qt6 WebAssembly: serialize to memory and trigger browser download
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		QByteArray content = serializeToByteArray();
+		QApplication::restoreOverrideCursor();
+		QFileDialog::saveFileContent(content, title() + ".gas");
+		return true;
+#else
 		QString startDir = gasMainWindow->SaveDir() + QDir::separator() + title();
 
-#ifdef Q_OS_MACX 
-		QString fileName = QFileDialog::getSaveFileName( childWindows[0], tr("Save As"), startDir, 
+#ifdef Q_OS_MACX
+		QString fileName = QFileDialog::getSaveFileName( childWindows[0], tr("Save As"), startDir,
 			tr( "Gas Man\xC2\xAE Files (*.gas )" ), NULL, QFileDialog::DontUseNativeDialog );
 #else
 		QString fileName = QFileDialog::getSaveFileName( childWindows[0], tr("Save As"), startDir, tr( "Gas Man\xC2\xAE Files (*.gas )" ) );
@@ -2895,14 +2909,442 @@ bool GasDoc::saveAs()
 			fileName+=".gas";
 		if ( !saveFile(fileName) )
 			return false;
-		
+
 		QFileInfo fi(fileName);
 		gasMainWindow->setSaveDir(fi.path());
 		return true;
+#endif // Q_OS_WASM
 	}else{
 		QMessageBox::information( childWindows[0], tr( "Gas Man\xC2\xAE "), tr( "Saving not available in student mode" ) );
 		return true;
 	}
+}
+
+//Serialize document to a QByteArray (used by WASM save and potentially others)
+QByteArray GasDoc::serializeToByteArray()
+{
+	QByteArray data;
+	QBuffer buffer(&data);
+	buffer.open(QIODevice::WriteOnly);
+	QDataStream out(&buffer);
+
+	m_SerializationFlags = SER_INITIAL_STATE | SER_COLORS | SER_DESCRIPTION | SER_LOCAL_AGENT | SER_NEW_HEADER | SER_TARGETS;
+	out << (qint32)9933;
+	out << m_SerializationFlags;
+	out.setVersion(QDataStream::Qt_4_0);
+	Serialize(out, true);
+
+	buffer.close();
+	return data;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  JSON export
+// ──────────────────────────────────────────────────────────────
+
+// Helper: milliseconds → "HH:MM:SS" string
+static QString msToTimeStr(quint32 ms)
+{
+	int hh = ms / 3600000;
+	int mm = (ms - hh * 3600000) / 60000;
+	int ss = (ms - (hh * 60 + mm) * 60000) / 1000;
+	return QString("%1:%2:%3")
+		.arg(hh, 2, 10, QLatin1Char('0'))
+		.arg(mm, 2, 10, QLatin1Char('0'))
+		.arg(ss, 2, 10, QLatin1Char('0'));
+}
+
+// Helper: "HH:MM:SS" string → milliseconds
+static quint32 timeStrToMs(const QString& s)
+{
+	QStringList parts = s.split(':');
+	if (parts.size() < 3) return 0;
+	return (parts[0].toUInt() * 3600 + parts[1].toUInt() * 60 + parts[2].toUInt()) * 1000;
+}
+
+QByteArray GasDoc::toJsonBytes(bool wantResults) const
+{
+	QJsonObject root;
+	root["datetime"]   = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+	root["description"] = description;
+
+	// ── patient ──────────────────────────────────────────────
+	double fWtRatio = m_fWeight / STD_WEIGHT;
+	QJsonObject weight;
+	weight["value"] = (double)m_fWeight;
+	weight["unit"]  = "kilograms";
+
+	QJsonObject volumes;
+	volumes["alv"] = fWtRatio * m_fVolume[ALV];
+	volumes["vrg"] = fWtRatio * m_fVolume[VRG];
+	volumes["mus"] = fWtRatio * m_fVolume[MUS];
+	volumes["fat"] = fWtRatio * m_fVolume[FAT];
+	volumes["ven"] = fWtRatio * m_fVolume[VEN];
+
+	QJsonObject flows;
+	flows["vrg"] = (double)m_fRatio[VRG];
+	flows["mus"] = (double)m_fRatio[MUS];
+	flows["fat"] = (double)m_fRatio[FAT];
+
+	QJsonObject patient;
+	patient["weight"]  = weight;
+	patient["volumes"] = volumes;
+	patient["flows"]   = flows;
+
+	// ── agents ───────────────────────────────────────────────
+	QJsonArray agentsArr;
+	for (int i = 0; i < m_gasArray.size(); i++) {
+		const GasAnesthetic& anes = *m_anesArray[m_gasArray[i]->m_nAgent];
+		QJsonObject a;
+		a["name"]        = anes.m_strName;
+		a["lambdaBlood"] = (double)anes.m_fLambdaBG;
+		a["lambdaVrg"]   = (double)anes.m_fSolubility[VRG];
+		a["lambdaFat"]   = (double)anes.m_fSolubility[FAT];
+		a["lambdaMus"]   = (double)anes.m_fSolubility[MUS];
+		a["volatility"]  = (int)anes.m_wVolatility;
+		a["bottleSize"]  = (int)anes.m_nBottleSize;
+		a["bottleCost"]  = (double)anes.m_fBottleCost;
+		agentsArr.append(a);
+	}
+
+	QJsonObject params;
+	params["patient"] = patient;
+	params["agents"]  = agentsArr;
+	root["params"]    = params;
+
+	// ── settings (and optionally results) ────────────────────
+	QJsonArray settingsArr;
+
+	// Circuit-type lookup (mirrors settingToXml logic)
+	auto circuitType = [](const GasSample& s) -> QString {
+		switch (s.m_uCktType) {
+		case OPEN_CKT:   return "Open";
+		case SEMI_CKT:   return "Semi";
+		case CLOSED_CKT: return "Closed";
+		case IDEAL_CKT:  return "Ideal";
+		default:         return "Semi";
+		}
+	};
+
+	int nSamps = m_gasArray.isEmpty() ? 0 :
+	             m_gasArray.first()->m_pSampArray ? m_gasArray.first()->m_pSampArray->size() : 0;
+
+	if (nSamps == 0) {
+		// No simulation run yet — emit a single setting from current state
+		Gas* pGas = m_gasArray.first();
+		GasSample samp(pGas, *pGas->m_pfCurResults);
+
+		QJsonObject setting;
+		setting["time"]    = msToTimeStr(0);
+		setting["time_ms"] = 0;
+		setting["va"]      = (double)GetVA(0);
+		setting["co"]      = (double)GetCO(0);
+		setting["fgf"]     = (double)GetFGF(0, 0);
+		setting["circuit"] = circuitType(samp);
+
+		QJsonObject flags;
+		flags["return_enabled"] = (bool)samp.m_bRtnEnb;
+		flags["uptake_enabled"] = (bool)samp.m_bUptEnb;
+		flags["vapor_enabled"]  = (bool)samp.m_bVapEnb;
+		flags["flush"]          = (bool)samp.m_bFlush;
+		setting["flags"]        = flags;
+
+		QJsonArray agentSettings;
+		for (int ng = 0; ng < m_gasArray.size(); ng++) {
+			QJsonObject as;
+			as["name"]   = m_gasArray[ng]->m_strAgent;
+			as["del"]    = (double)samp.m_fDEL;
+			as["inject"] = 0.0;
+			agentSettings.append(as);
+		}
+		setting["agent_settings"] = agentSettings;
+
+		settingsArr.append(setting);
+	} else {
+		int nSamp = 0;
+		while (nSamp < nSamps) {
+			GasSample& samp = *m_gasArray.first()->m_pSampArray->at(nSamp);
+			quint32 baseTime = samp.m_dwBaseTime;
+			if (baseTime / 1000L > GetHighTime())
+				break;
+
+			float fMin = baseTime / 60000.0F;
+
+			QJsonObject setting;
+			setting["time"]    = msToTimeStr(baseTime);
+			setting["time_ms"] = (int)baseTime;
+			setting["va"]      = (double)GetVA(fMin);
+			setting["co"]      = (double)GetCO(fMin);
+			setting["fgf"]     = (double)GetFGF(fMin, 0);
+			setting["circuit"] = circuitType(samp);
+
+			QJsonObject flags;
+			flags["return_enabled"] = (bool)samp.m_bRtnEnb;
+			flags["uptake_enabled"] = (bool)samp.m_bUptEnb;
+			flags["vapor_enabled"]  = (bool)samp.m_bVapEnb;
+			flags["flush"]          = (bool)samp.m_bFlush;
+			setting["flags"]        = flags;
+
+			QJsonArray agentSettings;
+			for (int ng = 0; ng < m_gasArray.size(); ng++) {
+				GasSample* as_samp = m_gasArray[ng]->m_pSampArray->at(nSamp);
+				QJsonObject as;
+				as["name"]   = m_gasArray[ng]->m_strAgent;
+				as["del"]    = (double)as_samp->m_fDEL;
+				double inject = as_samp->m_uInjections
+				                ? as_samp->m_uInjections * as_samp->m_fUnitDose : 0.0;
+				as["inject"] = inject;
+				agentSettings.append(as);
+			}
+			setting["agent_settings"] = agentSettings;
+
+			// ── results for this block ────────────────────────
+			if (wantResults) {
+				int startSamp = nSamp;
+				QJsonArray resultsArr;
+				bool more = true;
+				while (more && nSamp < nSamps) {
+					quint32 t = m_gasArray.first()->m_pSampArray->at(nSamp)->m_dwBaseTime;
+					if (t / 1000L > GetHighTime()) break;
+					float tMin = t / 60000.0F;
+
+					QJsonObject result;
+					result["time"]    = msToTimeStr(t);
+					result["time_ms"] = (int)t;
+
+					QJsonArray agentResults;
+					for (int ng = 0; ng < m_gasArray.size(); ng++) {
+						QJsonObject ar;
+						ar["name"]      = m_gasArray[ng]->m_strAgent;
+						ar["fgf"]       = (double)GetFGF(tMin, ng);
+						ar["va"]        = (double)GetVA(tMin);
+						ar["uptake"]    = (double)GetUptake(tMin, ng);
+						ar["delivered"] = (double)GetDelivered(tMin, ng);
+
+						QJsonObject comps;
+						comps["CKT"] = (double)GetCKT(tMin, ng);
+						comps["ALV"] = (double)GetALV(tMin, ng);
+						comps["ART"] = (double)GetART(tMin, ng);
+						comps["VRG"] = (double)GetVRG(tMin, ng);
+						comps["MUS"] = (double)GetMUS(tMin, ng);
+						comps["FAT"] = (double)GetFAT(tMin, ng);
+						comps["VEN"] = (double)GetVEN(tMin, ng);
+						ar["compartments"] = comps;
+						agentResults.append(ar);
+					}
+					result["agents"] = agentResults;
+					resultsArr.append(result);
+
+					if (++nSamp >= nSamps) break;
+					// Stop when the next sample has different settings
+					more = true;
+					for (int ng = 0; more && ng < m_gasArray.size(); ng++) {
+						GasSample* prev = m_gasArray[ng]->m_pSampArray->at(nSamp - 1);
+						GasSample* next = m_gasArray[ng]->m_pSampArray->at(nSamp);
+						more = (SampComp(*prev, *next) == 0);
+					}
+				}
+				setting["results"] = resultsArr;
+			} else {
+				nSamp++;
+			}
+
+			settingsArr.append(setting);
+		}
+	}
+
+	root["settings"] = settingsArr;
+
+	return QJsonDocument(root).toJson(QJsonDocument::Indented);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  XML import — restores patient params, agents, and initial
+//  simulation settings from a file produced by exportToXml().
+// ──────────────────────────────────────────────────────────────
+
+static ACktType circuitTypeFromString(const QString& s)
+{
+	if (s.startsWith("Closed", Qt::CaseInsensitive)) return CLOSED_CKT;
+	if (s.startsWith("Ideal",  Qt::CaseInsensitive)) return IDEAL_CKT;
+	if (s.startsWith("Open",   Qt::CaseInsensitive)) return OPEN_CKT;
+	return SEMI_CKT;
+}
+
+bool GasDoc::loadFromXmlContent(const QString &fileName, const QByteArray &content)
+{
+	QDomDocument xmlDoc;
+	QString errorMsg;
+	int errorLine = 0, errorCol = 0;
+	if (!xmlDoc.setContent(content, &errorMsg, &errorLine, &errorCol)) {
+		QMessageBox::warning(gasMainWindow,
+			tr("Gas Man\xC2\xAE"),
+			tr("Cannot parse XML \"%1\":\nLine %2, col %3: %4")
+				.arg(fileName).arg(errorLine).arg(errorCol).arg(errorMsg));
+		return false;
+	}
+
+	QDomElement root = xmlDoc.documentElement();
+	if (root.tagName() != "gasman") {
+		QMessageBox::warning(gasMainWindow, tr("Gas Man\xC2\xAE"),
+			tr("\"%1\" is not a Gas Man\xC2\xAE XML file.").arg(fileName));
+		return false;
+	}
+
+	// Reset to clean state
+	if (!m_curFile.isNull()) DeleteContents();
+	newDocument();
+
+	description = root.attribute("description");
+
+	QDomElement params = root.firstChildElement("params");
+	if (!params.isNull()) {
+
+		// Patient
+		QDomElement patient = params.firstChildElement("patient");
+		if (!patient.isNull()) {
+			QDomElement weightElem = patient.firstChildElement("weight");
+			if (!weightElem.isNull())
+				SetWeight(gasMainWindow, weightElem.attribute("value", "70").toFloat());
+
+			float wtRatio = (m_fWeight > 0) ? m_fWeight / STD_WEIGHT : 1.0f;
+
+			QDomElement vols = patient.firstChildElement("volumes");
+			if (!vols.isNull()) {
+				m_fVolume[ALV] = vols.attribute("alv", "0").toFloat() / wtRatio;
+				m_fVolume[VRG] = vols.attribute("vrg", "0").toFloat() / wtRatio;
+				m_fVolume[MUS] = vols.attribute("mus", "0").toFloat() / wtRatio;
+				m_fVolume[FAT] = vols.attribute("fat", "0").toFloat() / wtRatio;
+				m_fVolume[VEN] = vols.attribute("ven", "0").toFloat() / wtRatio;
+			}
+
+			QDomElement flws = patient.firstChildElement("flows");
+			if (!flws.isNull()) {
+				m_fRatio[VRG] = flws.attribute("vrg", "0").toFloat();
+				m_fRatio[MUS] = flws.attribute("mus", "0").toFloat();
+				m_fRatio[FAT] = flws.attribute("fat", "0").toFloat();
+			}
+		}
+
+		// Agents
+		QDomElement agentsElem = params.firstChildElement("agents");
+		if (!agentsElem.isNull()) {
+			QDomNodeList agentList = agentsElem.elementsByTagName("agent");
+			if (agentList.size() > 0)
+				SetAgent(gasMainWindow, 0, agentList.at(0).toElement().attribute("name"));
+			for (int i = 1; i < agentList.size(); i++)
+				AddAgent(agentList.at(i).toElement().attribute("name"));
+		}
+	}
+
+	// First setting — initial simulation state
+	QDomElement settingsElem = root.firstChildElement("settings");
+	if (!settingsElem.isNull()) {
+		QDomElement first = settingsElem.firstChildElement("setting");
+		if (!first.isNull()) {
+			SetFGF(gasMainWindow, first.attribute("fgf", "5").toFloat());
+			SetVA (gasMainWindow, first.attribute("va",  "4").toFloat());
+			SetCO (gasMainWindow, first.attribute("co",  "5").toFloat());
+			SetCircuit(gasMainWindow,
+				QString(QChar(circuitTypeFromString(first.attribute("circuit","Semi")) == OPEN_CKT   ? 'O' :
+				               circuitTypeFromString(first.attribute("circuit","Semi")) == CLOSED_CKT ? 'C' :
+				               circuitTypeFromString(first.attribute("circuit","Semi")) == IDEAL_CKT  ? 'I' : 'S')));
+
+			QDomElement asDom = first.firstChildElement("agentsettings");
+			if (!asDom.isNull()) {
+				QDomNodeList asList = asDom.elementsByTagName("agentsetting");
+				for (int i = 0; i < asList.size() && i < m_gasArray.size(); i++)
+					SetDEL(gasMainWindow, i, asList.at(i).toElement().attribute("del","0").toFloat());
+			}
+		}
+	}
+
+	setCurrentFile(fileName);
+	m_bOpened = true;
+	return true;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  JSON import
+// ──────────────────────────────────────────────────────────────
+bool GasDoc::loadFromJsonContent(const QString &fileName, const QByteArray &content)
+{
+	QJsonParseError err;
+	QJsonDocument jdoc = QJsonDocument::fromJson(content, &err);
+	if (jdoc.isNull() || !jdoc.isObject()) {
+		QMessageBox::warning(gasMainWindow, tr("Gas Man\xC2\xAE"),
+			tr("Cannot parse JSON \"%1\":\n%2").arg(fileName).arg(err.errorString()));
+		return false;
+	}
+
+	QJsonObject root = jdoc.object();
+	if (!root.contains("params") || !root.contains("settings")) {
+		QMessageBox::warning(gasMainWindow, tr("Gas Man\xC2\xAE"),
+			tr("\"%1\" is not a Gas Man\xC2\xAE JSON file.").arg(fileName));
+		return false;
+	}
+
+	// Reset to clean state
+	if (!m_curFile.isNull()) DeleteContents();
+	newDocument();
+
+	description = root["description"].toString();
+
+	QJsonObject params = root["params"].toObject();
+
+	// Patient
+	QJsonObject patient = params["patient"].toObject();
+	if (!patient.isEmpty()) {
+		float w = (float)patient["weight"].toObject()["value"].toDouble(STD_WEIGHT);
+		SetWeight(gasMainWindow, w);
+		float wtRatio = (m_fWeight > 0) ? m_fWeight / STD_WEIGHT : 1.0f;
+
+		QJsonObject vols = patient["volumes"].toObject();
+		if (!vols.isEmpty()) {
+			m_fVolume[ALV] = (float)(vols["alv"].toDouble() / wtRatio);
+			m_fVolume[VRG] = (float)(vols["vrg"].toDouble() / wtRatio);
+			m_fVolume[MUS] = (float)(vols["mus"].toDouble() / wtRatio);
+			m_fVolume[FAT] = (float)(vols["fat"].toDouble() / wtRatio);
+			m_fVolume[VEN] = (float)(vols["ven"].toDouble() / wtRatio);
+		}
+
+		QJsonObject flws = patient["flows"].toObject();
+		if (!flws.isEmpty()) {
+			m_fRatio[VRG] = (float)flws["vrg"].toDouble();
+			m_fRatio[MUS] = (float)flws["mus"].toDouble();
+			m_fRatio[FAT] = (float)flws["fat"].toDouble();
+		}
+	}
+
+	// Agents
+	QJsonArray agents = params["agents"].toArray();
+	if (!agents.isEmpty()) {
+		SetAgent(gasMainWindow, 0, agents[0].toObject()["name"].toString());
+		for (int i = 1; i < agents.size(); i++)
+			AddAgent(agents[i].toObject()["name"].toString());
+	}
+
+	// First setting — initial simulation state
+	QJsonArray settings = root["settings"].toArray();
+	if (!settings.isEmpty()) {
+		QJsonObject first = settings[0].toObject();
+		SetFGF(gasMainWindow, (float)first["fgf"].toDouble(5.0));
+		SetVA (gasMainWindow, (float)first["va"] .toDouble(4.0));
+		SetCO (gasMainWindow, (float)first["co"] .toDouble(5.0));
+
+		QString ctype = first["circuit"].toString("Semi");
+		ACktType ct   = circuitTypeFromString(ctype);
+		SetCircuit(gasMainWindow,
+			QString(QChar(ct == OPEN_CKT ? 'O' : ct == CLOSED_CKT ? 'C' : ct == IDEAL_CKT ? 'I' : 'S')));
+
+		QJsonArray agentSettings = first["agent_settings"].toArray();
+		for (int i = 0; i < agentSettings.size() && i < m_gasArray.size(); i++)
+			SetDEL(gasMainWindow, i, (float)agentSettings[i].toObject()["del"].toDouble(0.0));
+	}
+
+	setCurrentFile(fileName);
+	m_bOpened = true;
+	return true;
 }
 
 //This routine saves the data into the file
@@ -2972,6 +3414,50 @@ bool GasDoc::loadFile( const QString &fileName )
 	QApplication::restoreOverrideCursor();					//Restores the original widgets' cursors
 
 	setCurrentFile( fileName );
+	m_bOpened = true;
+
+	return true;
+}
+
+//Load document from an in-memory byte array (used by WASM open)
+bool GasDoc::loadFromContent(const QString &fileName, const QByteArray &fileContent)
+{
+	if (fileContent.isEmpty())
+		return false;
+
+	if (!m_curFile.isNull())
+		DeleteContents();
+
+	m_nSpeed = m_nDfltSpeed;
+
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	QBuffer buffer;
+	buffer.setData(fileContent);
+	buffer.open(QIODevice::ReadOnly);
+	QDataStream in(&buffer);
+
+	qint32 ver;
+	in >> ver;
+	switch (ver)
+	{
+	case 9933:
+		in >> m_SerializationFlags;
+		break;
+	case 9932:
+		m_SerializationFlags = SER_NONE;
+		break;
+	default:
+		QApplication::restoreOverrideCursor();
+		QMessageBox::warning(getDialogParent(), tr("Gas Man\xC2\xAE"),
+			tr("<p>File \"%1\" is either corrupt or from an unknown version of Gas Man&reg;\n.").arg(fileName));
+		return false;
+	}
+
+	in.setVersion(QDataStream::Qt_4_0);
+	Serialize(in, false);
+	QApplication::restoreOverrideCursor();
+
+	setCurrentFile(fileName);
 	m_bOpened = true;
 
 	return true;

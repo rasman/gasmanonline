@@ -5,6 +5,7 @@
 #else
 #include <QtGui>
 #endif
+#include <QRegularExpression>
 #include <QtSvg>
 #include "gasapplication.h"
 #include "gasmainwindow.h"
@@ -116,7 +117,7 @@ bool GasGraphView::tryGetScaleMinutes(const QString& scaleString, int& scaleMinu
 	int pos = scaleString.indexOf( ' ' );
 	if ( pos >= 0 ) {
 		int nScale = scaleString.left( pos ).toInt();
-		if ( (pos = scaleString.indexOf( QRegExp( QObject::tr( "[DHM]" ) ), pos ) ) != -1 ) {
+		if ( (pos = scaleString.indexOf( QRegularExpression( QObject::tr( "[DHM]" ) ), pos ) ) != -1 ) {
 			if ( scaleString.at(pos) == QObject::tr( "[DHM]" ).at(1) )
 				nScale *= 24*60;
 			else if ( scaleString.at(pos) == QObject::tr( "[DHM]" ).at(2) )
