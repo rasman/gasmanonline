@@ -138,85 +138,8 @@ bool GasApplication::initialize()
 	QPixmap pixmap;
 
 #ifdef Q_OS_WASM
-	// ── WASM / Web Edition splash ─────────────────────────────────────────
-	// Start with the base image (spheres + background gradient) then paint
-	// the Web Edition text over the baked-in text regions.
-	pixmap = QPixmap(":/images/splash.png");
-	{
-		QPainter p(&pixmap);
-		const int W = pixmap.width();   // 504
-		const int H = pixmap.height();  // 360
-
-		// Helper: draw shadow text (black offset + white foreground)
-		auto drawShadow = [&](int x, int y, int w, int h, int flags,
-		                      const QString &text) {
-			p.setPen(QColor(0, 0, 0, 180));
-			p.drawText(x+1, y+1, w, h, flags, text);
-			p.setPen(Qt::white);
-			p.drawText(x, y, w, h, flags, text);
-		};
-
-		// ── 1. Version / title band (top ~92px) ───────────────────────
-		p.fillRect(0, 0, W, 92, QColor(45, 22, 5, 215));
-
-		QFont f("Arial", 20, QFont::Bold);
-		p.setFont(f);
-		drawShadow(0, 4, W, 44, Qt::AlignCenter,
-		           "Gas Man\xC2\xAE   version 5.0");
-
-		f.setPointSize(13); f.setBold(false); f.setItalic(true);
-		p.setFont(f);
-		drawShadow(0, 46, W, 22, Qt::AlignCenter,
-		           "Understanding Anesthesia Uptake & Distribution");
-		drawShadow(0, 68, W, 22, Qt::AlignCenter,
-		           "Web Edition");
-
-		// ── 2. Copyright / licence block (center-right) ───────────────
-		p.fillRect(130, 96, W - 130, 120, QColor(40, 20, 5, 210));
-
-		f.setPointSize(9); f.setItalic(false);
-		p.setFont(f);
-		drawShadow(130, 98,  W-130, 20, Qt::AlignCenter,
-		           "\xC2\xA9 1986\xe2\x80\x932016 by");
-		drawShadow(130, 116, W-130, 20, Qt::AlignCenter,
-		           "Med Man Simulations, Inc.");
-		drawShadow(130, 134, W-130, 20, Qt::AlignCenter,
-		           "A 501(C)(3) Charitable Organization");
-		drawShadow(130, 152, W-130, 20, Qt::AlignCenter,
-		           "Licensed under GPL v3");
-		// GitHub link — draw in a lighter blue
-		p.setPen(QColor(0, 0, 0, 160));
-		p.drawText(131, 171, W-130, 20, Qt::AlignCenter,
-		           "https://github.com/rasman/gasmanonline");
-		p.setPen(QColor(140, 210, 255));
-		p.drawText(130, 170, W-130, 20, Qt::AlignCenter,
-		           "https://github.com/rasman/gasmanonline");
-
-		// ── 3. Bottom-left credits (remove "Licensed to", add WASM lead) ─
-		p.fillRect(0, 230, 290, 100, QColor(40, 20, 5, 205));
-
-		f.setPointSize(10); f.setItalic(true); f.setBold(false);
-		p.setFont(f);
-		drawShadow(15, 234, 270, 20, Qt::AlignLeft, "Created by:");
-
-		f.setPointSize(11); f.setItalic(false); f.setBold(true);
-		p.setFont(f);
-		drawShadow(15, 253, 270, 20, Qt::AlignLeft,
-		           "James H. Philip M.E.(E.), M.D.");
-
-		f.setPointSize(10); f.setBold(true); f.setItalic(true);
-		p.setFont(f);
-		drawShadow(15, 277, 270, 20, Qt::AlignLeft,
-		           "WASM development lead by:");
-
-		f.setItalic(false);
-		p.setFont(f);
-		drawShadow(15, 296, 270, 20, Qt::AlignLeft,
-		           "Elie Sarraf, M.D., C.M.");
-
-		p.end();
-	}
-	// On WASM there is no licence system — skip register button entirely.
+	// Web Edition splash — standalone pre-built image, no runtime painting needed.
+	pixmap = QPixmap(":/images/splash-wasm.png");
 
 #else // ── Desktop splash ──────────────────────────────────────────────────
 	if (!glm->instance()->validLicenseExists())

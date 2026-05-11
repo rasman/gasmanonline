@@ -30,6 +30,7 @@
         <file>images/send.png</file>
         <file>images/splash-demo.png</file>
         <file>images/splash-mac-demo.png</file>
+        <file alias="images/splash-wasm.png">images/splash-wasm.png</file>
         <file>images/srynge_down.png</file>
         <file>images/srynge_up.png</file>
         <file>images/stop.png</file>

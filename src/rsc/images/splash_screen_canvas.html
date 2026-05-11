@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gas Man Splash Screen</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { width:507px; height:338px; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
+.splash { width:507px; height:338px; position:relative; background:radial-gradient(ellipse at 55% 45%,#e8701a 0%,#c55a10 25%,#a03a08 55%,#6b1f04 80%,#3d0d01 100%); overflow:hidden; }
+canvas { position:absolute; top:0; left:0; width:507px; height:338px; pointer-events:none; }
+.title-block { position:absolute; top:50px; left:24px; }
+.gas-man { font-size:48px; font-weight:bold; font-style:italic; color:#f5e030; text-shadow:2px 2px 4px rgba(0,0,0,0.7); line-height:1; letter-spacing:-1px; }
+.reg-mark { font-size:20px; vertical-align:super; font-style:normal; }
+.version-block { position:absolute; top:10px; right:14px; text-align:right; }
+.version-text { font-size:15px; font-style:italic; color:#fff; text-shadow:1px 1px 3px rgba(0,0,0,0.8); }
+.edition-text { font-size:22px; font-weight:bold; font-style:italic; color:#fff; text-shadow:1px 1px 4px rgba(0,0,0,0.8); line-height:1.1; }
+.subtitle-text { font-size:14.5px; font-style:italic; color:#fff; text-shadow:1px 1px 3px rgba(0,0,0,0.8); line-height:1.4; text-align:right; margin-top:3px; }
+.info-block { position:absolute; top:118px; right:14px; text-align:center; color:#fff; font-size:11px; line-height:1.6; text-shadow:1px 1px 2px rgba(0,0,0,0.9); }
+.credits-block { position:absolute; bottom:18px; left:14px; font-style:italic; text-shadow:1px 1px 3px rgba(0,0,0,0.9); line-height:1.45; }
+.label { font-size:13px; font-weight:bold; color:#f5e030; }
+.name { font-size:13px; font-weight:bold; color:#fff; padding-left:48px; display:block; }
+.wasm-gap { margin-top:5px; }
+</style>
+</head>
+<body>
+<div class="splash">
+<canvas id="scene"></canvas>
+<div class="title-block"><div class="gas-man">Gas Man<span class="reg-mark">&#174;</span></div></div>
+<div class="version-block">
+  <div class="version-text">Version 5.0</div>
+  <div class="edition-text">Web Edition</div>
+  <div class="subtitle-text">Understanding Anesthesia<br>Uptake &amp; Distribution</div>
+</div>
+<div class="info-block">
+  created by<br>
+  Med Man Simulations, Inc.<br>
+  A 501(C)(3) Charitable Organization<br>
+  Licensed under GPL v3<br>
+  http://gasmanweb.com<br>
+  http://medmansimulations.org<br>
+  https://github.com/rasman/gasmanonline/
+</div>
+<div class="credits-block">
+  <div class="label">Created by</div>
+  <span class="name">James H. Philip, M.E.(E.), M.D.</span>
+  <div class="label wasm-gap">Web application by</div>
+  <span class="name">Elie Sarraf, M.D., C.M.</span>
+</div>
+</div>
+<script>
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+canvas.width = 507; canvas.height = 338;
+
+function drawSphere(cx,cy,r,stops){
+  const sg=ctx.createRadialGradient(cx+r*.1,cy+r*.9,r*.05,cx+r*.1,cy+r*.85,r*.9);
+  sg.addColorStop(0,'rgba(0,0,0,0.45)'); sg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.ellipse(cx+r*.1,cy+r*.95,r*.85,r*.22,0,0,Math.PI*2);
+  ctx.fillStyle=sg; ctx.fill();
+  const g=ctx.createRadialGradient(cx-r*.35,cy-r*.35,r*.05,cx,cy,r);
+  stops.forEach(([s,c])=>g.addColorStop(s,c));
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+  const sp=ctx.createRadialGradient(cx-r*.38,cy-r*.38,0,cx-r*.28,cy-r*.28,r*.55);
+  sp.addColorStop(0,'rgba(255,255,255,0.85)'); sp.addColorStop(.4,'rgba(255,255,255,0.22)'); sp.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=sp; ctx.fill();
+}
+
+function drawCylinder(x, y, w, h, stops) {
+  const bg = ctx.createLinearGradient(x, y, x+w, y);
+  stops.forEach(([s,c]) => bg.addColorStop(s, c));
+
+  // 1. Outer body (unchanged)
+  ctx.beginPath();
+  ctx.moveTo(x, y+12);
+  ctx.bezierCurveTo(x, y+6, x+w, y+6, x+w, y+12);
+  ctx.lineTo(x+w, y+h);
+  ctx.bezierCurveTo(x+w, y+h+8, x, y+h+8, x, y+h);
+  ctx.closePath();
+  ctx.fillStyle = bg;
+  ctx.fill();
+
+  // 2. Top RIM — outer ellipse + inner ellipse, filled with evenodd = ring shape
+  const rimW = w * 0.5;      // outer x-radius
+  const rimH = 12;           // outer y-radius (foreshortening)
+  const wallThick = 5;       // how thick the wall appears from above
+  ctx.beginPath();
+ctx.ellipse(x+w*0.5, y+10, rimW,           rimH,               0, 0, Math.PI*2);        // outer
+ctx.ellipse(x+w*0.5, y+17, rimW-wallThick, rimH-wallThick*0.6, 0, 0, Math.PI*2, true);  // inner hole (shifted down)
+  ctx.fillStyle = bg;
+  ctx.fill('evenodd'); // punches the hole out
+
+	// shift center down from y+10 to y+13, and slightly shrink y-radius
+	const holeG = ctx.createRadialGradient(x+w*0.5, y+13, 0, x+w*0.5, y+13, rimW-wallThick);
+	holeG.addColorStop(0, 'rgba(20,10,0,0.6)');
+	holeG.addColorStop(0.6, 'rgba(80,40,0,0.35)');
+	holeG.addColorStop(1, 'rgba(140,80,0,0.2)');
+	ctx.beginPath();
+	ctx.ellipse(x+w*0.5, y+13, rimW-wallThick, rimH-wallThick*0.6, 0, 0, Math.PI*2);
+	ctx.fillStyle = holeG;
+	ctx.fill();
+  
+  // Optional: inner wall highlight (left-side catch-light)
+	const innerSpec = ctx.createLinearGradient(x, y, x+wallThick*2, y);
+	innerSpec.addColorStop(0, 'rgba(255,255,255,0.15)');
+	innerSpec.addColorStop(1, 'rgba(255,255,255,0)');
+	ctx.beginPath();
+	ctx.ellipse(x+w*0.5, y+10, rimW-wallThick, rimH-wallThick*0.4, 0, 0, Math.PI*2);
+	ctx.fillStyle = innerSpec;
+	ctx.fill();
+	
+	  // rim specular highlight
+  const ts=ctx.createRadialGradient(x+w*.36,y+8,0,x+w*.42,y+10,w*.33);
+  ts.addColorStop(0,'rgba(255,255,255,0.72)'); ts.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.beginPath(); ctx.ellipse(x+w*.5,y+10,rimW,rimH,0,0,Math.PI*2); ctx.fillStyle=ts; ctx.fill();
+}
+
+function drawFlow(x1,y1,cpx1,cpy1,cpx2,cpy2,x2,y2){
+  const N=80;
+  const pts=[];
+  for(let i=0;i<=N;i++){
+    const t=i/N, mt=1-t;
+    const x=mt**3*x1+3*mt**2*t*cpx1+3*mt*t**2*cpx2+t**3*x2;
+    const y=mt**3*y1+3*mt**2*t*cpy1+3*mt*t**2*cpy2+t**3*y2;
+    const dx=3*mt**2*(cpx1-x1)+6*mt*t*(cpx2-cpx1)+3*t**2*(x2-cpx2);
+    const dy=3*mt**2*(cpy1-y1)+6*mt*t*(cpy2-cpy1)+3*t**2*(y2-cpy2);
+    const len=Math.hypot(dx,dy)||1;
+    pts.push({x,y,nx:-dy/len,ny:dx/len,t});
+  }
+
+  const w0=2, w1=14; // half-widths: narrow at start, wide at end
+
+  // Build left/right outlines
+  const L=pts.map(({x,y,nx,ny,t})=>{const w=(w0+(w1-w0)*t)/2; return [x+nx*w,y+ny*w];});
+  const R=pts.map(({x,y,nx,ny,t})=>{const w=(w0+(w1-w0)*t)/2; return [x-nx*w,y-ny*w];});
+
+  // --- Main body ---
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(L[0][0],L[0][1]);
+  L.forEach(([lx,ly])=>ctx.lineTo(lx,ly));
+  [...R].reverse().forEach(([rx,ry])=>ctx.lineTo(rx,ry));
+  ctx.closePath();
+
+  // Cross-tube gradient (left=light specular, right=dark) using midpoint normal
+  const mid=pts[Math.floor(N/2)];
+  const gx1=mid.x+mid.nx*w1, gy1=mid.y+mid.ny*w1;
+  const gx2=mid.x-mid.nx*w1, gy2=mid.y-mid.ny*w1;
+  const bodyG=ctx.createLinearGradient(gx1,gy1,gx2,gy2);
+  bodyG.addColorStop(0,   '#6858d8'); // specular left edge
+  bodyG.addColorStop(0.18,'#2a1890'); // quick falloff
+  bodyG.addColorStop(0.55,'#120a60'); // deep navy core
+  bodyG.addColorStop(1,   '#080440'); // shadow right edge
+  ctx.fillStyle=bodyG;
+  ctx.shadowColor='rgba(0,0,0,0.7)';
+  ctx.shadowBlur=8;
+  ctx.fill();
+  ctx.restore();
+
+  // --- Specular highlight strip along left edge ---
+  ctx.save();
+  ctx.beginPath();
+  // outer edge = same as L
+  L.forEach(([lx,ly],i)=>i===0?ctx.moveTo(lx,ly):ctx.lineTo(lx,ly));
+  // inner edge = offset inward by 30% of half-width
+  [...pts].reverse().forEach(({x,y,nx,ny,t})=>{
+    const w=(w0+(w1-w0)*t)/2;
+    ctx.lineTo(x+nx*(w*0.55), y+ny*(w*0.55));
+  });
+  ctx.closePath();
+  const specG=ctx.createLinearGradient(x1,y1,x2,y2);
+  specG.addColorStop(0,  'rgba(200,185,255,0.75)');
+  specG.addColorStop(0.5,'rgba(160,140,240,0.5)');
+  specG.addColorStop(1,  'rgba(120,100,210,0.25)');
+  ctx.fillStyle=specG;
+  ctx.fill();
+  ctx.restore();
+
+}
+
+const yS=[[0,'#ffd700'],[.15,'#ffe840'],[.45,'#e8a800'],[.75,'#b87800'],[1,'#7a5000']];
+
+drawCylinder(20,118,54,85,yS);
+
+// red sphere
+drawSphere(55,46,25,[[0,'#ff9090'],[.25,'#ff3030'],[.65,'#cc0000'],[1,'#660000']]);
+// green sphere
+drawSphere(150,116,35,[[0,'#90ff90'],[.25,'#30d030'],[.65,'#009000'],[1,'#004400']]);
+// blue sphere
+drawSphere(110,240,60,[[0,'#9090ff'],[.25,'#4040ee'],[.6,'#1010bb'],[.85,'#000688'],[1,'#000044']]);
+
+// CP2 computed for ~100° approach angle into (100,180):
+// CP2 = endpoint - k*(cos100°, sin100°) → (100+0.174*48, 180-0.985*48) ≈ (108, 133)
+drawFlow(47,128, 70,95, 95,133, 100,177);
+
+</script>
+</body>
+</html>

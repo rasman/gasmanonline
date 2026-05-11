@@ -1,2 +1,5 @@
 .qmake.stash
 Gmail - Gas Man Open Source.pdf
+
+# Claude Code worktrees and session data
+.claude/
