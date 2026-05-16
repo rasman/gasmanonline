@@ -3,7 +3,11 @@
 #define GASPANELVIEW_H
 
 #include <QWidget>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QElapsedTimer>
+#else
 #include <QTime>
+#endif
 #include <QSemaphore>
 #include "gasviewcommon.h"
 #include "gasevent.h"
@@ -160,7 +164,11 @@ private:
 	bool hiddenNumerics;
 	bool m_gaugeStarted;
 	quint32 m_dwTickCount;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	QElapsedTimer tickCounter;
+#else
 	QTime tickCounter;
+#endif
 	QTimer *stepTimer;
 	double koefWidthMchn;
 	int m_nGas;									// 0=primary, 1=secondary,...

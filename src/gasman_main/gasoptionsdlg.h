@@ -245,6 +245,8 @@ public:
 	inline GasSDefaultsWidget *simulationDefaults() const { return gasSDefaultsWidget; }
 	inline GasCDefaultsWidget *colorDefaults() const { return gasCDefaultsWidget; }
 
+	void prepare();				//Initialize sub-widget UI controls
+
 public slots:
 	virtual void accept();
 	int exec();					//Initialize and show the dialog as a modal dialog

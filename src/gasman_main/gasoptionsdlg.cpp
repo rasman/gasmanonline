@@ -7,7 +7,6 @@
 #endif
 #include <math.h>
 #include "gasapplication.h"
-#include "gaslicensemanager.h"
 #include "gasagentdelegate.h"
 
 
@@ -44,7 +43,7 @@ GasPatientWidget::GasPatientWidget( QWidget *parent )
 	bgWeight->addButton( rbPounds, 1 );
 	
 	//create connections
-	connect( bgWeight, SIGNAL( buttonClicked( int ) ), this, SLOT( weightUnitChanged( int ) ) );
+	connect( bgWeight, SIGNAL( idClicked( int ) ), this, SLOT( weightUnitChanged( int ) ) );
 	connect( dsbWeight, SIGNAL( editingFinished() ), this, SLOT( weightChanged() ) );
 	connect( dsbMetabolismVA, SIGNAL( editingFinished() ), this, SLOT( metabolismVaChanged() ) );
 	connect( dsbMetabolismCO, SIGNAL( editingFinished() ), this, SLOT( metabolismCoChanged() ) );
@@ -353,6 +352,9 @@ GasChoiceSound::GasChoiceSound( QWidget *parent )
 
 void GasChoiceSound::browse()
 {
+#ifdef Q_OS_WASM
+	return; // No filesystem on WASM — browse buttons should be hidden
+#endif
 	//browse a *.wav (under Windows) or *.wav, *.aif (under MacOS) file
 	QString filter;
 #ifdef Q_OS_MACX
@@ -439,6 +441,16 @@ GasPDefaultsWidget::GasPDefaultsWidget( QWidget *parent )
 	//create connections
 	connect( hsGraphPercent, SIGNAL( valueChanged( int ) ), this, SLOT( graphPercentChanged( int ) ) );
 	connect( pbCustom, SIGNAL( clicked() ), this, SLOT( custom() ) );
+
+#ifdef Q_OS_WASM
+	// System sounds require .wav files and QSound — neither available on WASM.
+	// Only the audible beep (Web Audio API) works; hide the rest.
+	rbAudibleSystem1->hide();
+	rbAudibleSystem2->hide();
+	rbAudibleSystem3->hide();
+	rbAudibleSystem4->hide();
+	pbCustom->hide();
+#endif
 
 	setUseGraphpaper( false );
 	setJumpPercent( 25 );
@@ -801,11 +813,16 @@ GasOptionsDialog::GasOptionsDialog( QWidget *parent )
 	resize( minimumSizeHint() );
 }
 
-//initialize and shows the dialog as a modal dialog
-int GasOptionsDialog::exec()
-{	
+void GasOptionsDialog::prepare()
+{
 	gasPatientWidget->init();
 	gasSDefaultsWidget->init();
+}
+
+//initialize and shows the dialog as a modal dialog
+int GasOptionsDialog::exec()
+{
+	prepare();
 	return QDialog::exec();
 }
 

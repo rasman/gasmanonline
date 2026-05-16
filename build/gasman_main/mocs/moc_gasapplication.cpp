@@ -1,48 +1,52 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasapplication.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasman_main/gasapplication.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasapplication.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasSettings_t {
-    QByteArrayData data[1];
-    char stringdata0[12];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasSettings_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasSettings_t qt_meta_stringdata_GasSettings = {
-    {
-QT_MOC_LITERAL(0, 0, 11) // "GasSettings"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN11GasSettingsE_t {};
+} // unnamed namespace
 
-    },
+
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN11GasSettingsE = QtMocHelpers::stringData(
     "GasSettings"
-};
-#undef QT_MOC_LITERAL
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-static const uint qt_meta_data_GasSettings[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN11GasSettingsE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -55,23 +59,27 @@ static const uint qt_meta_data_GasSettings[] = {
        0        // eod
 };
 
-void GasSettings::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
-{
-    (void)_o;
-    (void)_id;
-    (void)_c;
-    (void)_a;
-}
-
-QT_INIT_METAOBJECT const QMetaObject GasSettings::staticMetaObject = { {
+Q_CONSTINIT const QMetaObject GasSettings::staticMetaObject = { {
     QMetaObject::SuperData::link<QSettings::staticMetaObject>(),
-    qt_meta_stringdata_GasSettings.data,
-    qt_meta_data_GasSettings,
+    qt_meta_stringdata_ZN11GasSettingsE.offsetsAndSizes,
+    qt_meta_data_ZN11GasSettingsE,
     qt_static_metacall,
     nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN11GasSettingsE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasSettings, std::true_type>
+    >,
     nullptr
 } };
 
+void GasSettings::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<GasSettings *>(_o);
+    (void)_t;
+    (void)_c;
+    (void)_id;
+    (void)_a;
+}
 
 const QMetaObject *GasSettings::metaObject() const
 {
@@ -81,7 +89,7 @@ const QMetaObject *GasSettings::metaObject() const
 void *GasSettings::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasSettings.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN11GasSettingsE.stringdata0))
         return static_cast<void*>(this);
     return QSettings::qt_metacast(_clname);
 }
@@ -91,30 +99,25 @@ int GasSettings::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QSettings::qt_metacall(_c, _id, _a);
     return _id;
 }
-struct qt_meta_stringdata_GasApplication_t {
-    QByteArrayData data[3];
-    char stringdata0[32];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasApplication_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasApplication_t qt_meta_stringdata_GasApplication = {
-    {
-QT_MOC_LITERAL(0, 0, 14), // "GasApplication"
-QT_MOC_LITERAL(1, 15, 15), // "registerProduct"
-QT_MOC_LITERAL(2, 31, 0) // ""
+namespace {
+struct qt_meta_tag_ZN14GasApplicationE_t {};
+} // unnamed namespace
 
-    },
-    "GasApplication\0registerProduct\0"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasApplication[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN14GasApplicationE = QtMocHelpers::stringData(
+    "GasApplication",
+    "registerProduct",
+    ""
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN14GasApplicationE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -124,8 +127,8 @@ static const uint qt_meta_data_GasApplication[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   19,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   20,    2, 0x08,    1 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -133,11 +136,25 @@ static const uint qt_meta_data_GasApplication[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasApplication::staticMetaObject = { {
+    QMetaObject::SuperData::link<QApplication::staticMetaObject>(),
+    qt_meta_stringdata_ZN14GasApplicationE.offsetsAndSizes,
+    qt_meta_data_ZN14GasApplicationE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN14GasApplicationE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasApplication, std::true_type>,
+        // method 'registerProduct'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasApplication::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasApplication *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasApplication *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->registerProduct(); break;
         default: ;
@@ -145,16 +162,6 @@ void GasApplication::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     }
     (void)_a;
 }
-
-QT_INIT_METAOBJECT const QMetaObject GasApplication::staticMetaObject = { {
-    QMetaObject::SuperData::link<QApplication::staticMetaObject>(),
-    qt_meta_stringdata_GasApplication.data,
-    qt_meta_data_GasApplication,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *GasApplication::metaObject() const
 {
@@ -164,7 +171,7 @@ const QMetaObject *GasApplication::metaObject() const
 void *GasApplication::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasApplication.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN14GasApplicationE.stringdata0))
         return static_cast<void*>(this);
     return QApplication::qt_metacast(_clname);
 }
@@ -178,12 +185,12 @@ int GasApplication::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 1)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 1;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 1)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 1;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

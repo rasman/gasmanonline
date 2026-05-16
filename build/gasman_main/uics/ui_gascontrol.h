@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gascontrol.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -65,49 +65,49 @@ public:
     void setupUi(QWidget *gascontrol)
     {
         if (gascontrol->objectName().isEmpty())
-            gascontrol->setObjectName(QString::fromUtf8("gascontrol"));
+            gascontrol->setObjectName("gascontrol");
         gascontrol->resize(645, 400);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(gascontrol->sizePolicy().hasHeightForWidth());
         gascontrol->setSizePolicy(sizePolicy);
         gascontrol->setMaximumSize(QSize(16777215, 16777215));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/gasman_sm.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/images/gasman_sm.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         gascontrol->setWindowIcon(icon);
         hboxLayout = new QHBoxLayout(gascontrol);
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
+        hboxLayout->setObjectName("hboxLayout");
         vboxLayout = new QVBoxLayout();
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         groupBox = new QGroupBox(gascontrol);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setObjectName("groupBox");
         sizePolicy.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
         groupBox->setSizePolicy(sizePolicy);
         QFont font;
         font.setPointSize(10);
         groupBox->setFont(font);
         hboxLayout1 = new QHBoxLayout(groupBox);
-        hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
+        hboxLayout1->setObjectName("hboxLayout1");
         vboxLayout1 = new QVBoxLayout();
-        vboxLayout1->setObjectName(QString::fromUtf8("vboxLayout1"));
+        vboxLayout1->setObjectName("vboxLayout1");
         label = new QLabel(groupBox);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName("label");
 
         vboxLayout1->addWidget(label);
 
         label_2 = new QLabel(groupBox);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setObjectName("label_2");
 
         vboxLayout1->addWidget(label_2);
 
         label_4 = new QLabel(groupBox);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setObjectName("label_4");
 
         vboxLayout1->addWidget(label_4);
 
         label_3 = new QLabel(groupBox);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setObjectName("label_3");
 
         vboxLayout1->addWidget(label_3);
 
@@ -115,24 +115,24 @@ public:
         hboxLayout1->addLayout(vboxLayout1);
 
         vboxLayout2 = new QVBoxLayout();
-        vboxLayout2->setObjectName(QString::fromUtf8("vboxLayout2"));
+        vboxLayout2->setObjectName("vboxLayout2");
         weightDoubleSpinBox = new QDoubleSpinBox(groupBox);
-        weightDoubleSpinBox->setObjectName(QString::fromUtf8("weightDoubleSpinBox"));
+        weightDoubleSpinBox->setObjectName("weightDoubleSpinBox");
 
         vboxLayout2->addWidget(weightDoubleSpinBox);
 
         circuitComboBox = new QComboBox(groupBox);
-        circuitComboBox->setObjectName(QString::fromUtf8("circuitComboBox"));
+        circuitComboBox->setObjectName("circuitComboBox");
 
         vboxLayout2->addWidget(circuitComboBox);
 
         speedComboBox = new QComboBox(groupBox);
-        speedComboBox->setObjectName(QString::fromUtf8("speedComboBox"));
+        speedComboBox->setObjectName("speedComboBox");
 
         vboxLayout2->addWidget(speedComboBox);
 
         viewComboBox = new QComboBox(groupBox);
-        viewComboBox->setObjectName(QString::fromUtf8("viewComboBox"));
+        viewComboBox->setObjectName("viewComboBox");
 
         vboxLayout2->addWidget(viewComboBox);
 
@@ -143,25 +143,25 @@ public:
         vboxLayout->addWidget(groupBox);
 
         vboxLayout3 = new QVBoxLayout();
-        vboxLayout3->setObjectName(QString::fromUtf8("vboxLayout3"));
+        vboxLayout3->setObjectName("vboxLayout3");
         specialGroupBox = new QGroupBox(gascontrol);
-        specialGroupBox->setObjectName(QString::fromUtf8("specialGroupBox"));
+        specialGroupBox->setObjectName("specialGroupBox");
         vboxLayout4 = new QVBoxLayout(specialGroupBox);
-        vboxLayout4->setObjectName(QString::fromUtf8("vboxLayout4"));
+        vboxLayout4->setObjectName("vboxLayout4");
         disUpRadioButton = new QRadioButton(specialGroupBox);
-        disUpRadioButton->setObjectName(QString::fromUtf8("disUpRadioButton"));
+        disUpRadioButton->setObjectName("disUpRadioButton");
         disUpRadioButton->setAutoExclusive(false);
 
         vboxLayout4->addWidget(disUpRadioButton);
 
         disRetRadioButton = new QRadioButton(specialGroupBox);
-        disRetRadioButton->setObjectName(QString::fromUtf8("disRetRadioButton"));
+        disRetRadioButton->setObjectName("disRetRadioButton");
         disRetRadioButton->setAutoExclusive(false);
 
         vboxLayout4->addWidget(disRetRadioButton);
 
         enVapRadioButton = new QRadioButton(specialGroupBox);
-        enVapRadioButton->setObjectName(QString::fromUtf8("enVapRadioButton"));
+        enVapRadioButton->setObjectName("enVapRadioButton");
 
         vboxLayout4->addWidget(enVapRadioButton);
 
@@ -172,14 +172,14 @@ public:
         vboxLayout->addLayout(vboxLayout3);
 
         hboxLayout2 = new QHBoxLayout();
-        hboxLayout2->setObjectName(QString::fromUtf8("hboxLayout2"));
-        spacerItem = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        hboxLayout2->setObjectName("hboxLayout2");
+        spacerItem = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         hboxLayout2->addItem(spacerItem);
 
         runPushButton = new QPushButton(gascontrol);
-        runPushButton->setObjectName(QString::fromUtf8("runPushButton"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        runPushButton->setObjectName("runPushButton");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(runPushButton->sizePolicy().hasHeightForWidth());
@@ -190,7 +190,7 @@ public:
         hboxLayout2->addWidget(runPushButton);
 
         afapPushButton = new QPushButton(gascontrol);
-        afapPushButton->setObjectName(QString::fromUtf8("afapPushButton"));
+        afapPushButton->setObjectName("afapPushButton");
 
         hboxLayout2->addWidget(afapPushButton);
 
@@ -201,33 +201,33 @@ public:
         hboxLayout->addLayout(vboxLayout);
 
         agentGroupBox = new QGroupBox(gascontrol);
-        agentGroupBox->setObjectName(QString::fromUtf8("agentGroupBox"));
+        agentGroupBox->setObjectName("agentGroupBox");
         sizePolicy.setHeightForWidth(agentGroupBox->sizePolicy().hasHeightForWidth());
         agentGroupBox->setSizePolicy(sizePolicy);
         agentGroupBox->setFont(font);
         vboxLayout5 = new QVBoxLayout(agentGroupBox);
-        vboxLayout5->setObjectName(QString::fromUtf8("vboxLayout5"));
+        vboxLayout5->setObjectName("vboxLayout5");
         hboxLayout3 = new QHBoxLayout();
-        hboxLayout3->setObjectName(QString::fromUtf8("hboxLayout3"));
-        spacerItem1 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        hboxLayout3->setObjectName("hboxLayout3");
+        spacerItem1 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         hboxLayout3->addItem(spacerItem1);
 
         upPushButton = new QPushButton(agentGroupBox);
-        upPushButton->setObjectName(QString::fromUtf8("upPushButton"));
+        upPushButton->setObjectName("upPushButton");
         upPushButton->setMaximumSize(QSize(30, 16777215));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/up.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/images/up.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         upPushButton->setIcon(icon1);
 
         hboxLayout3->addWidget(upPushButton);
 
         downPushButton = new QPushButton(agentGroupBox);
-        downPushButton->setObjectName(QString::fromUtf8("downPushButton"));
+        downPushButton->setObjectName("downPushButton");
         downPushButton->setMinimumSize(QSize(15, 15));
         downPushButton->setMaximumSize(QSize(30, 16777215));
         QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/images/down.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon2.addFile(QString::fromUtf8(":/images/down.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         downPushButton->setIcon(icon2);
 
         hboxLayout3->addWidget(downPushButton);
@@ -244,8 +244,8 @@ public:
         agentTableWidget->setHorizontalHeaderItem(1, __qtablewidgetitem1);
         if (agentTableWidget->rowCount() < 1)
             agentTableWidget->setRowCount(1);
-        agentTableWidget->setObjectName(QString::fromUtf8("agentTableWidget"));
-        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        agentTableWidget->setObjectName("agentTableWidget");
+        QSizePolicy sizePolicy2(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
         sizePolicy2.setHeightForWidth(agentTableWidget->sizePolicy().hasHeightForWidth());

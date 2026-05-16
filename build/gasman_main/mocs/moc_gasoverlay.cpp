@@ -1,54 +1,57 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasoverlay.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasman_main/gasoverlay.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasoverlay.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasOverlay_t {
-    QByteArrayData data[6];
-    char stringdata0[63];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasOverlay_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasOverlay_t qt_meta_stringdata_GasOverlay = {
-    {
-QT_MOC_LITERAL(0, 0, 10), // "GasOverlay"
-QT_MOC_LITERAL(1, 11, 4), // "help"
-QT_MOC_LITERAL(2, 16, 0), // ""
-QT_MOC_LITERAL(3, 17, 16), // "selectionClicked"
-QT_MOC_LITERAL(4, 34, 16), // "QAbstractButton*"
-QT_MOC_LITERAL(5, 51, 11) // "endPainting"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN10GasOverlayE_t {};
+} // unnamed namespace
 
-    },
-    "GasOverlay\0help\0\0selectionClicked\0"
-    "QAbstractButton*\0endPainting"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasOverlay[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN10GasOverlayE = QtMocHelpers::stringData(
+    "GasOverlay",
+    "help",
+    "",
+    "selectionClicked",
+    "QAbstractButton*",
+    "endPainting"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN10GasOverlayE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -58,10 +61,10 @@ static const uint qt_meta_data_GasOverlay[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x08 /* Private */,
-       3,    1,   30,    2, 0x08 /* Private */,
-       5,    0,   33,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   32,    2, 0x08,    1 /* Private */,
+       3,    1,   33,    2, 0x08,    2 /* Private */,
+       5,    0,   36,    2, 0x08,    4 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -71,29 +74,38 @@ static const uint qt_meta_data_GasOverlay[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasOverlay::staticMetaObject = { {
+    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
+    qt_meta_stringdata_ZN10GasOverlayE.offsetsAndSizes,
+    qt_meta_data_ZN10GasOverlayE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN10GasOverlayE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasOverlay, std::true_type>,
+        // method 'help'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'selectionClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<QAbstractButton *, std::false_type>,
+        // method 'endPainting'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasOverlay::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasOverlay *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasOverlay *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->help(); break;
-        case 1: _t->selectionClicked((*reinterpret_cast< QAbstractButton*(*)>(_a[1]))); break;
+        case 1: _t->selectionClicked((*reinterpret_cast< std::add_pointer_t<QAbstractButton*>>(_a[1]))); break;
         case 2: _t->endPainting(); break;
         default: ;
         }
     }
 }
-
-QT_INIT_METAOBJECT const QMetaObject GasOverlay::staticMetaObject = { {
-    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
-    qt_meta_stringdata_GasOverlay.data,
-    qt_meta_data_GasOverlay,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *GasOverlay::metaObject() const
 {
@@ -103,7 +115,7 @@ const QMetaObject *GasOverlay::metaObject() const
 void *GasOverlay::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasOverlay.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN10GasOverlayE.stringdata0))
         return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
@@ -117,12 +129,12 @@ int GasOverlay::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 3)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 3;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

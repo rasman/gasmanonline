@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gaspanelview.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -115,20 +115,20 @@ public:
     void setupUi(QWidget *GasPanelView)
     {
         if (GasPanelView->objectName().isEmpty())
-            GasPanelView->setObjectName(QString::fromUtf8("GasPanelView"));
+            GasPanelView->setObjectName("GasPanelView");
         GasPanelView->resize(643, 421);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(GasPanelView->sizePolicy().hasHeightForWidth());
         GasPanelView->setSizePolicy(sizePolicy);
         gridLayout = new QGridLayout(GasPanelView);
         gridLayout->setSpacing(6);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         gridLayout->setContentsMargins(9, 8, 9, 8);
         frVA = new QFrame(GasPanelView);
-        frVA->setObjectName(QString::fromUtf8("frVA"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        frVA->setObjectName("frVA");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(frVA->sizePolicy().hasHeightForWidth());
@@ -138,14 +138,14 @@ public:
         gridLayout1 = new QGridLayout(frVA);
         gridLayout1->setSpacing(0);
         gridLayout1->setContentsMargins(1, 1, 1, 1);
-        gridLayout1->setObjectName(QString::fromUtf8("gridLayout1"));
-        spacerItem = new QSpacerItem(20, 71, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        gridLayout1->setObjectName("gridLayout1");
+        spacerItem = new QSpacerItem(20, 71, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout1->addItem(spacerItem, 1, 0, 1, 1);
 
         leHighVA = new QLineEdit(frVA);
-        leHighVA->setObjectName(QString::fromUtf8("leHighVA"));
-        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        leHighVA->setObjectName("leHighVA");
+        QSizePolicy sizePolicy2(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
         sizePolicy2.setHeightForWidth(leHighVA->sizePolicy().hasHeightForWidth());
@@ -157,26 +157,26 @@ public:
         gridLayout2 = new QGridLayout();
         gridLayout2->setSpacing(0);
         gridLayout2->setContentsMargins(0, 0, 0, 0);
-        gridLayout2->setObjectName(QString::fromUtf8("gridLayout2"));
+        gridLayout2->setObjectName("gridLayout2");
         tbVAup = new QToolButton(frVA);
-        tbVAup->setObjectName(QString::fromUtf8("tbVAup"));
+        tbVAup->setObjectName("tbVAup");
         tbVAup->setMinimumSize(QSize(15, 15));
         tbVAup->setMaximumSize(QSize(15, 15));
         tbVAup->setFocusPolicy(Qt::NoFocus);
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/up.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/images/up.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         tbVAup->setIcon(icon);
         tbVAup->setAutoRepeat(true);
 
         gridLayout2->addWidget(tbVAup, 0, 1, 1, 1);
 
-        spacerItem1 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem1 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout2->addItem(spacerItem1, 0, 2, 1, 1);
 
         leVA = new QLineEdit(frVA);
-        leVA->setObjectName(QString::fromUtf8("leVA"));
-        QSizePolicy sizePolicy3(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        leVA->setObjectName("leVA");
+        QSizePolicy sizePolicy3(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Fixed);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(leVA->sizePolicy().hasHeightForWidth());
@@ -184,20 +184,20 @@ public:
 
         gridLayout2->addWidget(leVA, 1, 0, 1, 4);
 
-        spacerItem2 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem2 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout2->addItem(spacerItem2, 0, 0, 1, 1);
 
         vboxLayout = new QVBoxLayout();
         vboxLayout->setSpacing(0);
         vboxLayout->setContentsMargins(0, 0, 0, 0);
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
-        spacerItem3 = new QSpacerItem(15, 3, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        vboxLayout->setObjectName("vboxLayout");
+        spacerItem3 = new QSpacerItem(15, 3, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         vboxLayout->addItem(spacerItem3);
 
         stVA = new QLabel(frVA);
-        stVA->setObjectName(QString::fromUtf8("stVA"));
+        stVA->setObjectName("stVA");
         sizePolicy2.setHeightForWidth(stVA->sizePolicy().hasHeightForWidth());
         stVA->setSizePolicy(sizePolicy2);
         stVA->setMinimumSize(QSize(15, 15));
@@ -213,22 +213,22 @@ public:
         gridLayout2->addLayout(vboxLayout, 0, 3, 1, 1);
 
         tbVAdown = new QToolButton(frVA);
-        tbVAdown->setObjectName(QString::fromUtf8("tbVAdown"));
+        tbVAdown->setObjectName("tbVAdown");
         tbVAdown->setMinimumSize(QSize(15, 15));
         tbVAdown->setMaximumSize(QSize(15, 15));
         tbVAdown->setFocusPolicy(Qt::NoFocus);
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/down.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/images/down.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         tbVAdown->setIcon(icon1);
         tbVAdown->setAutoRepeat(true);
 
         gridLayout2->addWidget(tbVAdown, 2, 1, 1, 1);
 
-        spacerItem4 = new QSpacerItem(39, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem4 = new QSpacerItem(39, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout2->addItem(spacerItem4, 2, 0, 1, 1);
 
-        spacerItem5 = new QSpacerItem(54, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem5 = new QSpacerItem(54, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout2->addItem(spacerItem5, 2, 2, 1, 2);
 
@@ -239,7 +239,7 @@ public:
         gridLayout->addWidget(frVA, 2, 4, 1, 1);
 
         frCO = new QFrame(GasPanelView);
-        frCO->setObjectName(QString::fromUtf8("frCO"));
+        frCO->setObjectName("frCO");
         sizePolicy1.setHeightForWidth(frCO->sizePolicy().hasHeightForWidth());
         frCO->setSizePolicy(sizePolicy1);
         frCO->setFrameShape(QFrame::NoFrame);
@@ -247,8 +247,8 @@ public:
         gridLayout3 = new QGridLayout(frCO);
         gridLayout3->setSpacing(0);
         gridLayout3->setContentsMargins(1, 1, 1, 1);
-        gridLayout3->setObjectName(QString::fromUtf8("gridLayout3"));
-        spacerItem6 = new QSpacerItem(16, 100, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        gridLayout3->setObjectName("gridLayout3");
+        spacerItem6 = new QSpacerItem(16, 100, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout3->addItem(spacerItem6, 1, 0, 1, 1);
 
@@ -257,9 +257,9 @@ public:
 #ifndef Q_OS_MAC
         gridLayout4->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout4->setObjectName(QString::fromUtf8("gridLayout4"));
+        gridLayout4->setObjectName("gridLayout4");
         tbCOdown = new QToolButton(frCO);
-        tbCOdown->setObjectName(QString::fromUtf8("tbCOdown"));
+        tbCOdown->setObjectName("tbCOdown");
         sizePolicy2.setHeightForWidth(tbCOdown->sizePolicy().hasHeightForWidth());
         tbCOdown->setSizePolicy(sizePolicy2);
         tbCOdown->setMinimumSize(QSize(15, 15));
@@ -271,14 +271,14 @@ public:
         gridLayout4->addWidget(tbCOdown, 2, 1, 1, 1);
 
         leCO = new QLineEdit(frCO);
-        leCO->setObjectName(QString::fromUtf8("leCO"));
+        leCO->setObjectName("leCO");
         sizePolicy3.setHeightForWidth(leCO->sizePolicy().hasHeightForWidth());
         leCO->setSizePolicy(sizePolicy3);
 
         gridLayout4->addWidget(leCO, 1, 0, 1, 4);
 
         tbCOup = new QToolButton(frCO);
-        tbCOup->setObjectName(QString::fromUtf8("tbCOup"));
+        tbCOup->setObjectName("tbCOup");
         sizePolicy2.setHeightForWidth(tbCOup->sizePolicy().hasHeightForWidth());
         tbCOup->setSizePolicy(sizePolicy2);
         tbCOup->setMinimumSize(QSize(15, 15));
@@ -289,23 +289,23 @@ public:
 
         gridLayout4->addWidget(tbCOup, 0, 1, 1, 1);
 
-        spacerItem7 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem7 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout4->addItem(spacerItem7, 0, 0, 1, 1);
 
-        spacerItem8 = new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem8 = new QSpacerItem(1, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout4->addItem(spacerItem8, 2, 0, 1, 1);
 
-        spacerItem9 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem9 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout4->addItem(spacerItem9, 0, 2, 1, 1);
 
-        spacerItem10 = new QSpacerItem(15, 15, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        spacerItem10 = new QSpacerItem(15, 15, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         gridLayout4->addItem(spacerItem10, 0, 3, 1, 1);
 
-        spacerItem11 = new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem11 = new QSpacerItem(1, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout4->addItem(spacerItem11, 2, 2, 1, 2);
 
@@ -313,7 +313,7 @@ public:
         gridLayout3->addLayout(gridLayout4, 2, 0, 1, 1);
 
         leHighCO = new QLineEdit(frCO);
-        leHighCO->setObjectName(QString::fromUtf8("leHighCO"));
+        leHighCO->setObjectName("leHighCO");
         sizePolicy2.setHeightForWidth(leHighCO->sizePolicy().hasHeightForWidth());
         leHighCO->setSizePolicy(sizePolicy2);
         leHighCO->setFocusPolicy(Qt::StrongFocus);
@@ -324,7 +324,7 @@ public:
         gridLayout->addWidget(frCO, 2, 6, 1, 1);
 
         lbFGF = new QLabel(GasPanelView);
-        lbFGF->setObjectName(QString::fromUtf8("lbFGF"));
+        lbFGF->setObjectName("lbFGF");
         sizePolicy2.setHeightForWidth(lbFGF->sizePolicy().hasHeightForWidth());
         lbFGF->setSizePolicy(sizePolicy2);
         lbFGF->setFrameShape(QFrame::NoFrame);
@@ -334,7 +334,7 @@ public:
         gridLayout->addWidget(lbFGF, 3, 0, 1, 1);
 
         lbVA = new QLabel(GasPanelView);
-        lbVA->setObjectName(QString::fromUtf8("lbVA"));
+        lbVA->setObjectName("lbVA");
         sizePolicy2.setHeightForWidth(lbVA->sizePolicy().hasHeightForWidth());
         lbVA->setSizePolicy(sizePolicy2);
         lbVA->setAlignment(Qt::AlignCenter);
@@ -342,7 +342,7 @@ public:
         gridLayout->addWidget(lbVA, 3, 4, 1, 1);
 
         lbCO = new QLabel(GasPanelView);
-        lbCO->setObjectName(QString::fromUtf8("lbCO"));
+        lbCO->setObjectName("lbCO");
         sizePolicy2.setHeightForWidth(lbCO->sizePolicy().hasHeightForWidth());
         lbCO->setSizePolicy(sizePolicy2);
         lbCO->setAlignment(Qt::AlignCenter);
@@ -350,7 +350,7 @@ public:
         gridLayout->addWidget(lbCO, 3, 6, 1, 1);
 
         ggCO = new GasGauge(GasPanelView);
-        ggCO->setObjectName(QString::fromUtf8("ggCO"));
+        ggCO->setObjectName("ggCO");
         sizePolicy1.setHeightForWidth(ggCO->sizePolicy().hasHeightForWidth());
         ggCO->setSizePolicy(sizePolicy1);
         ggCO->setMinimumSize(QSize(15, 20));
@@ -359,8 +359,8 @@ public:
         gridLayout->addWidget(ggCO, 2, 7, 1, 1);
 
         ggFGF = new GasGauge(GasPanelView);
-        ggFGF->setObjectName(QString::fromUtf8("ggFGF"));
-        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        ggFGF->setObjectName("ggFGF");
+        QSizePolicy sizePolicy4(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Expanding);
         sizePolicy4.setHorizontalStretch(0);
         sizePolicy4.setVerticalStretch(0);
         sizePolicy4.setHeightForWidth(ggFGF->sizePolicy().hasHeightForWidth());
@@ -371,8 +371,8 @@ public:
         gridLayout->addWidget(ggFGF, 2, 3, 1, 1);
 
         frame_t = new QFrame(GasPanelView);
-        frame_t->setObjectName(QString::fromUtf8("frame_t"));
-        QSizePolicy sizePolicy5(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        frame_t->setObjectName("frame_t");
+        QSizePolicy sizePolicy5(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
         sizePolicy5.setHorizontalStretch(1);
         sizePolicy5.setVerticalStretch(0);
         sizePolicy5.setHeightForWidth(frame_t->sizePolicy().hasHeightForWidth());
@@ -384,9 +384,9 @@ public:
         gridLayout5->setSpacing(6);
 #endif
         gridLayout5->setContentsMargins(1, 1, 1, 1);
-        gridLayout5->setObjectName(QString::fromUtf8("gridLayout5"));
+        gridLayout5->setObjectName("gridLayout5");
         leDelivered = new QLabel(frame_t);
-        leDelivered->setObjectName(QString::fromUtf8("leDelivered"));
+        leDelivered->setObjectName("leDelivered");
         sizePolicy3.setHeightForWidth(leDelivered->sizePolicy().hasHeightForWidth());
         leDelivered->setSizePolicy(sizePolicy3);
         leDelivered->setFrameShape(QFrame::Panel);
@@ -396,7 +396,7 @@ public:
         gridLayout5->addWidget(leDelivered, 2, 0, 1, 1);
 
         leUptake = new QLabel(frame_t);
-        leUptake->setObjectName(QString::fromUtf8("leUptake"));
+        leUptake->setObjectName("leUptake");
         sizePolicy3.setHeightForWidth(leUptake->sizePolicy().hasHeightForWidth());
         leUptake->setSizePolicy(sizePolicy3);
         leUptake->setFrameShape(QFrame::Panel);
@@ -406,7 +406,7 @@ public:
         gridLayout5->addWidget(leUptake, 1, 0, 1, 1);
 
         leTime = new QLabel(frame_t);
-        leTime->setObjectName(QString::fromUtf8("leTime"));
+        leTime->setObjectName("leTime");
         sizePolicy3.setHeightForWidth(leTime->sizePolicy().hasHeightForWidth());
         leTime->setSizePolicy(sizePolicy3);
         leTime->setFrameShape(QFrame::Panel);
@@ -418,8 +418,8 @@ public:
         gridLayout5->addWidget(leTime, 0, 0, 1, 1);
 
         lDelivered = new QLabel(frame_t);
-        lDelivered->setObjectName(QString::fromUtf8("lDelivered"));
-        QSizePolicy sizePolicy6(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        lDelivered->setObjectName("lDelivered");
+        QSizePolicy sizePolicy6(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Preferred);
         sizePolicy6.setHorizontalStretch(0);
         sizePolicy6.setVerticalStretch(0);
         sizePolicy6.setHeightForWidth(lDelivered->sizePolicy().hasHeightForWidth());
@@ -428,14 +428,14 @@ public:
         gridLayout5->addWidget(lDelivered, 2, 1, 1, 1);
 
         lUptake = new QLabel(frame_t);
-        lUptake->setObjectName(QString::fromUtf8("lUptake"));
+        lUptake->setObjectName("lUptake");
         sizePolicy6.setHeightForWidth(lUptake->sizePolicy().hasHeightForWidth());
         lUptake->setSizePolicy(sizePolicy6);
 
         gridLayout5->addWidget(lUptake, 1, 1, 1, 1);
 
         lTime = new QLabel(frame_t);
-        lTime->setObjectName(QString::fromUtf8("lTime"));
+        lTime->setObjectName("lTime");
         sizePolicy1.setHeightForWidth(lTime->sizePolicy().hasHeightForWidth());
         lTime->setSizePolicy(sizePolicy1);
 
@@ -445,7 +445,7 @@ public:
         gridLayout->addWidget(frame_t, 2, 8, 1, 1);
 
         frFlush = new QFrame(GasPanelView);
-        frFlush->setObjectName(QString::fromUtf8("frFlush"));
+        frFlush->setObjectName("frFlush");
         sizePolicy2.setHeightForWidth(frFlush->sizePolicy().hasHeightForWidth());
         frFlush->setSizePolicy(sizePolicy2);
         frFlush->setFrameShape(QFrame::NoFrame);
@@ -453,9 +453,9 @@ public:
         gridLayout6 = new QGridLayout(frFlush);
         gridLayout6->setSpacing(3);
         gridLayout6->setContentsMargins(1, 1, 1, 1);
-        gridLayout6->setObjectName(QString::fromUtf8("gridLayout6"));
+        gridLayout6->setObjectName("gridLayout6");
         tbFlush = new QPushButton(frFlush);
-        tbFlush->setObjectName(QString::fromUtf8("tbFlush"));
+        tbFlush->setObjectName("tbFlush");
         sizePolicy2.setHeightForWidth(tbFlush->sizePolicy().hasHeightForWidth());
         tbFlush->setSizePolicy(sizePolicy2);
         tbFlush->setMinimumSize(QSize(15, 15));
@@ -464,16 +464,16 @@ public:
 
         gridLayout6->addWidget(tbFlush, 1, 1, 1, 1);
 
-        spacerItem12 = new QSpacerItem(1, 10, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem12 = new QSpacerItem(1, 10, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout6->addItem(spacerItem12, 1, 0, 1, 1);
 
-        spacerItem13 = new QSpacerItem(1, 10, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem13 = new QSpacerItem(1, 10, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout6->addItem(spacerItem13, 1, 2, 1, 1);
 
         lFlush = new QLabel(frFlush);
-        lFlush->setObjectName(QString::fromUtf8("lFlush"));
+        lFlush->setObjectName("lFlush");
         sizePolicy.setHeightForWidth(lFlush->sizePolicy().hasHeightForWidth());
         lFlush->setSizePolicy(sizePolicy);
         lFlush->setAlignment(Qt::AlignBottom|Qt::AlignHCenter);
@@ -484,8 +484,8 @@ public:
         gridLayout->addWidget(frFlush, 0, 2, 1, 1);
 
         m_Gasmchn = new GasMchn(GasPanelView);
-        m_Gasmchn->setObjectName(QString::fromUtf8("m_Gasmchn"));
-        QSizePolicy sizePolicy7(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        m_Gasmchn->setObjectName("m_Gasmchn");
+        QSizePolicy sizePolicy7(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
         sizePolicy7.setHorizontalStretch(0);
         sizePolicy7.setVerticalStretch(0);
         sizePolicy7.setHeightForWidth(m_Gasmchn->sizePolicy().hasHeightForWidth());
@@ -493,9 +493,9 @@ public:
         m_Gasmchn->setMinimumSize(QSize(310, 150));
         m_Gasmchn->setMaximumSize(QSize(16777215, 300));
         m_Srynge = new GasAniButton(m_Gasmchn);
-        m_Srynge->setObjectName(QString::fromUtf8("m_Srynge"));
+        m_Srynge->setObjectName("m_Srynge");
         m_Srynge->setGeometry(QRect(0, 0, 32, 32));
-        QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy8(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Preferred);
         sizePolicy8.setHorizontalStretch(0);
         sizePolicy8.setVerticalStretch(0);
         sizePolicy8.setHeightForWidth(m_Srynge->sizePolicy().hasHeightForWidth());
@@ -507,7 +507,7 @@ public:
         gridLayout->addWidget(m_Gasmchn, 0, 3, 2, 6);
 
         ggDEL = new GasGauge(GasPanelView);
-        ggDEL->setObjectName(QString::fromUtf8("ggDEL"));
+        ggDEL->setObjectName("ggDEL");
         sizePolicy8.setHeightForWidth(ggDEL->sizePolicy().hasHeightForWidth());
         ggDEL->setSizePolicy(sizePolicy8);
         ggDEL->setMinimumSize(QSize(15, 20));
@@ -517,7 +517,7 @@ public:
         gridLayout->addWidget(ggDEL, 0, 1, 1, 1);
 
         ggVA = new GasGauge(GasPanelView);
-        ggVA->setObjectName(QString::fromUtf8("ggVA"));
+        ggVA->setObjectName("ggVA");
         sizePolicy1.setHeightForWidth(ggVA->sizePolicy().hasHeightForWidth());
         ggVA->setSizePolicy(sizePolicy1);
         ggVA->setMinimumSize(QSize(15, 20));
@@ -526,7 +526,7 @@ public:
         gridLayout->addWidget(ggVA, 2, 5, 1, 1);
 
         frDEL = new QFrame(GasPanelView);
-        frDEL->setObjectName(QString::fromUtf8("frDEL"));
+        frDEL->setObjectName("frDEL");
         sizePolicy6.setHeightForWidth(frDEL->sizePolicy().hasHeightForWidth());
         frDEL->setSizePolicy(sizePolicy6);
         frDEL->setFrameShape(QFrame::NoFrame);
@@ -534,8 +534,8 @@ public:
         gridLayout7 = new QGridLayout(frDEL);
         gridLayout7->setSpacing(0);
         gridLayout7->setContentsMargins(1, 1, 1, 1);
-        gridLayout7->setObjectName(QString::fromUtf8("gridLayout7"));
-        spacerItem14 = new QSpacerItem(21, 21, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        gridLayout7->setObjectName("gridLayout7");
+        spacerItem14 = new QSpacerItem(21, 21, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout7->addItem(spacerItem14, 1, 0, 1, 1);
 
@@ -544,10 +544,10 @@ public:
 #ifndef Q_OS_MAC
         gridLayout8->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout8->setObjectName(QString::fromUtf8("gridLayout8"));
+        gridLayout8->setObjectName("gridLayout8");
         leDEL = new QLineEdit(frDEL);
-        leDEL->setObjectName(QString::fromUtf8("leDEL"));
-        QSizePolicy sizePolicy9(QSizePolicy::Ignored, QSizePolicy::Fixed);
+        leDEL->setObjectName("leDEL");
+        QSizePolicy sizePolicy9(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Fixed);
         sizePolicy9.setHorizontalStretch(0);
         sizePolicy9.setVerticalStretch(0);
         sizePolicy9.setHeightForWidth(leDEL->sizePolicy().hasHeightForWidth());
@@ -555,16 +555,16 @@ public:
 
         gridLayout8->addWidget(leDEL, 1, 0, 1, 3);
 
-        spacerItem15 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem15 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout8->addItem(spacerItem15, 0, 0, 1, 1);
 
-        spacerItem16 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem16 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout8->addItem(spacerItem16, 0, 2, 1, 1);
 
         tbDELup = new QToolButton(frDEL);
-        tbDELup->setObjectName(QString::fromUtf8("tbDELup"));
+        tbDELup->setObjectName("tbDELup");
         tbDELup->setMinimumSize(QSize(15, 15));
         tbDELup->setMaximumSize(QSize(15, 15));
         tbDELup->setFocusPolicy(Qt::NoFocus);
@@ -573,12 +573,12 @@ public:
 
         gridLayout8->addWidget(tbDELup, 0, 1, 1, 1);
 
-        spacerItem17 = new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem17 = new QSpacerItem(1, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout8->addItem(spacerItem17, 2, 0, 1, 1);
 
         tbDELdown = new QToolButton(frDEL);
-        tbDELdown->setObjectName(QString::fromUtf8("tbDELdown"));
+        tbDELdown->setObjectName("tbDELdown");
         tbDELdown->setMinimumSize(QSize(15, 15));
         tbDELdown->setMaximumSize(QSize(15, 15));
         tbDELdown->setFocusPolicy(Qt::NoFocus);
@@ -587,11 +587,11 @@ public:
 
         gridLayout8->addWidget(tbDELdown, 2, 1, 1, 1);
 
-        spacerItem18 = new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem18 = new QSpacerItem(1, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout8->addItem(spacerItem18, 2, 2, 1, 2);
 
-        spacerItem19 = new QSpacerItem(15, 15, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        spacerItem19 = new QSpacerItem(15, 15, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         gridLayout8->addItem(spacerItem19, 0, 3, 1, 1);
 
@@ -599,7 +599,7 @@ public:
         gridLayout7->addLayout(gridLayout8, 2, 0, 1, 1);
 
         leHighDEL = new QLineEdit(frDEL);
-        leHighDEL->setObjectName(QString::fromUtf8("leHighDEL"));
+        leHighDEL->setObjectName("leHighDEL");
         sizePolicy9.setHeightForWidth(leHighDEL->sizePolicy().hasHeightForWidth());
         leHighDEL->setSizePolicy(sizePolicy9);
         leHighDEL->setFocusPolicy(Qt::StrongFocus);
@@ -610,7 +610,7 @@ public:
         gridLayout->addWidget(frDEL, 0, 0, 1, 1);
 
         lbDEL = new QLabel(GasPanelView);
-        lbDEL->setObjectName(QString::fromUtf8("lbDEL"));
+        lbDEL->setObjectName("lbDEL");
         sizePolicy.setHeightForWidth(lbDEL->sizePolicy().hasHeightForWidth());
         lbDEL->setSizePolicy(sizePolicy);
         lbDEL->setMinimumSize(QSize(80, 30));
@@ -623,7 +623,7 @@ public:
         gridLayout->addWidget(lbDEL, 1, 0, 1, 3);
 
         frFGF = new QFrame(GasPanelView);
-        frFGF->setObjectName(QString::fromUtf8("frFGF"));
+        frFGF->setObjectName("frFGF");
         sizePolicy1.setHeightForWidth(frFGF->sizePolicy().hasHeightForWidth());
         frFGF->setSizePolicy(sizePolicy1);
         frFGF->setFrameShape(QFrame::NoFrame);
@@ -631,15 +631,15 @@ public:
         gridLayout9 = new QGridLayout(frFGF);
         gridLayout9->setSpacing(0);
         gridLayout9->setContentsMargins(1, 1, 1, 1);
-        gridLayout9->setObjectName(QString::fromUtf8("gridLayout9"));
+        gridLayout9->setObjectName("gridLayout9");
         gridLayout10 = new QGridLayout();
         gridLayout10->setSpacing(0);
 #ifndef Q_OS_MAC
         gridLayout10->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout10->setObjectName(QString::fromUtf8("gridLayout10"));
+        gridLayout10->setObjectName("gridLayout10");
         tbFGFdown = new QToolButton(frFGF);
-        tbFGFdown->setObjectName(QString::fromUtf8("tbFGFdown"));
+        tbFGFdown->setObjectName("tbFGFdown");
         sizePolicy2.setHeightForWidth(tbFGFdown->sizePolicy().hasHeightForWidth());
         tbFGFdown->setSizePolicy(sizePolicy2);
         tbFGFdown->setMinimumSize(QSize(15, 15));
@@ -650,35 +650,35 @@ public:
 
         gridLayout10->addWidget(tbFGFdown, 2, 1, 1, 1);
 
-        spacerItem20 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem20 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout10->addItem(spacerItem20, 0, 2, 1, 1);
 
-        spacerItem21 = new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem21 = new QSpacerItem(1, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout10->addItem(spacerItem21, 2, 0, 1, 1);
 
         leFGF = new QLineEdit(frFGF);
-        leFGF->setObjectName(QString::fromUtf8("leFGF"));
+        leFGF->setObjectName("leFGF");
         sizePolicy3.setHeightForWidth(leFGF->sizePolicy().hasHeightForWidth());
         leFGF->setSizePolicy(sizePolicy3);
 
         gridLayout10->addWidget(leFGF, 1, 0, 1, 4);
 
-        spacerItem22 = new QSpacerItem(1, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem22 = new QSpacerItem(1, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         gridLayout10->addItem(spacerItem22, 0, 0, 1, 1);
 
         vboxLayout1 = new QVBoxLayout();
         vboxLayout1->setSpacing(0);
         vboxLayout1->setContentsMargins(0, 0, 0, 0);
-        vboxLayout1->setObjectName(QString::fromUtf8("vboxLayout1"));
-        spacerItem23 = new QSpacerItem(15, 3, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        vboxLayout1->setObjectName("vboxLayout1");
+        spacerItem23 = new QSpacerItem(15, 3, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         vboxLayout1->addItem(spacerItem23);
 
         stFGF = new QLabel(frFGF);
-        stFGF->setObjectName(QString::fromUtf8("stFGF"));
+        stFGF->setObjectName("stFGF");
         sizePolicy2.setHeightForWidth(stFGF->sizePolicy().hasHeightForWidth());
         stFGF->setSizePolicy(sizePolicy2);
         stFGF->setMinimumSize(QSize(15, 15));
@@ -691,12 +691,12 @@ public:
 
         gridLayout10->addLayout(vboxLayout1, 0, 3, 1, 1);
 
-        spacerItem24 = new QSpacerItem(1, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
+        spacerItem24 = new QSpacerItem(1, 20, QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
 
         gridLayout10->addItem(spacerItem24, 2, 2, 1, 2);
 
         tbFGFup = new QToolButton(frFGF);
-        tbFGFup->setObjectName(QString::fromUtf8("tbFGFup"));
+        tbFGFup->setObjectName("tbFGFup");
         sizePolicy2.setHeightForWidth(tbFGFup->sizePolicy().hasHeightForWidth());
         tbFGFup->setSizePolicy(sizePolicy2);
         tbFGFup->setMinimumSize(QSize(15, 15));
@@ -710,12 +710,12 @@ public:
 
         gridLayout9->addLayout(gridLayout10, 2, 0, 1, 1);
 
-        spacerItem25 = new QSpacerItem(21, 81, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem25 = new QSpacerItem(21, 81, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout9->addItem(spacerItem25, 1, 0, 1, 1);
 
         leHighFGF = new QLineEdit(frFGF);
-        leHighFGF->setObjectName(QString::fromUtf8("leHighFGF"));
+        leHighFGF->setObjectName("leHighFGF");
         sizePolicy2.setHeightForWidth(leHighFGF->sizePolicy().hasHeightForWidth());
         leHighFGF->setSizePolicy(sizePolicy2);
         leHighFGF->setFocusPolicy(Qt::StrongFocus);

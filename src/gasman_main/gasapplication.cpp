@@ -47,7 +47,6 @@ GasApplication::GasApplication( int &argc, char **argv )
 	for(int i = 1; i< arguments().count(); i++){
 		filesToOpen<<arguments().at(i);
 	}
-	glm->instance()->validLicenseExists();
 	connect(this, SIGNAL(lastWindowClosed()), this, SLOT(quit()));
 }
 
@@ -282,7 +281,7 @@ void GasApplication::WriteProfile( const QString &group, const QString &param, c
 		settings.beginGroup( group );
 	if ( group == "RecentFileList" )			// If group is RecentFileList,
 		settings.remove( "" );					// Remove any/all sub-settings of this group
-	if (val.type() == QMetaType::Float || val.type() == QVariant::Double )
+	if (val.typeId() == QMetaType::Float || val.typeId() == QMetaType::Double )
 		settings.setValue( param, floor(val.toDouble() * 1e6 + 0.5) / 1e6 );
 	else
 		settings.setValue( param, val );
@@ -313,8 +312,6 @@ QStringList GasApplication::getColors() const
 
 QStringList GasApplication::getAgents() const
 {
-	if(!glm->instance()->validLicenseExists())
-		return AvailableAgents;
 	QStringList agents;
 	QStringList fromINI = gasApp->ReadProfile( "Agents", "Agents", QStringList() ).toStringList();
 	foreach( QString sectionName, fromINI )

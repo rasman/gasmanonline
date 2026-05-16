@@ -1,127 +1,156 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasgauge.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasgauge/gasgauge.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasgauge.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasGauge_t {
-    QByteArrayData data[10];
-    char stringdata0[104];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasGauge_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasGauge_t qt_meta_stringdata_GasGauge = {
-    {
-QT_MOC_LITERAL(0, 0, 8), // "GasGauge"
-QT_MOC_LITERAL(1, 9, 17), // "FireGasgaugeStart"
-QT_MOC_LITERAL(2, 27, 0), // ""
-QT_MOC_LITERAL(3, 28, 18), // "FireGasgaugeChange"
-QT_MOC_LITERAL(4, 47, 5), // "Value"
-QT_MOC_LITERAL(5, 53, 16), // "FireGasgaugeStop"
-QT_MOC_LITERAL(6, 70, 3), // "Max"
-QT_MOC_LITERAL(7, 74, 9), // "TickEvery"
-QT_MOC_LITERAL(8, 84, 10), // "LTickEvery"
-QT_MOC_LITERAL(9, 95, 8) // "BarColor"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN8GasGaugeE_t {};
+} // unnamed namespace
 
-    },
-    "GasGauge\0FireGasgaugeStart\0\0"
-    "FireGasgaugeChange\0Value\0FireGasgaugeStop\0"
-    "Max\0TickEvery\0LTickEvery\0BarColor"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasGauge[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN8GasGaugeE = QtMocHelpers::stringData(
+    "GasGauge",
+    "FireGasgaugeStart",
+    "",
+    "FireGasgaugeChange",
+    "Value",
+    "FireGasgaugeStop",
+    "Max",
+    "TickEvery",
+    "LTickEvery",
+    "BarColor"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN8GasGaugeE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
-       5,   34, // properties
+       5,   37, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
        3,       // signalCount
 
- // signals: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x06 /* Public */,
-       3,    1,   30,    2, 0x06 /* Public */,
-       5,    0,   33,    2, 0x06 /* Public */,
+ // signals: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   32,    2, 0x06,    6 /* Public */,
+       3,    1,   33,    2, 0x06,    7 /* Public */,
+       5,    0,   36,    2, 0x06,    9 /* Public */,
 
  // signals: parameters
     QMetaType::Void,
     QMetaType::Void, QMetaType::Short,    4,
     QMetaType::Void,
 
- // properties: name, type, flags
-       6, QMetaType::Int, 0x00095003,
-       4, QMetaType::Int, 0x00095003,
-       7, QMetaType::Int, 0x00095003,
-       8, QMetaType::Int, 0x00095003,
-       9, QMetaType::QColor, 0x00095003,
+ // properties: name, type, flags, notifyId, revision
+       6, QMetaType::Int, 0x00015003, uint(-1), 0,
+       4, QMetaType::Int, 0x00015003, uint(-1), 0,
+       7, QMetaType::Int, 0x00015003, uint(-1), 0,
+       8, QMetaType::Int, 0x00015003, uint(-1), 0,
+       9, QMetaType::QColor, 0x00015003, uint(-1), 0,
 
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasGauge::staticMetaObject = { {
+    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
+    qt_meta_stringdata_ZN8GasGaugeE.offsetsAndSizes,
+    qt_meta_data_ZN8GasGaugeE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN8GasGaugeE_t,
+        // property 'Max'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'Value'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'TickEvery'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LTickEvery'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'BarColor'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasGauge, std::true_type>,
+        // method 'FireGasgaugeStart'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'FireGasgaugeChange'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<short, std::false_type>,
+        // method 'FireGasgaugeStop'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasGauge::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasGauge *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasGauge *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->FireGasgaugeStart(); break;
-        case 1: _t->FireGasgaugeChange((*reinterpret_cast< short(*)>(_a[1]))); break;
+        case 1: _t->FireGasgaugeChange((*reinterpret_cast< std::add_pointer_t<short>>(_a[1]))); break;
         case 2: _t->FireGasgaugeStop(); break;
         default: ;
         }
-    } else if (_c == QMetaObject::IndexOfMethod) {
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (GasGauge::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasGauge::FireGasgaugeStart)) {
+            using _q_method_type = void (GasGauge::*)();
+            if (_q_method_type _q_method = &GasGauge::FireGasgaugeStart; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
             }
         }
         {
-            using _t = void (GasGauge::*)(short );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasGauge::FireGasgaugeChange)) {
+            using _q_method_type = void (GasGauge::*)(short );
+            if (_q_method_type _q_method = &GasGauge::FireGasgaugeChange; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 1;
                 return;
             }
         }
         {
-            using _t = void (GasGauge::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasGauge::FireGasgaugeStop)) {
+            using _q_method_type = void (GasGauge::*)();
+            if (_q_method_type _q_method = &GasGauge::FireGasgaugeStop; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 2;
                 return;
             }
         }
     }
-#ifndef QT_NO_PROPERTIES
-    else if (_c == QMetaObject::ReadProperty) {
-        auto *_t = static_cast<GasGauge *>(_o);
-        (void)_t;
+    if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
         switch (_id) {
         case 0: *reinterpret_cast< int*>(_v) = _t->GetMax(); break;
@@ -131,9 +160,8 @@ void GasGauge::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 4: *reinterpret_cast< QColor*>(_v) = _t->GetBarColor(); break;
         default: break;
         }
-    } else if (_c == QMetaObject::WriteProperty) {
-        auto *_t = static_cast<GasGauge *>(_o);
-        (void)_t;
+    }
+    if (_c == QMetaObject::WriteProperty) {
         void *_v = _a[0];
         switch (_id) {
         case 0: _t->SetMax(*reinterpret_cast< int*>(_v)); break;
@@ -143,20 +171,8 @@ void GasGauge::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 4: _t->SetBarColor(*reinterpret_cast< QColor*>(_v)); break;
         default: break;
         }
-    } else if (_c == QMetaObject::ResetProperty) {
     }
-#endif // QT_NO_PROPERTIES
 }
-
-QT_INIT_METAOBJECT const QMetaObject GasGauge::staticMetaObject = { {
-    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
-    qt_meta_stringdata_GasGauge.data,
-    qt_meta_data_GasGauge,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *GasGauge::metaObject() const
 {
@@ -166,7 +182,7 @@ const QMetaObject *GasGauge::metaObject() const
 void *GasGauge::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasGauge.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN8GasGaugeE.stringdata0))
         return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
@@ -180,28 +196,18 @@ int GasGauge::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 3)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 3;
     }
-#ifndef QT_NO_PROPERTIES
-    else if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
-            || _c == QMetaObject::ResetProperty || _c == QMetaObject::RegisterPropertyMetaType) {
+    if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
+            || _c == QMetaObject::ResetProperty || _c == QMetaObject::BindableProperty
+            || _c == QMetaObject::RegisterPropertyMetaType) {
         qt_static_metacall(this, _c, _id, _a);
         _id -= 5;
-    } else if (_c == QMetaObject::QueryPropertyDesignable) {
-        _id -= 5;
-    } else if (_c == QMetaObject::QueryPropertyScriptable) {
-        _id -= 5;
-    } else if (_c == QMetaObject::QueryPropertyStored) {
-        _id -= 5;
-    } else if (_c == QMetaObject::QueryPropertyEditable) {
-        _id -= 5;
-    } else if (_c == QMetaObject::QueryPropertyUser) {
-        _id -= 5;
     }
-#endif // QT_NO_PROPERTIES
     return _id;
 }
 
@@ -224,4 +230,3 @@ void GasGauge::FireGasgaugeStop()
     QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

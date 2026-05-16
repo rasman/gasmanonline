@@ -273,8 +273,8 @@ QSize GasPanelView::minimumSizeHint () const
 	int w1 = ui->frDEL->minimumSizeHint().width() + ui->ggDEL->minimumWidth() + 
 		ui->frFlush->minimumSizeHint().width() + layout()->spacing() * 2;  // Minumum width for Gauge-block
 	int w2 = ui->m_Gasmchn->minimumWidth()  + layout()->spacing(); // Minimum width for GasMachine
-	int w = w1 + w2 + layout()->margin() * 2; // Minimum width for form
-	int h = ( ui->m_Gasmchn->minimumSizeHint().height() + layout()->margin() ) * 2 + layout()->spacing(); // Minimum height
+	int w = w1 + w2 + layout()->contentsMargins().left() * 2; // Minimum width for form
+	int h = ( ui->m_Gasmchn->minimumSizeHint().height() + layout()->contentsMargins().left() ) * 2 + layout()->spacing(); // Minimum height
 	((GasPanelView *)this)->koefWidthMchn =  w2 / (double)( w1 + w2); // Percent of GasMachine in the width of the form
 
 	return QSize( w, h );
@@ -449,24 +449,29 @@ void GasPanelView::changeAgent()
 	StopForChange();
 	if ( !(gasdoc->CheckChange()) ) return;
 
-	GasAgentDlg dlg( this );
+	GasAgentDlg *dlg = new GasAgentDlg( this );
 
 	int nGas = gasdoc->m_nActiveGas;
-	dlg.setAgent(gasdoc->m_gasArray.at( nGas )->m_strAgent);	
-	dlg.setAgentChangeable( gasdoc->GetTime() == 0.0F );
-	dlg.setCircuit( m_strCircuit );
-	dlg.setArray( &( gasdoc->m_anesArray ) );
+	dlg->setAgent(gasdoc->m_gasArray.at( nGas )->m_strAgent);
+	dlg->setAgentChangeable( gasdoc->GetTime() == 0.0F );
+	dlg->setCircuit( m_strCircuit );
+	dlg->setArray( &( gasdoc->m_anesArray ) );
+	dlg->prepare();
 
-	if ( dlg.exec() == QDialog::Rejected )
-		return;
-
-	if ( m_strAgent != dlg.agent() && !CheckAgentChange( dlg.agent(), nGas ) ) return;
-
-	if ( m_strCircuit != dlg.circuit() ) {
-		m_strCircuit = dlg.circuit();
-		ui->m_Srynge->setEnabled( gasdoc->CanInject( m_nGas ) );
-		gasdoc->SetCircuit( this, m_strCircuit );
-	}
+	connect(dlg, &QDialog::accepted, this, [this, dlg, nGas]() {
+		if ( m_strAgent != dlg->agent() && !CheckAgentChange( dlg->agent(), nGas ) ) {
+			dlg->deleteLater();
+			return;
+		}
+		if ( m_strCircuit != dlg->circuit() ) {
+			m_strCircuit = dlg->circuit();
+			ui->m_Srynge->setEnabled( gasdoc->CanInject( m_nGas ) );
+			gasdoc->SetCircuit( this, m_strCircuit );
+		}
+		dlg->deleteLater();
+	});
+	connect(dlg, &QDialog::rejected, dlg, &QObject::deleteLater);
+	dlg->open();
 }
 
 bool GasPanelView::CheckAgentChange( QString const &strAgent, const int nGas )
@@ -1163,20 +1168,10 @@ void GasPanelView::gasgaugeChangeStop()
 
 void GasPanelView::ChangeAgent( const QString &agent )
 {	
-	bool bViewChange = false;
-
 	StopForChange();
-
-	// If this agent is already part of the sim, don't warn about
-	// changing the future of the sim. (bViewChange => don't CheckChange())
 
 	int nNew = gasdoc->m_anesArray.Lookup( agent );
 	Q_ASSERT( nNew >= 0 );
-	for ( int i = 0; i < gasdoc->m_gasArray.size(); ++i )
-		if ( gasdoc->m_gasArray.at(i)->m_nAgent == nNew ) {
-			bViewChange = true;
-			break;
-		}
 
 	if ( bStoppedForChange ) {
 		run();
@@ -1551,12 +1546,12 @@ void GasPanelView::resizeEvent( QResizeEvent *e )
 	GasViewCommon::resizeEvent( e );
 
 	// move and resize Gasmchn
-	int pWidth = width() - 	layout()->margin()*2;
-	int pHeight = height() - layout()->margin()*2;
+	int pWidth = width() - 	layout()->contentsMargins().left()*2;
+	int pHeight = height() - layout()->contentsMargins().left()*2;
 	int mHeight = int( pHeight / 2 );
 	
-	int x = int( layout()->margin() + pWidth * ( 1 - koefWidthMchn ) + 1 );
-	int y = MIDDLE( layout()->margin(), pHeight / 2, mHeight ); 
+	int x = int( layout()->contentsMargins().left() + pWidth * ( 1 - koefWidthMchn ) + 1 );
+	int y = MIDDLE( layout()->contentsMargins().left(), pHeight / 2, mHeight ); 
 
 	ui->m_Gasmchn->move( x, y );
 	ui->m_Gasmchn->resize( int( pWidth * koefWidthMchn ), mHeight );
@@ -1568,10 +1563,10 @@ void GasPanelView::gasmchnGeometryUpdated()
 	int gaugeHeight, controlHeight;
 	int gaugeWidth, controlWidth;
 	int labelYOffset,labelYOffset2,controlXOffset;
-	QRect rec,rec1;
-	QPoint pos,pos1;
+	QRect rec;
+	QPoint pos;
 	QFontMetrics fm( font() );
-	int pHeight = height() - layout()->margin()*2;
+	int pHeight = height() - layout()->contentsMargins().left()*2;
 	
 	// Move liquid to injection point
 	pos = ui->m_Gasmchn->GetInjectPoint() - QPoint( 0, ui->m_Srynge->size().height() );
@@ -1586,7 +1581,7 @@ void GasPanelView::gasmchnGeometryUpdated()
 	controlHeight = ui->frDEL->minimumSizeHint().height() < ( gaugeHeight + dY + 2) ? gaugeHeight + dY + 2 : ui->frDEL->minimumSizeHint().height();
 	controlWidth = ui->frDEL->width();
 	ui->frDEL->resize( controlWidth, controlHeight );
-	ui->frDEL->move( layout()->margin() , pos.y() - dY );
+	ui->frDEL->move( layout()->contentsMargins().left() , pos.y() - dY );
 
 	int freeSpace = ( pos.x() - ui->frDEL->geometry().topRight().x() - ui->frFlush->width() - layout()->spacing()*3 );
 	freeSpace -= ui->ggDEL->minimumSize().width();
@@ -1623,7 +1618,7 @@ void GasPanelView::gasmchnGeometryUpdated()
 	labelYOffset -= ( fm.boundingRect( ui->lbFGF->text() ).height() + 4 );
 	ui->ggFGF->resize( gaugeWidth, gaugeHeight );
 	x = MIDDLE( ui->frFlush->pos().x(), ui->frFlush->width(), ui->ggFGF->width() );
-	yg = MIDDLE( layout()->margin() + layout()->spacing() + pHeight / 2 , pHeight / 2 ,  labelYOffset );
+	yg = MIDDLE( layout()->contentsMargins().left() + layout()->spacing() + pHeight / 2 , pHeight / 2 ,  labelYOffset );
 	ui->ggFGF->move( x , yg + dY );
 
 	ui->frFGF->resize( controlWidth, controlHeight );
@@ -1661,8 +1656,8 @@ void GasPanelView::gasmchnGeometryUpdated()
 	ui->frame_t->resize( ui->frame_t->minimumSizeHint().width(), pHeight / 2);
 	rec = ui->m_Gasmchn->GetMUSRect();
 	pos = mapFromGlobal( ui->m_Gasmchn->mapToGlobal( rec.topLeft() ) );
-	x = ( pos.x() + ui->frame_t->width() <  width() - layout()->margin() ) ? pos.x() :  width() - layout()->margin() - ui->frame_t->width();
-	ui->frame_t->move( x, layout()->margin() + layout()->spacing() + pHeight / 2 );
+	x = ( pos.x() + ui->frame_t->width() <  width() - layout()->contentsMargins().left() ) ? pos.x() :  width() - layout()->contentsMargins().left() - ui->frame_t->width();
+	ui->frame_t->move( x, layout()->contentsMargins().left() + layout()->spacing() + pHeight / 2 );
 
 	update();	
 }

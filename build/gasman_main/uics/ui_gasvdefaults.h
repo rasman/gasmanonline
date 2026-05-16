@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasvdefaults.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -46,12 +46,12 @@ public:
     void setupUi(QWidget *GasVDefaults)
     {
         if (GasVDefaults->objectName().isEmpty())
-            GasVDefaults->setObjectName(QString::fromUtf8("GasVDefaults"));
+            GasVDefaults->setObjectName("GasVDefaults");
         GasVDefaults->resize(280, 213);
         gridLayout_2 = new QGridLayout(GasVDefaults);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        gridLayout_2->setObjectName("gridLayout_2");
         gbScale = new QGroupBox(GasVDefaults);
-        gbScale->setObjectName(QString::fromUtf8("gbScale"));
+        gbScale->setObjectName("gbScale");
         gridLayout = new QGridLayout(gbScale);
 #ifndef Q_OS_MAC
         gridLayout->setSpacing(6);
@@ -59,34 +59,34 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         lFGF = new QLabel(gbScale);
-        lFGF->setObjectName(QString::fromUtf8("lFGF"));
+        lFGF->setObjectName("lFGF");
 
         gridLayout->addWidget(lFGF, 0, 0, 1, 1);
 
         sbCO = new QSpinBox(gbScale);
-        sbCO->setObjectName(QString::fromUtf8("sbCO"));
+        sbCO->setObjectName("sbCO");
 
         gridLayout->addWidget(sbCO, 1, 2, 1, 1);
 
         lCO = new QLabel(gbScale);
-        lCO->setObjectName(QString::fromUtf8("lCO"));
+        lCO->setObjectName("lCO");
 
         gridLayout->addWidget(lCO, 0, 2, 1, 1);
 
         sbVA = new QSpinBox(gbScale);
-        sbVA->setObjectName(QString::fromUtf8("sbVA"));
+        sbVA->setObjectName("sbVA");
 
         gridLayout->addWidget(sbVA, 1, 1, 1, 1);
 
         lVA = new QLabel(gbScale);
-        lVA->setObjectName(QString::fromUtf8("lVA"));
+        lVA->setObjectName("lVA");
 
         gridLayout->addWidget(lVA, 0, 1, 1, 1);
 
         sbFGF = new QSpinBox(gbScale);
-        sbFGF->setObjectName(QString::fromUtf8("sbFGF"));
+        sbFGF->setObjectName("sbFGF");
 
         gridLayout->addWidget(sbFGF, 1, 0, 1, 1);
 
@@ -94,37 +94,37 @@ public:
         gridLayout_2->addWidget(gbScale, 0, 0, 1, 1);
 
         lView = new QLabel(GasVDefaults);
-        lView->setObjectName(QString::fromUtf8("lView"));
+        lView->setObjectName("lView");
 
         gridLayout_2->addWidget(lView, 1, 0, 1, 1);
 
         gridLayout1 = new QGridLayout();
-        gridLayout1->setObjectName(QString::fromUtf8("gridLayout1"));
+        gridLayout1->setObjectName("gridLayout1");
         cbTime = new QComboBox(GasVDefaults);
-        cbTime->setObjectName(QString::fromUtf8("cbTime"));
+        cbTime->setObjectName("cbTime");
 
         gridLayout1->addWidget(cbTime, 0, 0, 1, 1);
 
         cbShowCost = new QCheckBox(GasVDefaults);
-        cbShowCost->setObjectName(QString::fromUtf8("cbShowCost"));
+        cbShowCost->setObjectName("cbShowCost");
         cbShowCost->setChecked(true);
 
         gridLayout1->addWidget(cbShowCost, 0, 1, 1, 1);
 
         cbEnableScrolling = new QCheckBox(GasVDefaults);
-        cbEnableScrolling->setObjectName(QString::fromUtf8("cbEnableScrolling"));
+        cbEnableScrolling->setObjectName("cbEnableScrolling");
         cbEnableScrolling->setChecked(true);
 
         gridLayout1->addWidget(cbEnableScrolling, 0, 2, 1, 1);
 
         cbShowMl = new QCheckBox(GasVDefaults);
-        cbShowMl->setObjectName(QString::fromUtf8("cbShowMl"));
+        cbShowMl->setObjectName("cbShowMl");
         cbShowMl->setChecked(true);
 
         gridLayout1->addWidget(cbShowMl, 1, 1, 1, 1);
 
         cbShowControl = new QCheckBox(GasVDefaults);
-        cbShowControl->setObjectName(QString::fromUtf8("cbShowControl"));
+        cbShowControl->setObjectName("cbShowControl");
         cbShowControl->setChecked(true);
 
         gridLayout1->addWidget(cbShowControl, 1, 2, 1, 1);
@@ -132,7 +132,7 @@ public:
 
         gridLayout_2->addLayout(gridLayout1, 2, 0, 1, 1);
 
-        spacerItem = new QSpacerItem(254, 21, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem = new QSpacerItem(254, 21, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         gridLayout_2->addItem(spacerItem, 3, 0, 1, 1);
 

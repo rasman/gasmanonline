@@ -1,121 +1,114 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasgraph.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasgraph/gasgraph.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasgraph.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasGraph_t {
-    QByteArrayData data[47];
-    char stringdata0[424];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasGraph_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasGraph_t qt_meta_stringdata_GasGraph = {
-    {
-QT_MOC_LITERAL(0, 0, 8), // "GasGraph"
-QT_MOC_LITERAL(1, 9, 14), // "beginDrawLines"
-QT_MOC_LITERAL(2, 24, 0), // ""
-QT_MOC_LITERAL(3, 25, 12), // "endDrawLines"
-QT_MOC_LITERAL(4, 38, 11), // "zoomChanged"
-QT_MOC_LITERAL(5, 50, 11), // "scrollMoved"
-QT_MOC_LITERAL(6, 62, 1), // "x"
-QT_MOC_LITERAL(7, 64, 9), // "ScrollEnb"
-QT_MOC_LITERAL(8, 74, 7), // "Loading"
-QT_MOC_LITERAL(9, 82, 6), // "Color0"
-QT_MOC_LITERAL(10, 89, 6), // "Color1"
-QT_MOC_LITERAL(11, 96, 6), // "Color2"
-QT_MOC_LITERAL(12, 103, 6), // "Color3"
-QT_MOC_LITERAL(13, 110, 6), // "Color4"
-QT_MOC_LITERAL(14, 117, 10), // "LMarginPct"
-QT_MOC_LITERAL(15, 128, 10), // "RMarginPct"
-QT_MOC_LITERAL(16, 139, 10), // "TMarginPct"
-QT_MOC_LITERAL(17, 150, 10), // "BMarginPct"
-QT_MOC_LITERAL(18, 161, 8), // "XPhySize"
-QT_MOC_LITERAL(19, 170, 8), // "YPhySize"
-QT_MOC_LITERAL(20, 179, 8), // "XPhyZero"
-QT_MOC_LITERAL(21, 188, 8), // "YPhyZero"
-QT_MOC_LITERAL(22, 197, 6), // "Origin"
-QT_MOC_LITERAL(23, 204, 3), // "MAC"
-QT_MOC_LITERAL(24, 208, 4), // "Mask"
-QT_MOC_LITERAL(25, 213, 10), // "LabelChar0"
-QT_MOC_LITERAL(26, 224, 10), // "LabelChar1"
-QT_MOC_LITERAL(27, 235, 10), // "LabelChar2"
-QT_MOC_LITERAL(28, 246, 10), // "LabelChar3"
-QT_MOC_LITERAL(29, 257, 10), // "LabelChar4"
-QT_MOC_LITERAL(30, 268, 13), // "LineLabelType"
-QT_MOC_LITERAL(31, 282, 9), // "LineWidth"
-QT_MOC_LITERAL(32, 292, 4), // "Vals"
-QT_MOC_LITERAL(33, 297, 10), // "XLabelType"
-QT_MOC_LITERAL(34, 308, 10), // "YLabelType"
-QT_MOC_LITERAL(35, 319, 10), // "PaperColor"
-QT_MOC_LITERAL(36, 330, 4), // "XMin"
-QT_MOC_LITERAL(37, 335, 5), // "XSize"
-QT_MOC_LITERAL(38, 341, 11), // "XLabelEvery"
-QT_MOC_LITERAL(39, 353, 10), // "XTickEvery"
-QT_MOC_LITERAL(40, 364, 9), // "XValEvery"
-QT_MOC_LITERAL(41, 374, 4), // "XVal"
-QT_MOC_LITERAL(42, 379, 4), // "YMin"
-QT_MOC_LITERAL(43, 384, 5), // "YSize"
-QT_MOC_LITERAL(44, 390, 11), // "YLabelEvery"
-QT_MOC_LITERAL(45, 402, 10), // "YTickEvery"
-QT_MOC_LITERAL(46, 413, 10) // "FontHeight"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN8GasGraphE_t {};
+} // unnamed namespace
 
-    },
-    "GasGraph\0beginDrawLines\0\0endDrawLines\0"
-    "zoomChanged\0scrollMoved\0x\0ScrollEnb\0"
-    "Loading\0Color0\0Color1\0Color2\0Color3\0"
-    "Color4\0LMarginPct\0RMarginPct\0TMarginPct\0"
-    "BMarginPct\0XPhySize\0YPhySize\0XPhyZero\0"
-    "YPhyZero\0Origin\0MAC\0Mask\0LabelChar0\0"
-    "LabelChar1\0LabelChar2\0LabelChar3\0"
-    "LabelChar4\0LineLabelType\0LineWidth\0"
-    "Vals\0XLabelType\0YLabelType\0PaperColor\0"
-    "XMin\0XSize\0XLabelEvery\0XTickEvery\0"
-    "XValEvery\0XVal\0YMin\0YSize\0YLabelEvery\0"
-    "YTickEvery\0FontHeight"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasGraph[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN8GasGraphE = QtMocHelpers::stringData(
+    "GasGraph",
+    "beginDrawLines",
+    "",
+    "endDrawLines",
+    "zoomChanged",
+    "scrollMoved",
+    "x",
+    "ScrollEnb",
+    "Loading",
+    "Color0",
+    "Color1",
+    "Color2",
+    "Color3",
+    "Color4",
+    "LMarginPct",
+    "RMarginPct",
+    "TMarginPct",
+    "BMarginPct",
+    "XPhySize",
+    "YPhySize",
+    "XPhyZero",
+    "YPhyZero",
+    "Origin",
+    "MAC",
+    "Mask",
+    "LabelChar0",
+    "LabelChar1",
+    "LabelChar2",
+    "LabelChar3",
+    "LabelChar4",
+    "LineLabelType",
+    "LineWidth",
+    "Vals",
+    "XLabelType",
+    "YLabelType",
+    "PaperColor",
+    "XMin",
+    "XSize",
+    "XLabelEvery",
+    "XTickEvery",
+    "XValEvery",
+    "XVal",
+    "YMin",
+    "YSize",
+    "YLabelEvery",
+    "YTickEvery",
+    "FontHeight"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN8GasGraphE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        4,   14, // methods
-      40,   40, // properties
+      40,   44, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
        3,       // signalCount
 
- // signals: name, argc, parameters, tag, flags
-       1,    0,   34,    2, 0x06 /* Public */,
-       3,    0,   35,    2, 0x06 /* Public */,
-       4,    0,   36,    2, 0x06 /* Public */,
+ // signals: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   38,    2, 0x06,   41 /* Public */,
+       3,    0,   39,    2, 0x06,   42 /* Public */,
+       4,    0,   40,    2, 0x06,   43 /* Public */,
 
- // slots: name, argc, parameters, tag, flags
-       5,    1,   37,    2, 0x0a /* Public */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       5,    1,   41,    2, 0x0a,   44 /* Public */,
 
  // signals: parameters
     QMetaType::Void,
@@ -125,91 +118,190 @@ static const uint qt_meta_data_GasGraph[] = {
  // slots: parameters
     QMetaType::Void, QMetaType::Int,    6,
 
- // properties: name, type, flags
-       7, QMetaType::Bool, 0x00095003,
-       8, QMetaType::Bool, 0x00095003,
-       9, QMetaType::QColor, 0x00095003,
-      10, QMetaType::QColor, 0x00095003,
-      11, QMetaType::QColor, 0x00095003,
-      12, QMetaType::QColor, 0x00095003,
-      13, QMetaType::QColor, 0x00095003,
-      14, QMetaType::Int, 0x00095003,
-      15, QMetaType::Int, 0x00095003,
-      16, QMetaType::Int, 0x00095003,
-      17, QMetaType::Int, 0x00095003,
-      18, QMetaType::Int, 0x00095003,
-      19, QMetaType::Int, 0x00095003,
-      20, QMetaType::Int, 0x00095003,
-      21, QMetaType::Int, 0x00095003,
-      22, QMetaType::Double, 0x00095003,
-      23, QMetaType::Double, 0x00095003,
-      24, QMetaType::Int, 0x00095003,
-      25, QMetaType::Int, 0x00095003,
-      26, QMetaType::Int, 0x00095003,
-      27, QMetaType::Int, 0x00095003,
-      28, QMetaType::Int, 0x00095003,
-      29, QMetaType::Int, 0x00095003,
-      30, QMetaType::Int, 0x00095003,
-      31, QMetaType::Int, 0x00095003,
-      32, QMetaType::Int, 0x00095003,
-      33, QMetaType::Int, 0x00095003,
-      34, QMetaType::Int, 0x00095003,
-      35, QMetaType::QColor, 0x00095003,
-      36, QMetaType::Double, 0x00095003,
-      37, QMetaType::Double, 0x00095003,
-      38, QMetaType::Double, 0x00095003,
-      39, QMetaType::Double, 0x00095003,
-      40, QMetaType::Double, 0x00095003,
-      41, QMetaType::Double, 0x00095003,
-      42, QMetaType::Double, 0x00095003,
-      43, QMetaType::Double, 0x00095003,
-      44, QMetaType::Double, 0x00095003,
-      45, QMetaType::Double, 0x00095003,
-      46, QMetaType::Int, 0x00095003,
+ // properties: name, type, flags, notifyId, revision
+       7, QMetaType::Bool, 0x00015003, uint(-1), 0,
+       8, QMetaType::Bool, 0x00015003, uint(-1), 0,
+       9, QMetaType::QColor, 0x00015003, uint(-1), 0,
+      10, QMetaType::QColor, 0x00015003, uint(-1), 0,
+      11, QMetaType::QColor, 0x00015003, uint(-1), 0,
+      12, QMetaType::QColor, 0x00015003, uint(-1), 0,
+      13, QMetaType::QColor, 0x00015003, uint(-1), 0,
+      14, QMetaType::Int, 0x00015003, uint(-1), 0,
+      15, QMetaType::Int, 0x00015003, uint(-1), 0,
+      16, QMetaType::Int, 0x00015003, uint(-1), 0,
+      17, QMetaType::Int, 0x00015003, uint(-1), 0,
+      18, QMetaType::Int, 0x00015003, uint(-1), 0,
+      19, QMetaType::Int, 0x00015003, uint(-1), 0,
+      20, QMetaType::Int, 0x00015003, uint(-1), 0,
+      21, QMetaType::Int, 0x00015003, uint(-1), 0,
+      22, QMetaType::Double, 0x00015003, uint(-1), 0,
+      23, QMetaType::Double, 0x00015003, uint(-1), 0,
+      24, QMetaType::Int, 0x00015003, uint(-1), 0,
+      25, QMetaType::Int, 0x00015003, uint(-1), 0,
+      26, QMetaType::Int, 0x00015003, uint(-1), 0,
+      27, QMetaType::Int, 0x00015003, uint(-1), 0,
+      28, QMetaType::Int, 0x00015003, uint(-1), 0,
+      29, QMetaType::Int, 0x00015003, uint(-1), 0,
+      30, QMetaType::Int, 0x00015003, uint(-1), 0,
+      31, QMetaType::Int, 0x00015003, uint(-1), 0,
+      32, QMetaType::Int, 0x00015003, uint(-1), 0,
+      33, QMetaType::Int, 0x00015003, uint(-1), 0,
+      34, QMetaType::Int, 0x00015003, uint(-1), 0,
+      35, QMetaType::QColor, 0x00015003, uint(-1), 0,
+      36, QMetaType::Double, 0x00015003, uint(-1), 0,
+      37, QMetaType::Double, 0x00015003, uint(-1), 0,
+      38, QMetaType::Double, 0x00015003, uint(-1), 0,
+      39, QMetaType::Double, 0x00015003, uint(-1), 0,
+      40, QMetaType::Double, 0x00015003, uint(-1), 0,
+      41, QMetaType::Double, 0x00015003, uint(-1), 0,
+      42, QMetaType::Double, 0x00015003, uint(-1), 0,
+      43, QMetaType::Double, 0x00015003, uint(-1), 0,
+      44, QMetaType::Double, 0x00015003, uint(-1), 0,
+      45, QMetaType::Double, 0x00015003, uint(-1), 0,
+      46, QMetaType::Int, 0x00015003, uint(-1), 0,
 
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasGraph::staticMetaObject = { {
+    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
+    qt_meta_stringdata_ZN8GasGraphE.offsetsAndSizes,
+    qt_meta_data_ZN8GasGraphE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN8GasGraphE_t,
+        // property 'ScrollEnb'
+        QtPrivate::TypeAndForceComplete<bool, std::true_type>,
+        // property 'Loading'
+        QtPrivate::TypeAndForceComplete<bool, std::true_type>,
+        // property 'Color0'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // property 'Color1'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // property 'Color2'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // property 'Color3'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // property 'Color4'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // property 'LMarginPct'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'RMarginPct'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'TMarginPct'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'BMarginPct'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'XPhySize'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'YPhySize'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'XPhyZero'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'YPhyZero'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'Origin'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'MAC'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'Mask'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LabelChar0'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LabelChar1'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LabelChar2'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LabelChar3'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LabelChar4'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LineLabelType'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'LineWidth'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'Vals'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'XLabelType'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'YLabelType'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // property 'PaperColor'
+        QtPrivate::TypeAndForceComplete<QColor, std::true_type>,
+        // property 'XMin'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'XSize'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'XLabelEvery'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'XTickEvery'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'XValEvery'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'XVal'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'YMin'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'YSize'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'YLabelEvery'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'YTickEvery'
+        QtPrivate::TypeAndForceComplete<double, std::true_type>,
+        // property 'FontHeight'
+        QtPrivate::TypeAndForceComplete<int, std::true_type>,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasGraph, std::true_type>,
+        // method 'beginDrawLines'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'endDrawLines'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'zoomChanged'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'scrollMoved'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasGraph::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasGraph *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasGraph *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->beginDrawLines(); break;
         case 1: _t->endDrawLines(); break;
         case 2: _t->zoomChanged(); break;
-        case 3: _t->scrollMoved((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: _t->scrollMoved((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         default: ;
         }
-    } else if (_c == QMetaObject::IndexOfMethod) {
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (GasGraph::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasGraph::beginDrawLines)) {
+            using _q_method_type = void (GasGraph::*)();
+            if (_q_method_type _q_method = &GasGraph::beginDrawLines; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
             }
         }
         {
-            using _t = void (GasGraph::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasGraph::endDrawLines)) {
+            using _q_method_type = void (GasGraph::*)();
+            if (_q_method_type _q_method = &GasGraph::endDrawLines; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 1;
                 return;
             }
         }
         {
-            using _t = void (GasGraph::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasGraph::zoomChanged)) {
+            using _q_method_type = void (GasGraph::*)();
+            if (_q_method_type _q_method = &GasGraph::zoomChanged; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 2;
                 return;
             }
         }
     }
-#ifndef QT_NO_PROPERTIES
-    else if (_c == QMetaObject::ReadProperty) {
-        auto *_t = static_cast<GasGraph *>(_o);
-        (void)_t;
+    if (_c == QMetaObject::ReadProperty) {
         void *_v = _a[0];
         switch (_id) {
         case 0: *reinterpret_cast< bool*>(_v) = _t->GetScrollEnb(); break;
@@ -254,9 +346,8 @@ void GasGraph::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 39: *reinterpret_cast< int*>(_v) = _t->GetFontHeight(); break;
         default: break;
         }
-    } else if (_c == QMetaObject::WriteProperty) {
-        auto *_t = static_cast<GasGraph *>(_o);
-        (void)_t;
+    }
+    if (_c == QMetaObject::WriteProperty) {
         void *_v = _a[0];
         switch (_id) {
         case 0: _t->SetScrollEnb(*reinterpret_cast< bool*>(_v)); break;
@@ -301,20 +392,8 @@ void GasGraph::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 39: _t->SetFontHeight(*reinterpret_cast< int*>(_v)); break;
         default: break;
         }
-    } else if (_c == QMetaObject::ResetProperty) {
     }
-#endif // QT_NO_PROPERTIES
 }
-
-QT_INIT_METAOBJECT const QMetaObject GasGraph::staticMetaObject = { {
-    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
-    qt_meta_stringdata_GasGraph.data,
-    qt_meta_data_GasGraph,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *GasGraph::metaObject() const
 {
@@ -324,7 +403,7 @@ const QMetaObject *GasGraph::metaObject() const
 void *GasGraph::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasGraph.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN8GasGraphE.stringdata0))
         return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
@@ -338,28 +417,18 @@ int GasGraph::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 4;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 4)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 4;
     }
-#ifndef QT_NO_PROPERTIES
-    else if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
-            || _c == QMetaObject::ResetProperty || _c == QMetaObject::RegisterPropertyMetaType) {
+    if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
+            || _c == QMetaObject::ResetProperty || _c == QMetaObject::BindableProperty
+            || _c == QMetaObject::RegisterPropertyMetaType) {
         qt_static_metacall(this, _c, _id, _a);
         _id -= 40;
-    } else if (_c == QMetaObject::QueryPropertyDesignable) {
-        _id -= 40;
-    } else if (_c == QMetaObject::QueryPropertyScriptable) {
-        _id -= 40;
-    } else if (_c == QMetaObject::QueryPropertyStored) {
-        _id -= 40;
-    } else if (_c == QMetaObject::QueryPropertyEditable) {
-        _id -= 40;
-    } else if (_c == QMetaObject::QueryPropertyUser) {
-        _id -= 40;
     }
-#endif // QT_NO_PROPERTIES
     return _id;
 }
 
@@ -381,4 +450,3 @@ void GasGraph::zoomChanged()
     QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

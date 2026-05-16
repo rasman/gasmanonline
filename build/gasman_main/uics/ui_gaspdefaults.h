@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gaspdefaults.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -61,7 +61,7 @@ public:
     void setupUi(QWidget *GasPDefaults)
     {
         if (GasPDefaults->objectName().isEmpty())
-            GasPDefaults->setObjectName(QString::fromUtf8("GasPDefaults"));
+            GasPDefaults->setObjectName("GasPDefaults");
         GasPDefaults->resize(261, 311);
         gridLayout = new QGridLayout(GasPDefaults);
 #ifndef Q_OS_MAC
@@ -70,18 +70,18 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        spacerItem = new QSpacerItem(191, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        gridLayout->setObjectName("gridLayout");
+        spacerItem = new QSpacerItem(191, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         gridLayout->addItem(spacerItem, 1, 0, 1, 1);
 
         pbCustom = new QPushButton(GasPDefaults);
-        pbCustom->setObjectName(QString::fromUtf8("pbCustom"));
+        pbCustom->setObjectName("pbCustom");
 
         gridLayout->addWidget(pbCustom, 1, 1, 1, 1);
 
         groupBox = new QGroupBox(GasPDefaults);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setObjectName("groupBox");
         gridLayout1 = new QGridLayout(groupBox);
 #ifndef Q_OS_MAC
         gridLayout1->setSpacing(6);
@@ -89,10 +89,10 @@ public:
 #ifndef Q_OS_MAC
         gridLayout1->setContentsMargins(9, 9, 9, 9);
 #endif
-        gridLayout1->setObjectName(QString::fromUtf8("gridLayout1"));
+        gridLayout1->setObjectName("gridLayout1");
         rbAudibleSystem1 = new QRadioButton(groupBox);
-        rbAudibleSystem1->setObjectName(QString::fromUtf8("rbAudibleSystem1"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        rbAudibleSystem1->setObjectName("rbAudibleSystem1");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(rbAudibleSystem1->sizePolicy().hasHeightForWidth());
@@ -101,28 +101,28 @@ public:
         gridLayout1->addWidget(rbAudibleSystem1, 0, 1, 1, 1);
 
         rbAudibleSystem3 = new QRadioButton(groupBox);
-        rbAudibleSystem3->setObjectName(QString::fromUtf8("rbAudibleSystem3"));
+        rbAudibleSystem3->setObjectName("rbAudibleSystem3");
 
         gridLayout1->addWidget(rbAudibleSystem3, 0, 2, 1, 1);
 
         rbAudibleOff = new QRadioButton(groupBox);
-        rbAudibleOff->setObjectName(QString::fromUtf8("rbAudibleOff"));
+        rbAudibleOff->setObjectName("rbAudibleOff");
         rbAudibleOff->setChecked(true);
 
         gridLayout1->addWidget(rbAudibleOff, 0, 0, 1, 1);
 
         rbAudibleSystem2 = new QRadioButton(groupBox);
-        rbAudibleSystem2->setObjectName(QString::fromUtf8("rbAudibleSystem2"));
+        rbAudibleSystem2->setObjectName("rbAudibleSystem2");
 
         gridLayout1->addWidget(rbAudibleSystem2, 1, 1, 1, 1);
 
         rbAudibleBeep = new QRadioButton(groupBox);
-        rbAudibleBeep->setObjectName(QString::fromUtf8("rbAudibleBeep"));
+        rbAudibleBeep->setObjectName("rbAudibleBeep");
 
         gridLayout1->addWidget(rbAudibleBeep, 1, 0, 1, 1);
 
         rbAudibleSystem4 = new QRadioButton(groupBox);
-        rbAudibleSystem4->setObjectName(QString::fromUtf8("rbAudibleSystem4"));
+        rbAudibleSystem4->setObjectName("rbAudibleSystem4");
 
         gridLayout1->addWidget(rbAudibleSystem4, 1, 2, 1, 1);
 
@@ -130,7 +130,7 @@ public:
         gridLayout->addWidget(groupBox, 0, 0, 1, 2);
 
         groupBox_2 = new QGroupBox(GasPDefaults);
-        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        groupBox_2->setObjectName("groupBox_2");
         hboxLayout = new QHBoxLayout(groupBox_2);
 #ifndef Q_OS_MAC
         hboxLayout->setSpacing(6);
@@ -138,16 +138,16 @@ public:
 #ifndef Q_OS_MAC
         hboxLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
+        hboxLayout->setObjectName("hboxLayout");
         rbGraphLabelsOff = new QRadioButton(groupBox_2);
-        rbGraphLabelsOff->setObjectName(QString::fromUtf8("rbGraphLabelsOff"));
+        rbGraphLabelsOff->setObjectName("rbGraphLabelsOff");
         rbGraphLabelsOff->setChecked(true);
 
         hboxLayout->addWidget(rbGraphLabelsOff);
 
         rbGraphLabelsOn = new QRadioButton(groupBox_2);
-        rbGraphLabelsOn->setObjectName(QString::fromUtf8("rbGraphLabelsOn"));
-        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Expanding);
+        rbGraphLabelsOn->setObjectName("rbGraphLabelsOn");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(rbGraphLabelsOn->sizePolicy().hasHeightForWidth());
@@ -156,7 +156,7 @@ public:
         hboxLayout->addWidget(rbGraphLabelsOn);
 
         rbGraphLabelsAuto = new QRadioButton(groupBox_2);
-        rbGraphLabelsAuto->setObjectName(QString::fromUtf8("rbGraphLabelsAuto"));
+        rbGraphLabelsAuto->setObjectName("rbGraphLabelsAuto");
 
         hboxLayout->addWidget(rbGraphLabelsAuto);
 
@@ -164,7 +164,7 @@ public:
         gridLayout->addWidget(groupBox_2, 2, 0, 1, 2);
 
         groupBox_3 = new QGroupBox(GasPDefaults);
-        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
+        groupBox_3->setObjectName("groupBox_3");
         hboxLayout1 = new QHBoxLayout(groupBox_3);
 #ifndef Q_OS_MAC
         hboxLayout1->setSpacing(6);
@@ -172,20 +172,20 @@ public:
 #ifndef Q_OS_MAC
         hboxLayout1->setContentsMargins(9, 9, 9, 9);
 #endif
-        hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
+        hboxLayout1->setObjectName("hboxLayout1");
         rbGraphThicknessOne = new QRadioButton(groupBox_3);
-        rbGraphThicknessOne->setObjectName(QString::fromUtf8("rbGraphThicknessOne"));
+        rbGraphThicknessOne->setObjectName("rbGraphThicknessOne");
         rbGraphThicknessOne->setChecked(true);
 
         hboxLayout1->addWidget(rbGraphThicknessOne);
 
         rbGraphThicknessTwo = new QRadioButton(groupBox_3);
-        rbGraphThicknessTwo->setObjectName(QString::fromUtf8("rbGraphThicknessTwo"));
+        rbGraphThicknessTwo->setObjectName("rbGraphThicknessTwo");
 
         hboxLayout1->addWidget(rbGraphThicknessTwo);
 
         rbGraphThicknessThree = new QRadioButton(groupBox_3);
-        rbGraphThicknessThree->setObjectName(QString::fromUtf8("rbGraphThicknessThree"));
+        rbGraphThicknessThree->setObjectName("rbGraphThicknessThree");
 
         hboxLayout1->addWidget(rbGraphThicknessThree);
 
@@ -197,9 +197,9 @@ public:
         hboxLayout2->setSpacing(6);
 #endif
         hboxLayout2->setContentsMargins(0, 0, 0, 0);
-        hboxLayout2->setObjectName(QString::fromUtf8("hboxLayout2"));
+        hboxLayout2->setObjectName("hboxLayout2");
         groupBox_4 = new QGroupBox(GasPDefaults);
-        groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
+        groupBox_4->setObjectName("groupBox_4");
         hboxLayout3 = new QHBoxLayout(groupBox_4);
 #ifndef Q_OS_MAC
         hboxLayout3->setSpacing(6);
@@ -207,9 +207,9 @@ public:
 #ifndef Q_OS_MAC
         hboxLayout3->setContentsMargins(9, 9, 9, 9);
 #endif
-        hboxLayout3->setObjectName(QString::fromUtf8("hboxLayout3"));
+        hboxLayout3->setObjectName("hboxLayout3");
         hsGraphPercent = new QSlider(groupBox_4);
-        hsGraphPercent->setObjectName(QString::fromUtf8("hsGraphPercent"));
+        hsGraphPercent->setObjectName("hsGraphPercent");
         hsGraphPercent->setMinimum(25);
         hsGraphPercent->setMaximum(100);
         hsGraphPercent->setOrientation(Qt::Horizontal);
@@ -218,7 +218,7 @@ public:
         hboxLayout3->addWidget(hsGraphPercent);
 
         lPercentValue = new QLabel(groupBox_4);
-        lPercentValue->setObjectName(QString::fromUtf8("lPercentValue"));
+        lPercentValue->setObjectName("lPercentValue");
         lPercentValue->setAlignment(Qt::AlignCenter);
 
         hboxLayout3->addWidget(lPercentValue);
@@ -231,14 +231,14 @@ public:
         vboxLayout->setSpacing(6);
 #endif
         vboxLayout->setContentsMargins(0, 0, 0, 0);
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         cbUseGraphPaper = new QCheckBox(GasPDefaults);
-        cbUseGraphPaper->setObjectName(QString::fromUtf8("cbUseGraphPaper"));
+        cbUseGraphPaper->setObjectName("cbUseGraphPaper");
         cbUseGraphPaper->setChecked(true);
 
         vboxLayout->addWidget(cbUseGraphPaper);
 
-        spacerItem1 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem1 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem1);
 

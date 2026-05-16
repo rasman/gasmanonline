@@ -6,7 +6,6 @@
 #include <QtGui>
 #endif
 #include "gasapplication.h"
-#include "gaslicensemanager.h"
 #include "gasdoc.h"
 
 
@@ -272,8 +271,6 @@ int GasAnesArray::ReadProfile()
 
 	QStringList strList = gasApp->ReadProfile( "Agents", "Agents", QStringList() ).toStringList();
 	for ( int i = 0; i < strList.size(); ++i ) {
-		if(!glm->instance()->validLicenseExists())
-			if ( !AvailableAgents.contains( strList[i], Qt::CaseInsensitive ) ) continue;
 		GasAnesthetic *pAnes = new GasAnesthetic;
 		pAnes->m_strSectionName = strList[i];
 		if ( pAnes->ReadProfile() ) {

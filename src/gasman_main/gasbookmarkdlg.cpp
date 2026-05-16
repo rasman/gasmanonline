@@ -103,22 +103,20 @@ void GasBookmarkDlg::defaultOk()
 	pushButtonOK->setDefault(true);
 }
 
-//initialize and shows the dialog as a modal dialog
-int GasBookmarkDlg::exec()
+void GasBookmarkDlg::prepare()
 {
 	int i;
 	for ( i = 0; i < m_pDoc->m_nBookmarks; ++i )
-	{//Put all current bookmarks in the list box
+	{
 		lwBookmarks->addItem( new QListWidgetItem( ( QTime(0,0,0,0).addMSecs( m_pDoc->m_dwBookmarks[i] ) ).toString( "hh:mm:ss" ) ) );
 	}
 
 	if ( i == 0 )
-	{//if there's nothing to delete, disable delete and clear buttons
+	{
 		pbDeleteBookmark->setEnabled( false );
 		pbDeleteAllBookmarks->setEnabled( false );
 	}
 	m_bFull = ( i == MAX_BKMK );
-	//if we're full, disable add button
 	if ( m_bFull )
 	{
 		pbAddBookmark->setEnabled( false );
@@ -147,7 +145,12 @@ int GasBookmarkDlg::exec()
 		cbTargetCompartment->setFocus();
 	else
 		sbHours->setFocus();
+}
 
+//initialize and shows the dialog as a modal dialog
+int GasBookmarkDlg::exec()
+{
+	prepare();
 	return QDialog::exec();
 }
 
@@ -166,7 +169,7 @@ void GasBookmarkDlg::addBookmark()
 	}
 
 	if ( !( hh || mm || ss ) ) {
-		QApplication::beep();
+		GasDoc::playBeep();
 		sbHours->setFocus();
 		return;
 	}

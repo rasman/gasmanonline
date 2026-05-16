@@ -14,18 +14,17 @@
 
 //GasSplashScreen constructor
 GasSplashScreen::GasSplashScreen( int time, GasMainWindow *mw, const QPixmap &pixmap)
-	: QSplashScreen( mw, pixmap, Qt::WindowStaysOnTopHint ), splashTime( time ), mainWin( mw ), 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+	: QSplashScreen( mw, pixmap, Qt::WindowStaysOnTopHint )
+#else
+	: QSplashScreen( pixmap, Qt::WindowStaysOnTopHint )
+#endif
+	, splashTime( time ), mainWin( mw ),
 		beenFired(false), countdownTimer(new QTimer(this))
 {
 	setWindowModality(Qt::WindowModal);
 	setAttribute( Qt::WA_DeleteOnClose );
 	splashTime = splashTime/1000;
-  if(!glm->instance()->validLicenseExists())
-	{
-		connect(countdownTimer, SIGNAL(timeout()), this, SLOT(updateSplashTime()));
-		showMsg(timerText());
-		countdownTimer->start(1000);
-	}
  
  
 }
@@ -47,13 +46,8 @@ QString GasSplashScreen::timerText()
 
 void GasSplashScreen::showEvent( QShowEvent *event )
 {
-	if(!glm->instance()->validLicenseExists())
-		QTimer::singleShot( splashTime*1000, this, SLOT( fire() ) );		//Start splash timer
-	else
-	{
-		fire();
-		QTimer::singleShot( splashTime*1000, this, SLOT( finish() ) );		//Start splash timer	
-	}
+	fire();
+	QTimer::singleShot( splashTime*1000, this, SLOT( finish() ) );
 	QSplashScreen::showEvent( event );
 }
 

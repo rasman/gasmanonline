@@ -166,7 +166,7 @@ public:
 	QByteArray serializeToByteArray();									//serialize to memory (WASM save)
 
 	// XML / JSON export-import
-	QByteArray toJsonBytes( bool wantResults = true ) const;			//serialize to JSON
+	QByteArray toJsonBytes( bool wantResults = true );			//serialize to JSON
 	bool loadFromXmlContent( const QString &fileName, const QByteArray &content );  //import from XML
 	bool loadFromJsonContent( const QString &fileName, const QByteArray &content ); //import from JSON
 
@@ -233,7 +233,7 @@ private:
 	void AddDefaultAgentColor(const QString &agent);
 	QString getDefaultAgentColor(const QString &agent);
 	QString getDefaultAgentColor(const int nGas) const;
-	EventList SampComp( GasSample &s1, GasSample &s2 );
+	EventList SampComp( GasSample &s1, GasSample &s2 ) const;
 	QDomElement createDomElement(
 		QDomDocument& doc, 
 		const QString& name, 
@@ -299,6 +299,7 @@ public:
 	static COMP_ARRAY m_fDfltRatio;			// proportion of CO to compartment
 	// Program Defaults
 	static int m_nBeep;						// -2 off, -1 beep, 0-4 system sounds
+	static void playBeep();
 	// Simulation Defaults
 	static int m_nDfltSpeed;				// default initial speed
 	static QString m_szDfltCircuit;

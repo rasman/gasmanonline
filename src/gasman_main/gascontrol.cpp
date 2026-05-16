@@ -8,7 +8,6 @@
 #include "gasglobal.h"
 #include "gasapplication.h"
 #include "gasagentdelegate.h"
-#include "gaslicensemanager.h"
 #include "gasmainwindow.h"
 #if QT_VERSION >=0x050000
 #include <QtWidgets>
@@ -80,14 +79,14 @@ GasControl::GasControl( GasDoc* gasDoc, GasChildWindow* childWindow, QWidget *pa
 
 	connect(weightDoubleSpinBox, SIGNAL(editingFinished()), 
 					this, SLOT(updateWeight()));
-	connect(circuitComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+	connect(circuitComboBox, SIGNAL(currentTextChanged(const QString&)),
 					this, SLOT(updateCircuit(const QString&)));
 
 	// the view control here is of no use;
 	viewComboBox->setVisible(false);
 	label_3->setVisible(false);
  
-	connect(speedComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+	connect(speedComboBox, SIGNAL(currentTextChanged(const QString&)),
 					this, SLOT(updateSpeed(const QString&)));
 	 
 	connect(runPushButton, SIGNAL(clicked()),
@@ -179,10 +178,10 @@ bool GasControl::tryCloseAll()
 void GasControl::updateControlVals()
 {
 	setWeight(doc->GetWeight());
-	disconnect(circuitComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+	disconnect(circuitComboBox, SIGNAL(currentTextChanged(const QString&)),
 					this, SLOT(updateCircuit(const QString&)));
 	setCircuit(doc->GetCircuit());
-	connect(circuitComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+	connect(circuitComboBox, SIGNAL(currentTextChanged(const QString&)),
 					this, SLOT(updateCircuit(const QString&)));
 
 	int nSpeed = doc->GetSpeed();
@@ -192,11 +191,11 @@ void GasControl::updateControlVals()
 	else
 		m_strSpeed = tr( "AFAP" );
 	 
-	disconnect(speedComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+	disconnect(speedComboBox, SIGNAL(currentTextChanged(const QString&)),
 					this, SLOT(updateSpeed(const QString&)));
 	setSpeed(m_strSpeed);
 	 
-	connect(speedComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+	connect(speedComboBox, SIGNAL(currentTextChanged(const QString&)),
 					this, SLOT(updateSpeed(const QString&)));
 	setState(doc->GetState());
 
@@ -356,10 +355,7 @@ void GasControl::pauseSim()
 
 QStringList GasControl::getAllAgents()
 {
-	if(!glm->instance()->validLicenseExists())
-		return AvailableAgents;
-	else
-		return gasApp->getAgents();
+	return gasApp->getAgents();
 }
 
 QStringList GasControl::getAllColors()

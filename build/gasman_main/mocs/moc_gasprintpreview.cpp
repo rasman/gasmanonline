@@ -1,51 +1,55 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasprintpreview.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasman_main/gasprintpreview.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasprintpreview.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasPrintPreview_t {
-    QByteArrayData data[4];
-    char stringdata0[33];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasPrintPreview_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasPrintPreview_t qt_meta_stringdata_GasPrintPreview = {
-    {
-QT_MOC_LITERAL(0, 0, 15), // "GasPrintPreview"
-QT_MOC_LITERAL(1, 16, 5), // "print"
-QT_MOC_LITERAL(2, 22, 0), // ""
-QT_MOC_LITERAL(3, 23, 9) // "pageSetup"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN15GasPrintPreviewE_t {};
+} // unnamed namespace
 
-    },
-    "GasPrintPreview\0print\0\0pageSetup"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasPrintPreview[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN15GasPrintPreviewE = QtMocHelpers::stringData(
+    "GasPrintPreview",
+    "print",
+    "",
+    "pageSetup"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN15GasPrintPreviewE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        2,   14, // methods
@@ -55,9 +59,9 @@ static const uint qt_meta_data_GasPrintPreview[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   24,    2, 0x08 /* Private */,
-       3,    0,   25,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   26,    2, 0x08,    1 /* Private */,
+       3,    0,   27,    2, 0x08,    2 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -66,11 +70,27 @@ static const uint qt_meta_data_GasPrintPreview[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasPrintPreview::staticMetaObject = { {
+    QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
+    qt_meta_stringdata_ZN15GasPrintPreviewE.offsetsAndSizes,
+    qt_meta_data_ZN15GasPrintPreviewE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN15GasPrintPreviewE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasPrintPreview, std::true_type>,
+        // method 'print'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'pageSetup'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasPrintPreview::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasPrintPreview *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasPrintPreview *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->print(); break;
         case 1: _t->pageSetup(); break;
@@ -80,16 +100,6 @@ void GasPrintPreview::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     (void)_a;
 }
 
-QT_INIT_METAOBJECT const QMetaObject GasPrintPreview::staticMetaObject = { {
-    QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
-    qt_meta_stringdata_GasPrintPreview.data,
-    qt_meta_data_GasPrintPreview,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
-
 const QMetaObject *GasPrintPreview::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
@@ -98,7 +108,7 @@ const QMetaObject *GasPrintPreview::metaObject() const
 void *GasPrintPreview::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasPrintPreview.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN15GasPrintPreviewE.stringdata0))
         return static_cast<void*>(this);
     return QMainWindow::qt_metacast(_clname);
 }
@@ -112,12 +122,12 @@ int GasPrintPreview::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 2;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 2)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 2;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

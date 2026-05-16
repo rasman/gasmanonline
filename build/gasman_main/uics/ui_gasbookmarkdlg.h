@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasbookmarkdlg.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -61,75 +61,75 @@ public:
     void setupUi(QDialog *GasBookmark)
     {
         if (GasBookmark->objectName().isEmpty())
-            GasBookmark->setObjectName(QString::fromUtf8("GasBookmark"));
+            GasBookmark->setObjectName("GasBookmark");
         GasBookmark->resize(269, 375);
         GasBookmark->setModal(true);
         verticalLayout = new QVBoxLayout(GasBookmark);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setObjectName("verticalLayout");
         gridLayout_3 = new QGridLayout();
-        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        verticalSpacer_1 = new QSpacerItem(10, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        gridLayout_3->setObjectName("gridLayout_3");
+        verticalSpacer_1 = new QSpacerItem(10, 5, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
 
         gridLayout_3->addItem(verticalSpacer_1, 1, 0, 1, 1);
 
         lwBookmarks = new QListWidget(GasBookmark);
-        lwBookmarks->setObjectName(QString::fromUtf8("lwBookmarks"));
+        lwBookmarks->setObjectName("lwBookmarks");
         lwBookmarks->setMinimumSize(QSize(130, 0));
 
         gridLayout_3->addWidget(lwBookmarks, 0, 0, 1, 1);
 
         gridLayout = new QGridLayout();
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         sbHours = new QSpinBox(GasBookmark);
-        sbHours->setObjectName(QString::fromUtf8("sbHours"));
+        sbHours->setObjectName("sbHours");
         sbHours->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         sbHours->setMaximum(99);
 
         gridLayout->addWidget(sbHours, 0, 0, 1, 1);
 
         label = new QLabel(GasBookmark);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName("label");
 
         gridLayout->addWidget(label, 0, 1, 1, 1);
 
         sbMin = new QSpinBox(GasBookmark);
-        sbMin->setObjectName(QString::fromUtf8("sbMin"));
+        sbMin->setObjectName("sbMin");
         sbMin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         sbMin->setMaximum(59);
 
         gridLayout->addWidget(sbMin, 1, 0, 1, 1);
 
         label_2 = new QLabel(GasBookmark);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setObjectName("label_2");
 
         gridLayout->addWidget(label_2, 1, 1, 1, 1);
 
         sbSec = new QSpinBox(GasBookmark);
-        sbSec->setObjectName(QString::fromUtf8("sbSec"));
+        sbSec->setObjectName("sbSec");
         sbSec->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         sbSec->setMaximum(59);
 
         gridLayout->addWidget(sbSec, 2, 0, 1, 1);
 
         label_3 = new QLabel(GasBookmark);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setObjectName("label_3");
 
         gridLayout->addWidget(label_3, 2, 1, 1, 1);
 
         pbAddBookmark = new QPushButton(GasBookmark);
-        pbAddBookmark->setObjectName(QString::fromUtf8("pbAddBookmark"));
+        pbAddBookmark->setObjectName("pbAddBookmark");
         pbAddBookmark->setAutoDefault(false);
 
         gridLayout->addWidget(pbAddBookmark, 3, 0, 1, 2);
 
         pbDeleteBookmark = new QPushButton(GasBookmark);
-        pbDeleteBookmark->setObjectName(QString::fromUtf8("pbDeleteBookmark"));
+        pbDeleteBookmark->setObjectName("pbDeleteBookmark");
         pbDeleteBookmark->setAutoDefault(false);
 
         gridLayout->addWidget(pbDeleteBookmark, 4, 0, 1, 2);
 
         pbDeleteAllBookmarks = new QPushButton(GasBookmark);
-        pbDeleteAllBookmarks->setObjectName(QString::fromUtf8("pbDeleteAllBookmarks"));
+        pbDeleteAllBookmarks->setObjectName("pbDeleteAllBookmarks");
         pbDeleteAllBookmarks->setAutoDefault(false);
 
         gridLayout->addWidget(pbDeleteAllBookmarks, 5, 0, 1, 2);
@@ -139,50 +139,50 @@ public:
         gridLayout_3->addLayout(gridLayout, 0, 1, 1, 1);
 
         lwTargets = new QListWidget(GasBookmark);
-        lwTargets->setObjectName(QString::fromUtf8("lwTargets"));
+        lwTargets->setObjectName("lwTargets");
         lwTargets->setMinimumSize(QSize(130, 0));
 
         gridLayout_3->addWidget(lwTargets, 2, 0, 1, 1);
 
         gridLayout_2 = new QGridLayout();
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        gridLayout_2->setObjectName("gridLayout_2");
         cbTargetCompartment = new QComboBox(GasBookmark);
-        cbTargetCompartment->setObjectName(QString::fromUtf8("cbTargetCompartment"));
+        cbTargetCompartment->setObjectName("cbTargetCompartment");
         cbTargetCompartment->setMaxVisibleItems(5);
 
         gridLayout_2->addWidget(cbTargetCompartment, 0, 0, 1, 1);
 
         label_5 = new QLabel(GasBookmark);
-        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_5->setObjectName("label_5");
         label_5->setAlignment(Qt::AlignCenter);
 
         gridLayout_2->addWidget(label_5, 0, 1, 1, 1);
 
         pbDeleteTarget = new QPushButton(GasBookmark);
-        pbDeleteTarget->setObjectName(QString::fromUtf8("pbDeleteTarget"));
+        pbDeleteTarget->setObjectName("pbDeleteTarget");
         pbDeleteTarget->setAutoDefault(false);
 
         gridLayout_2->addWidget(pbDeleteTarget, 3, 0, 1, 2);
 
         pbDeleteAllTargets = new QPushButton(GasBookmark);
-        pbDeleteAllTargets->setObjectName(QString::fromUtf8("pbDeleteAllTargets"));
+        pbDeleteAllTargets->setObjectName("pbDeleteAllTargets");
         pbDeleteAllTargets->setAutoDefault(false);
 
         gridLayout_2->addWidget(pbDeleteAllTargets, 4, 0, 1, 2);
 
         pbAddTarget = new QPushButton(GasBookmark);
-        pbAddTarget->setObjectName(QString::fromUtf8("pbAddTarget"));
+        pbAddTarget->setObjectName("pbAddTarget");
         pbAddTarget->setAutoDefault(false);
 
         gridLayout_2->addWidget(pbAddTarget, 2, 0, 1, 2);
 
         label_4 = new QLabel(GasBookmark);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setObjectName("label_4");
 
         gridLayout_2->addWidget(label_4, 1, 1, 1, 1);
 
         sbPercent = new QSpinBox(GasBookmark);
-        sbPercent->setObjectName(QString::fromUtf8("sbPercent"));
+        sbPercent->setObjectName("sbPercent");
         sbPercent->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         sbPercent->setMinimum(5);
         sbPercent->setMaximum(999);
@@ -194,15 +194,15 @@ public:
 
         gridLayout_3->addLayout(gridLayout_2, 2, 1, 1, 1);
 
-        verticalSpacer_4 = new QSpacerItem(10, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        verticalSpacer_4 = new QSpacerItem(10, 5, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
 
         gridLayout_3->addItem(verticalSpacer_4, 3, 1, 1, 1);
 
-        verticalSpacer_3 = new QSpacerItem(10, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        verticalSpacer_3 = new QSpacerItem(10, 5, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
 
         gridLayout_3->addItem(verticalSpacer_3, 3, 0, 1, 1);
 
-        verticalSpacer_2 = new QSpacerItem(10, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        verticalSpacer_2 = new QSpacerItem(10, 5, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
 
         gridLayout_3->addItem(verticalSpacer_2, 1, 1, 1, 1);
 
@@ -210,19 +210,19 @@ public:
         verticalLayout->addLayout(gridLayout_3);
 
         horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalSpacer = new QSpacerItem(178, 17, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalLayout->setObjectName("horizontalLayout");
+        horizontalSpacer = new QSpacerItem(178, 17, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         horizontalLayout->addItem(horizontalSpacer);
 
         pushButtonOK = new QPushButton(GasBookmark);
-        pushButtonOK->setObjectName(QString::fromUtf8("pushButtonOK"));
+        pushButtonOK->setObjectName("pushButtonOK");
         pushButtonOK->setAutoDefault(false);
 
         horizontalLayout->addWidget(pushButtonOK);
 
         pushButtonCancel = new QPushButton(GasBookmark);
-        pushButtonCancel->setObjectName(QString::fromUtf8("pushButtonCancel"));
+        pushButtonCancel->setObjectName("pushButtonCancel");
         pushButtonCancel->setAutoDefault(false);
 
         horizontalLayout->addWidget(pushButtonCancel);

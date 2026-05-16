@@ -1,53 +1,56 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasregisterdlg.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasman_main/gasregisterdlg.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasregisterdlg.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasRegisterDlg_t {
-    QByteArrayData data[5];
-    char stringdata0[70];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasRegisterDlg_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasRegisterDlg_t qt_meta_stringdata_GasRegisterDlg = {
-    {
-QT_MOC_LITERAL(0, 0, 14), // "GasRegisterDlg"
-QT_MOC_LITERAL(1, 15, 22), // "attemptRegisterLicense"
-QT_MOC_LITERAL(2, 38, 0), // ""
-QT_MOC_LITERAL(3, 39, 16), // "registerFromFile"
-QT_MOC_LITERAL(4, 56, 13) // "cleanRegister"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN14GasRegisterDlgE_t {};
+} // unnamed namespace
 
-    },
-    "GasRegisterDlg\0attemptRegisterLicense\0"
-    "\0registerFromFile\0cleanRegister"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasRegisterDlg[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN14GasRegisterDlgE = QtMocHelpers::stringData(
+    "GasRegisterDlg",
+    "attemptRegisterLicense",
+    "",
+    "registerFromFile",
+    "cleanRegister"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN14GasRegisterDlgE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -57,10 +60,10 @@ static const uint qt_meta_data_GasRegisterDlg[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x08 /* Private */,
-       3,    0,   30,    2, 0x08 /* Private */,
-       4,    0,   31,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   32,    2, 0x08,    1 /* Private */,
+       3,    0,   33,    2, 0x08,    2 /* Private */,
+       4,    0,   34,    2, 0x08,    3 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -70,11 +73,29 @@ static const uint qt_meta_data_GasRegisterDlg[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasRegisterDlg::staticMetaObject = { {
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
+    qt_meta_stringdata_ZN14GasRegisterDlgE.offsetsAndSizes,
+    qt_meta_data_ZN14GasRegisterDlgE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN14GasRegisterDlgE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasRegisterDlg, std::true_type>,
+        // method 'attemptRegisterLicense'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'registerFromFile'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'cleanRegister'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasRegisterDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasRegisterDlg *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasRegisterDlg *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->attemptRegisterLicense(); break;
         case 1: _t->registerFromFile(); break;
@@ -85,16 +106,6 @@ void GasRegisterDlg::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
     (void)_a;
 }
 
-QT_INIT_METAOBJECT const QMetaObject GasRegisterDlg::staticMetaObject = { {
-    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_GasRegisterDlg.data,
-    qt_meta_data_GasRegisterDlg,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
-
 const QMetaObject *GasRegisterDlg::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
@@ -103,7 +114,7 @@ const QMetaObject *GasRegisterDlg::metaObject() const
 void *GasRegisterDlg::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasRegisterDlg.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN14GasRegisterDlgE.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -117,12 +128,12 @@ int GasRegisterDlg::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 3)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 3;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

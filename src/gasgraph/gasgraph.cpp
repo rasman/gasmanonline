@@ -14,6 +14,8 @@ static int cxPhyZ, cyPhyZ, cxPhySize, cyPhySize,
            sgnY, sgnX;
 
 GasGraph::GasGraph(  QWidget *parent ) : QWidget( parent ),
+    zoom(1),
+    line(false),
     m_propLoading(false),
     m_propScrollEnb(false),
     m_propLMarginPct(10),
@@ -32,9 +34,7 @@ GasGraph::GasGraph(  QWidget *parent ) : QWidget( parent ),
     m_propYLabelType(0),
     m_propPaperColor( QColor(0xC0,0xC0,0xC0)),
     m_propFontHeight(12),
-    receiver( 0 ),
-    zoom(1),
-    line(false)
+    receiver( 0 )
 {
     paintDevice = this;
 
@@ -990,7 +990,6 @@ void GasGraph::paintEvent(QPaintEvent * /*event*/)
     // float     fBottom, f, f1,fEnd, fYTE, fYLE;
     float f;
     int i;
-    QRect clipRec;
 //	Qt::BGMode nOldMode;
     Q_ASSERT( paintDevice );
     QPainter pdc( paintDevice );
@@ -1399,8 +1398,7 @@ QSize GasGraph::minimumSizeHint () const
     // Bottom horizontal and left vertical labels must not be truncated
     // We know percent of space for these labels ( m_propBMarginPct,m_propLMarginPct)
     // The Graph size is calculated from the font size of the labels and this percent in common size.
-    QPainter pdc(paintDevice);
-    QFontMetrics fm( pdc.font() );
+    QFontMetrics fm( this->font() );
     int h = int( ( ( fm.height()* 1.5 ) * 100 ) / m_propBMarginPct );
     int b = int( ( ( fm.height()* 1.5 ) * 100 ) / m_propLMarginPct );
     return QSize( b, h );

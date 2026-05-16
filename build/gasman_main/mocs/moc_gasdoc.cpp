@@ -1,69 +1,69 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasdoc.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasman_main/gasdoc.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasdoc.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_GasDoc_t {
-    QByteArrayData data[18];
-    char stringdata0[167];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_GasDoc_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_GasDoc_t qt_meta_stringdata_GasDoc = {
-    {
-QT_MOC_LITERAL(0, 0, 6), // "GasDoc"
-QT_MOC_LITERAL(1, 7, 13), // "updateControl"
-QT_MOC_LITERAL(2, 21, 0), // ""
-QT_MOC_LITERAL(3, 22, 11), // "updatePanel"
-QT_MOC_LITERAL(4, 34, 12), // "agentChanged"
-QT_MOC_LITERAL(5, 47, 4), // "nGas"
-QT_MOC_LITERAL(6, 52, 5), // "agent"
-QT_MOC_LITERAL(7, 58, 10), // "allCleared"
-QT_MOC_LITERAL(8, 69, 8), // "modified"
-QT_MOC_LITERAL(9, 78, 1), // "m"
-QT_MOC_LITERAL(10, 80, 12), // "stateChanged"
-QT_MOC_LITERAL(11, 93, 6), // "AState"
-QT_MOC_LITERAL(12, 100, 5), // "state"
-QT_MOC_LITERAL(13, 106, 12), // "titleChanged"
-QT_MOC_LITERAL(14, 119, 8), // "newTitle"
-QT_MOC_LITERAL(15, 128, 14), // "noViewsOfAgent"
-QT_MOC_LITERAL(16, 143, 18), // "agentColorsChanged"
-QT_MOC_LITERAL(17, 162, 4) // "idle"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN6GasDocE_t {};
+} // unnamed namespace
 
-    },
-    "GasDoc\0updateControl\0\0updatePanel\0"
-    "agentChanged\0nGas\0agent\0allCleared\0"
-    "modified\0m\0stateChanged\0AState\0state\0"
-    "titleChanged\0newTitle\0noViewsOfAgent\0"
-    "agentColorsChanged\0idle"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_GasDoc[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN6GasDocE = QtMocHelpers::stringData(
+    "GasDoc",
+    "updateControl",
+    "",
+    "updatePanel",
+    "agentChanged",
+    "nGas",
+    "agent",
+    "allCleared",
+    "modified",
+    "m",
+    "stateChanged",
+    "AState",
+    "state",
+    "titleChanged",
+    "newTitle",
+    "noViewsOfAgent",
+    "agentColorsChanged",
+    "idle"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN6GasDocE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
       11,   14, // methods
@@ -73,20 +73,20 @@ static const uint qt_meta_data_GasDoc[] = {
        0,       // flags
       10,       // signalCount
 
- // signals: name, argc, parameters, tag, flags
-       1,    0,   69,    2, 0x06 /* Public */,
-       3,    0,   70,    2, 0x06 /* Public */,
-       4,    2,   71,    2, 0x06 /* Public */,
-       7,    0,   76,    2, 0x06 /* Public */,
-       8,    1,   77,    2, 0x06 /* Public */,
-       8,    0,   80,    2, 0x26 /* Public | MethodCloned */,
-      10,    1,   81,    2, 0x06 /* Public */,
-      13,    1,   84,    2, 0x06 /* Public */,
-      15,    1,   87,    2, 0x06 /* Public */,
-      16,    0,   90,    2, 0x06 /* Public */,
+ // signals: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   80,    2, 0x06,    1 /* Public */,
+       3,    0,   81,    2, 0x06,    2 /* Public */,
+       4,    2,   82,    2, 0x06,    3 /* Public */,
+       7,    0,   87,    2, 0x06,    6 /* Public */,
+       8,    1,   88,    2, 0x06,    7 /* Public */,
+       8,    0,   91,    2, 0x26,    9 /* Public | MethodCloned */,
+      10,    1,   92,    2, 0x06,   10 /* Public */,
+      13,    1,   95,    2, 0x06,   12 /* Public */,
+      15,    1,   98,    2, 0x06,   14 /* Public */,
+      16,    0,  101,    2, 0x06,   16 /* Public */,
 
- // slots: name, argc, parameters, tag, flags
-      17,    0,   91,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+      17,    0,  102,    2, 0x08,   17 /* Private */,
 
  // signals: parameters
     QMetaType::Void,
@@ -106,102 +106,133 @@ static const uint qt_meta_data_GasDoc[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject GasDoc::staticMetaObject = { {
+    QMetaObject::SuperData::link<QObject::staticMetaObject>(),
+    qt_meta_stringdata_ZN6GasDocE.offsetsAndSizes,
+    qt_meta_data_ZN6GasDocE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN6GasDocE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<GasDoc, std::true_type>,
+        // method 'updateControl'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'updatePanel'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'agentChanged'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>,
+        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
+        // method 'allCleared'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'modified'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
+        // method 'modified'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'stateChanged'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<AState, std::false_type>,
+        // method 'titleChanged'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<QString, std::false_type>,
+        // method 'noViewsOfAgent'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<int, std::false_type>,
+        // method 'agentColorsChanged'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'idle'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void GasDoc::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<GasDoc *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<GasDoc *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->updateControl(); break;
         case 1: _t->updatePanel(); break;
-        case 2: _t->agentChanged((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2]))); break;
+        case 2: _t->agentChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         case 3: _t->allCleared(); break;
-        case 4: _t->modified((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 4: _t->modified((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
         case 5: _t->modified(); break;
-        case 6: _t->stateChanged((*reinterpret_cast< AState(*)>(_a[1]))); break;
-        case 7: _t->titleChanged((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 8: _t->noViewsOfAgent((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 6: _t->stateChanged((*reinterpret_cast< std::add_pointer_t<AState>>(_a[1]))); break;
+        case 7: _t->titleChanged((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 8: _t->noViewsOfAgent((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 9: _t->agentColorsChanged(); break;
         case 10: _t->idle(); break;
         default: ;
         }
-    } else if (_c == QMetaObject::IndexOfMethod) {
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (GasDoc::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::updateControl)) {
+            using _q_method_type = void (GasDoc::*)();
+            if (_q_method_type _q_method = &GasDoc::updateControl; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::updatePanel)) {
+            using _q_method_type = void (GasDoc::*)();
+            if (_q_method_type _q_method = &GasDoc::updatePanel; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 1;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)(int , const QString & );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::agentChanged)) {
+            using _q_method_type = void (GasDoc::*)(int , const QString & );
+            if (_q_method_type _q_method = &GasDoc::agentChanged; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 2;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::allCleared)) {
+            using _q_method_type = void (GasDoc::*)();
+            if (_q_method_type _q_method = &GasDoc::allCleared; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 3;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)(bool );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::modified)) {
+            using _q_method_type = void (GasDoc::*)(bool );
+            if (_q_method_type _q_method = &GasDoc::modified; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 4;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)(AState );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::stateChanged)) {
+            using _q_method_type = void (GasDoc::*)(AState );
+            if (_q_method_type _q_method = &GasDoc::stateChanged; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 6;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)(QString );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::titleChanged)) {
+            using _q_method_type = void (GasDoc::*)(QString );
+            if (_q_method_type _q_method = &GasDoc::titleChanged; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 7;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)(int );
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::noViewsOfAgent)) {
+            using _q_method_type = void (GasDoc::*)(int );
+            if (_q_method_type _q_method = &GasDoc::noViewsOfAgent; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 8;
                 return;
             }
         }
         {
-            using _t = void (GasDoc::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&GasDoc::agentColorsChanged)) {
+            using _q_method_type = void (GasDoc::*)();
+            if (_q_method_type _q_method = &GasDoc::agentColorsChanged; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 9;
                 return;
             }
         }
     }
 }
-
-QT_INIT_METAOBJECT const QMetaObject GasDoc::staticMetaObject = { {
-    QMetaObject::SuperData::link<QObject::staticMetaObject>(),
-    qt_meta_stringdata_GasDoc.data,
-    qt_meta_data_GasDoc,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *GasDoc::metaObject() const
 {
@@ -211,7 +242,7 @@ const QMetaObject *GasDoc::metaObject() const
 void *GasDoc::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_GasDoc.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN6GasDocE.stringdata0))
         return static_cast<void*>(this);
     return QObject::qt_metacast(_clname);
 }
@@ -225,9 +256,10 @@ int GasDoc::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 11;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 11)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 11;
     }
     return _id;
@@ -292,4 +324,3 @@ void GasDoc::agentColorsChanged()
     QMetaObject::activate(this, &staticMetaObject, 9, nullptr);
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

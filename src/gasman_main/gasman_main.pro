@@ -7,9 +7,14 @@ OBJECTS_DIR = objs
 
 TEMPLATE = app
 
-QT += core gui svg xml multimedia
+QT += core gui svg xml
+# multimedia only needed for Qt 5 (QSound removed in Qt 6)
+lessThan(QT_MAJOR_VERSION, 6): QT += multimedia
 # printsupport and dbus are not available in WebAssembly builds
 !wasm: QT += printsupport dbus
+
+# Asyncify enables blocking event loops (QDrag::exec, QDialog::exec) on the WASM main thread
+wasm: QMAKE_LFLAGS += -sASYNCIFY -sASYNCIFY_STACK_SIZE=16384 -sASYNCIFY_IMPORTS=qt_asyncify_suspend_js,qt_asyncify_resume_js
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

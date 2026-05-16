@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasregisterdlg.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define UI_GASREGISTERDLG_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
@@ -47,49 +48,49 @@ public:
     void setupUi(QDialog *GasRegister)
     {
         if (GasRegister->objectName().isEmpty())
-            GasRegister->setObjectName(QString::fromUtf8("GasRegister"));
+            GasRegister->setObjectName("GasRegister");
         GasRegister->resize(438, 188);
         vboxLayout = new QVBoxLayout(GasRegister);
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         gridLayout = new QGridLayout();
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         label = new QLabel(GasRegister);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName("label");
 
         gridLayout->addWidget(label, 0, 0, 1, 1);
 
         nameLineEdit = new QLineEdit(GasRegister);
-        nameLineEdit->setObjectName(QString::fromUtf8("nameLineEdit"));
+        nameLineEdit->setObjectName("nameLineEdit");
 
         gridLayout->addWidget(nameLineEdit, 0, 1, 1, 1);
 
         label_2 = new QLabel(GasRegister);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setObjectName("label_2");
 
         gridLayout->addWidget(label_2, 1, 0, 1, 1);
 
         companyLineEdit = new QLineEdit(GasRegister);
-        companyLineEdit->setObjectName(QString::fromUtf8("companyLineEdit"));
+        companyLineEdit->setObjectName("companyLineEdit");
 
         gridLayout->addWidget(companyLineEdit, 1, 1, 1, 1);
 
         label_3 = new QLabel(GasRegister);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setObjectName("label_3");
 
         gridLayout->addWidget(label_3, 3, 0, 1, 1);
 
         keyLineEdit = new QLineEdit(GasRegister);
-        keyLineEdit->setObjectName(QString::fromUtf8("keyLineEdit"));
+        keyLineEdit->setObjectName("keyLineEdit");
 
         gridLayout->addWidget(keyLineEdit, 3, 1, 1, 1);
 
         infoLineEdit = new QLineEdit(GasRegister);
-        infoLineEdit->setObjectName(QString::fromUtf8("infoLineEdit"));
+        infoLineEdit->setObjectName("infoLineEdit");
 
         gridLayout->addWidget(infoLineEdit, 2, 1, 1, 1);
 
         label_4 = new QLabel(GasRegister);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setObjectName("label_4");
 
         gridLayout->addWidget(label_4, 2, 0, 1, 1);
 
@@ -97,20 +98,20 @@ public:
         vboxLayout->addLayout(gridLayout);
 
         groupBox = new QGroupBox(GasRegister);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setObjectName("groupBox");
         hboxLayout = new QHBoxLayout(groupBox);
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-        spacerItem = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        hboxLayout->setObjectName("hboxLayout");
+        spacerItem = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         hboxLayout->addItem(spacerItem);
 
         pbTemp = new QPushButton(groupBox);
-        pbTemp->setObjectName(QString::fromUtf8("pbTemp"));
+        pbTemp->setObjectName("pbTemp");
 
         hboxLayout->addWidget(pbTemp);
 
         openFile = new QPushButton(groupBox);
-        openFile->setObjectName(QString::fromUtf8("openFile"));
+        openFile->setObjectName("openFile");
 
         hboxLayout->addWidget(openFile);
 
@@ -118,7 +119,7 @@ public:
         vboxLayout->addWidget(groupBox);
 
         buttonBox = new QDialogButtonBox(GasRegister);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
 
@@ -132,7 +133,7 @@ public:
         QWidget::setTabOrder(buttonBox, pbTemp);
 
         retranslateUi(GasRegister);
-        QObject::connect(buttonBox, SIGNAL(rejected()), GasRegister, SLOT(reject()));
+        QObject::connect(buttonBox, &QDialogButtonBox::rejected, GasRegister, qOverload<>(&QDialog::reject));
 
         QMetaObject::connectSlotsByName(GasRegister);
     } // setupUi

@@ -1,7 +1,6 @@
 #include "gasagentdelegate.h"
 #include "gasglobal.h"
 #include "gasapplication.h"
-#include "gaslicensemanager.h"
 #include "gascontrol.h"
 #include "gasdoc.h"
 

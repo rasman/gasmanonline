@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasprintselectdlg.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define UI_GASPRINTSELECTDLG_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDialog>
@@ -31,7 +32,7 @@ public:
     void setupUi(QDialog *GasPrintSelect)
     {
         if (GasPrintSelect->objectName().isEmpty())
-            GasPrintSelect->setObjectName(QString::fromUtf8("GasPrintSelect"));
+            GasPrintSelect->setObjectName("GasPrintSelect");
         GasPrintSelect->resize(178, 120);
         GasPrintSelect->setModal(true);
         vboxLayout = new QVBoxLayout(GasPrintSelect);
@@ -41,23 +42,23 @@ public:
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         cbPrintout = new QCheckBox(GasPrintSelect);
-        cbPrintout->setObjectName(QString::fromUtf8("cbPrintout"));
+        cbPrintout->setObjectName("cbPrintout");
 
         vboxLayout->addWidget(cbPrintout);
 
         cbGraphs = new QCheckBox(GasPrintSelect);
-        cbGraphs->setObjectName(QString::fromUtf8("cbGraphs"));
+        cbGraphs->setObjectName("cbGraphs");
 
         vboxLayout->addWidget(cbGraphs);
 
-        spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem);
 
         buttonBox = new QDialogButtonBox(GasPrintSelect);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
 

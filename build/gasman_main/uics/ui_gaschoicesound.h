@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gaschoicesound.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -11,6 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
@@ -46,7 +47,7 @@ public:
     void setupUi(QDialog *GasChoiceSound)
     {
         if (GasChoiceSound->objectName().isEmpty())
-            GasChoiceSound->setObjectName(QString::fromUtf8("GasChoiceSound"));
+            GasChoiceSound->setObjectName("GasChoiceSound");
         GasChoiceSound->setWindowModality(Qt::WindowModal);
         GasChoiceSound->resize(250, 180);
         vboxLayout = new QVBoxLayout(GasChoiceSound);
@@ -56,7 +57,7 @@ public:
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         gridLayout = new QGridLayout();
 #ifndef Q_OS_MAC
         gridLayout->setSpacing(6);
@@ -64,82 +65,82 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         lSystem_1 = new QLabel(GasChoiceSound);
-        lSystem_1->setObjectName(QString::fromUtf8("lSystem_1"));
+        lSystem_1->setObjectName("lSystem_1");
 
         gridLayout->addWidget(lSystem_1, 0, 0, 1, 1);
 
         lSystem_3 = new QLabel(GasChoiceSound);
-        lSystem_3->setObjectName(QString::fromUtf8("lSystem_3"));
+        lSystem_3->setObjectName("lSystem_3");
 
         gridLayout->addWidget(lSystem_3, 2, 0, 1, 1);
 
         tbBrowse_3 = new QToolButton(GasChoiceSound);
-        tbBrowse_3->setObjectName(QString::fromUtf8("tbBrowse_3"));
+        tbBrowse_3->setObjectName("tbBrowse_3");
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/images/open.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/images/open.png"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         tbBrowse_3->setIcon(icon);
 
         gridLayout->addWidget(tbBrowse_3, 2, 2, 1, 1);
 
         leSystem_2 = new QLineEdit(GasChoiceSound);
-        leSystem_2->setObjectName(QString::fromUtf8("leSystem_2"));
+        leSystem_2->setObjectName("leSystem_2");
 
         gridLayout->addWidget(leSystem_2, 1, 1, 1, 1);
 
         lSystem_4 = new QLabel(GasChoiceSound);
-        lSystem_4->setObjectName(QString::fromUtf8("lSystem_4"));
+        lSystem_4->setObjectName("lSystem_4");
 
         gridLayout->addWidget(lSystem_4, 3, 0, 1, 1);
 
         leSystem_3 = new QLineEdit(GasChoiceSound);
-        leSystem_3->setObjectName(QString::fromUtf8("leSystem_3"));
+        leSystem_3->setObjectName("leSystem_3");
 
         gridLayout->addWidget(leSystem_3, 2, 1, 1, 1);
 
         tbBrowse_4 = new QToolButton(GasChoiceSound);
-        tbBrowse_4->setObjectName(QString::fromUtf8("tbBrowse_4"));
+        tbBrowse_4->setObjectName("tbBrowse_4");
         tbBrowse_4->setIcon(icon);
 
         gridLayout->addWidget(tbBrowse_4, 3, 2, 1, 1);
 
         lSystem_2 = new QLabel(GasChoiceSound);
-        lSystem_2->setObjectName(QString::fromUtf8("lSystem_2"));
+        lSystem_2->setObjectName("lSystem_2");
 
         gridLayout->addWidget(lSystem_2, 1, 0, 1, 1);
 
         leSystem_1 = new QLineEdit(GasChoiceSound);
-        leSystem_1->setObjectName(QString::fromUtf8("leSystem_1"));
+        leSystem_1->setObjectName("leSystem_1");
 
         gridLayout->addWidget(leSystem_1, 0, 1, 1, 1);
 
         tbBrowse_2 = new QToolButton(GasChoiceSound);
-        tbBrowse_2->setObjectName(QString::fromUtf8("tbBrowse_2"));
+        tbBrowse_2->setObjectName("tbBrowse_2");
         tbBrowse_2->setIcon(icon);
 
         gridLayout->addWidget(tbBrowse_2, 1, 2, 1, 1);
 
         tbBrowse_1 = new QToolButton(GasChoiceSound);
-        tbBrowse_1->setObjectName(QString::fromUtf8("tbBrowse_1"));
+        tbBrowse_1->setObjectName("tbBrowse_1");
         tbBrowse_1->setIcon(icon);
 
         gridLayout->addWidget(tbBrowse_1, 0, 2, 1, 1);
 
         leSystem_4 = new QLineEdit(GasChoiceSound);
-        leSystem_4->setObjectName(QString::fromUtf8("leSystem_4"));
+        leSystem_4->setObjectName("leSystem_4");
 
         gridLayout->addWidget(leSystem_4, 3, 1, 1, 1);
 
 
         vboxLayout->addLayout(gridLayout);
 
-        spacerItem = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem = new QSpacerItem(20, 10, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem);
 
         buttonBox = new QDialogButtonBox(GasChoiceSound);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 

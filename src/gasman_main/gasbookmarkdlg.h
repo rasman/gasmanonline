@@ -13,7 +13,7 @@ class GasBookmarkDlg : public QDialog, private Ui::GasBookmark
 	{
 	public:
 		TargetListWidgetItem(const AResult compartment, const int percent)
-			: m_compartment(compartment), m_percent(percent), QListWidgetItem(toQString(compartment, percent)) {}
+			: QListWidgetItem(toQString(compartment, percent)), m_compartment(compartment), m_percent(percent) {}
 		virtual bool operator<(const QListWidgetItem &other) const
 		{
 			const TargetListWidgetItem& o = *dynamic_cast<const TargetListWidgetItem*>(&other);
@@ -38,6 +38,8 @@ public:
 	void setHighTime( quint32 max );
 	void setTime( quint32 time );
 	inline void setDoc( GasDoc *doc ) { m_pDoc = doc; }
+
+	void prepare();				//initialize UI controls from document state
 
 public slots:
 	int exec();					//initialize and shows the dialog as a modal dialog

@@ -15,7 +15,9 @@ public:
 
 private:
 	bool startAssistant();
+#ifndef __EMSCRIPTEN__
 	QProcess *proc;
+#endif
 };
 
 #endif

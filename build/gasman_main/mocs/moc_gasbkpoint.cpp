@@ -1,55 +1,58 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'gasbkpoint.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.7)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "../../../src/gasman_main/gasbkpoint.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'gasbkpoint.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.7. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_gasBkPoint_t {
-    QByteArrayData data[7];
-    char stringdata0[45];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_gasBkPoint_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_gasBkPoint_t qt_meta_stringdata_gasBkPoint = {
-    {
-QT_MOC_LITERAL(0, 0, 10), // "gasBkPoint"
-QT_MOC_LITERAL(1, 11, 6), // "setDoc"
-QT_MOC_LITERAL(2, 18, 0), // ""
-QT_MOC_LITERAL(3, 19, 7), // "GasDoc*"
-QT_MOC_LITERAL(4, 27, 3), // "doc"
-QT_MOC_LITERAL(5, 31, 4), // "onOk"
-QT_MOC_LITERAL(6, 36, 8) // "onCancel"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN10gasBkPointE_t {};
+} // unnamed namespace
 
-    },
-    "gasBkPoint\0setDoc\0\0GasDoc*\0doc\0onOk\0"
+
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN10gasBkPointE = QtMocHelpers::stringData(
+    "gasBkPoint",
+    "setDoc",
+    "",
+    "GasDoc*",
+    "doc",
+    "onOk",
     "onCancel"
-};
-#undef QT_MOC_LITERAL
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-static const uint qt_meta_data_gasBkPoint[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN10gasBkPointE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -59,10 +62,10 @@ static const uint qt_meta_data_gasBkPoint[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    1,   29,    2, 0x0a /* Public */,
-       5,    0,   32,    2, 0x0a /* Public */,
-       6,    0,   33,    2, 0x0a /* Public */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    1,   32,    2, 0x0a,    1 /* Public */,
+       5,    0,   35,    2, 0x0a,    3 /* Public */,
+       6,    0,   36,    2, 0x0a,    4 /* Public */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
@@ -72,40 +75,50 @@ static const uint qt_meta_data_gasBkPoint[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject gasBkPoint::staticMetaObject = { {
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
+    qt_meta_stringdata_ZN10gasBkPointE.offsetsAndSizes,
+    qt_meta_data_ZN10gasBkPointE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN10gasBkPointE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<gasBkPoint, std::true_type>,
+        // method 'setDoc'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<GasDoc *, std::false_type>,
+        // method 'onOk'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onCancel'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void gasBkPoint::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<gasBkPoint *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<gasBkPoint *>(_o);
-        (void)_t;
         switch (_id) {
-        case 0: _t->setDoc((*reinterpret_cast< GasDoc*(*)>(_a[1]))); break;
+        case 0: _t->setDoc((*reinterpret_cast< std::add_pointer_t<GasDoc*>>(_a[1]))); break;
         case 1: _t->onOk(); break;
         case 2: _t->onCancel(); break;
         default: ;
         }
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
-        default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+        default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
         case 0:
             switch (*reinterpret_cast<int*>(_a[1])) {
-            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
             case 0:
-                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< GasDoc* >(); break;
+                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< GasDoc* >(); break;
             }
             break;
         }
     }
 }
-
-QT_INIT_METAOBJECT const QMetaObject gasBkPoint::staticMetaObject = { {
-    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_gasBkPoint.data,
-    qt_meta_data_gasBkPoint,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *gasBkPoint::metaObject() const
 {
@@ -115,7 +128,7 @@ const QMetaObject *gasBkPoint::metaObject() const
 void *gasBkPoint::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_gasBkPoint.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN10gasBkPointE.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -129,7 +142,8 @@ int gasBkPoint::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
@@ -137,4 +151,3 @@ int gasBkPoint::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

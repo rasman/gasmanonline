@@ -46,7 +46,7 @@ void GasTabWidget::handleDrag(int tabNum)
 	QMimeData* mimeData = new QMimeData;
 	mimeData->setData(GasApplication::DragMime, QByteArray::number(gasApp->pushGasTab(widget(tabNum))));
 	drag->setMimeData(mimeData);
-	drag->setPixmap(QPixmap::grabWidget(widget(tabNum)).scaled(QSize(300,300), Qt::KeepAspectRatio));
+	drag->setPixmap(widget(tabNum)->grab().scaled(QSize(300,300), Qt::KeepAspectRatio));
 	drag->exec();
 	if (count() == 0)
 		qobject_cast<QWidget*>(parent())->close();
@@ -79,9 +79,10 @@ bool GasTabWidget::canCloseAll()
 		ret = true;
 
 	// if ok, close all windows
-	if(ret)
+	if(ret) {
 		foreach(GasChildWindow* child, children)
 			child->close();
+	}
 
 	return ret;
 }
@@ -103,7 +104,7 @@ void GasTabWidget::dragEnterEvent(QDragEnterEvent *event)
 		// if reordering tabs
 		if(event->source() == this) 
 		{
-			if(gasTab->rect().contains(event->pos()))
+			if(gasTab->rect().contains(event->position().toPoint()))
 				event->acceptProposedAction();
 			else
 				event->ignore();
@@ -123,7 +124,7 @@ void GasTabWidget::dragMoveEvent(QDragMoveEvent *event)
 		// if reordering tabs
 		if(event->source() == this) 
 		{
-			if(gasTab->rect().contains(event->pos()))
+			if(gasTab->rect().contains(event->position().toPoint()))
 				event->acceptProposedAction();
 			else
 				event->ignore();
@@ -143,7 +144,7 @@ void GasTabWidget::dropEvent(QDropEvent *event)
 	if(event->source() == this)
 	{
 		GasChildWindow* child = qobject_cast<GasChildWindow*>(gasApp->popGasTab());
-		reorderTabs(event->pos(), child);
+		reorderTabs(event->position().toPoint(), child);
 	}
 	else
 		emit reparentChildDrop(event, this);

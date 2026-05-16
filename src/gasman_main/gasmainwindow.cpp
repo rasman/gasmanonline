@@ -25,8 +25,10 @@
 
 #ifndef Q_OS_WASM
 #include "gasprintpreview.h"
-#else
-#include <emscripten/val.h>
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
 #endif
 
 GasMainWindow *gasMainWindow = 0;
@@ -65,7 +67,6 @@ GasMainWindow::GasMainWindow()
 #endif
 
 	connect(mdi, SIGNAL(subWindowActivated(QMdiSubWindow*)), this, SLOT(subWindowActivated(QMdiSubWindow *)));
-	connect(glm->instance(), SIGNAL(validLicenseRegistered()), this, SLOT(updateGasDocs()));
 	connect(mdi, SIGNAL(subWindowActivated(QMdiSubWindow *)), this, SLOT(windowStateChanged()));
 	mdi->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	mdi->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -85,8 +86,9 @@ GasMainWindow::GasMainWindow()
 
 GasMainWindow::~GasMainWindow()
 {
-	//Delete printer
+#ifndef Q_OS_WASM
 	delete prn;
+#endif
 }
 
 void GasMainWindow::showEvent(QShowEvent *evnt)
@@ -179,7 +181,7 @@ bool GasMainWindow::dropPosAcceptable(QDropEvent* event)
 	bool ok = true;
 	foreach(QMdiSubWindow* subWin, mdi->subWindowList())
 	{
-		if (subWin->frameGeometry().contains(event->pos()))
+		if (subWin->frameGeometry().contains(event->position().toPoint()))
 			ok = false;
 	}
 	return ok;
@@ -190,7 +192,7 @@ void GasMainWindow::reparentChildDrop(QDropEvent* event, GasTabWidget* dest)
 	GasChildWindow* child = qobject_cast<GasChildWindow*>(gasApp->popGasTab());
 	GasTabWidget *source = qobject_cast<GasTabWidget*>(event->source());
 
-	reparentChild(child, source, dest, event->pos());
+	reparentChild(child, source, dest, event->position().toPoint());
 }
 
 void GasMainWindow::reparentChild(GasChildWindow *child, GasTabWidget *source, GasTabWidget *dest, const QPoint& point)
@@ -609,7 +611,13 @@ void GasMainWindow::openFromContent(const QString &fileName, const QByteArray &f
 		delete gasdoc;
 		return;
 	}
+#ifdef Q_OS_WASM
+	// Cache content in localStorage so Open Recent can reload it without the filesystem
+	gasApp->WriteProfile("RecentFileContents", fileName,
+	                     QString::fromLatin1(fileContent.toBase64()));
+#endif
 	newControlDock(gasdoc);
+	gasdoc->UpdateAllViews(nullptr, 0, GasUpdateEvent::UPD_NONE);
 	updateTitle();
 	updateViewMenu();
 }
@@ -716,7 +724,7 @@ void GasMainWindow::copyData()
 //contents of the current child window
 void GasMainWindow::selectAll()
 {
-	QPixmap child(QPixmap::grabWidget(activeChildForced()));
+	QPixmap child(activeChildForced()->grab());
 
 	shootscreen = child;
 	updateEditMenu();
@@ -832,47 +840,39 @@ void GasMainWindow::setShowToolbar(bool set)
 //Set up the default options for the application
 void GasMainWindow::setDefaultOptions()
 {
-	GasOptionsDialog dlg(this);
+	// Heap-allocate so the dialog outlives this function on WASM (open() is non-blocking)
+	GasOptionsDialog *dlg = new GasOptionsDialog(this);
 
-	dlg.patientParameters()->setWeight(GasDoc::m_fDfltWeight);
-	dlg.patientParameters()->setVolumeALV(GasDoc::m_fDfltVolume[ALV]);
-	dlg.patientParameters()->setVolumeVRG(GasDoc::m_fDfltVolume[VRG]);
-	dlg.patientParameters()->setVolumeMUS(GasDoc::m_fDfltVolume[MUS]);
-	dlg.patientParameters()->setVolumeFAT(GasDoc::m_fDfltVolume[FAT]);
-	dlg.patientParameters()->setVolumeVEN(GasDoc::m_fDfltVolume[VEN]);
-	dlg.patientParameters()->setRatioVRG(qRound(GasDoc::m_fDfltRatio[VRG] * 100));
-	dlg.patientParameters()->setRatioMUS(qRound(GasDoc::m_fDfltRatio[MUS] * 100));
-	dlg.patientParameters()->setRatioFAT(qRound(GasDoc::m_fDfltRatio[FAT] * 100));
-	dlg.patientParameters()->setCO(GasDoc::m_fDfltCO);
-	dlg.patientParameters()->setVA(GasDoc::m_fDfltVA);
+	dlg->patientParameters()->setWeight(GasDoc::m_fDfltWeight);
+	dlg->patientParameters()->setVolumeALV(GasDoc::m_fDfltVolume[ALV]);
+	dlg->patientParameters()->setVolumeVRG(GasDoc::m_fDfltVolume[VRG]);
+	dlg->patientParameters()->setVolumeMUS(GasDoc::m_fDfltVolume[MUS]);
+	dlg->patientParameters()->setVolumeFAT(GasDoc::m_fDfltVolume[FAT]);
+	dlg->patientParameters()->setVolumeVEN(GasDoc::m_fDfltVolume[VEN]);
+	dlg->patientParameters()->setRatioVRG(qRound(GasDoc::m_fDfltRatio[VRG] * 100));
+	dlg->patientParameters()->setRatioMUS(qRound(GasDoc::m_fDfltRatio[MUS] * 100));
+	dlg->patientParameters()->setRatioFAT(qRound(GasDoc::m_fDfltRatio[FAT] * 100));
+	dlg->patientParameters()->setCO(GasDoc::m_fDfltCO);
+	dlg->patientParameters()->setVA(GasDoc::m_fDfltVA);
 
-	int nOldBeep, nOldLabel, nOldThick, nOldPercent;
-	bool bOldGraphpaper;
+	dlg->programDefaults()->setSignal(GasDoc::m_nBeep);
+	dlg->programDefaults()->setLineLabel(GasGraphView::m_nLineLabelType);
+	dlg->programDefaults()->setLineThickness(GasGraphView::m_nLineWidth - 1);
+	dlg->programDefaults()->setJumpPercent(GasGraphView::m_nScrollPercent);
+	dlg->programDefaults()->setUseGraphpaper(GasGraphView::m_bGraphpaper);
 
-	nOldBeep = GasDoc::m_nBeep;
+	dlg->viewDefaults()->setEnabledScroll(GasGraphView::m_bDfltScrollEnb);
+	dlg->viewDefaults()->setScale(GasGraphView::m_szScale);
+	dlg->viewDefaults()->setVisibleCost(GasPanelView::m_nDfltShowCost);
+	dlg->viewDefaults()->setVisibleMl(GasPanelView::m_nDfltShowMl);
+	dlg->viewDefaults()->setVisibleControl(GasPanelView::m_nDfltShowControl);
+	dlg->viewDefaults()->setHighCO(GasPanelView::m_nDfltHIGH_CO);
+	dlg->viewDefaults()->setHighFGF(GasPanelView::m_nDfltHIGH_FGF);
+	dlg->viewDefaults()->setHighVA(GasPanelView::m_nDfltHIGH_VA);
 
-	dlg.programDefaults()->setSignal(nOldBeep);
-	dlg.programDefaults()->setLineLabel(nOldLabel = GasGraphView::m_nLineLabelType);
-	dlg.programDefaults()->setLineThickness(nOldThick = GasGraphView::m_nLineWidth - 1);
-	dlg.programDefaults()->setJumpPercent(nOldPercent = GasGraphView::m_nScrollPercent);
-	dlg.programDefaults()->setUseGraphpaper(bOldGraphpaper = GasGraphView::m_bGraphpaper);
-
-	quint16 nOldHighCO, nOldHighFGF, nOldHighVA;
-	bool bOldEnableScroll, bOldShowCost, bOldShowControl, bOldShowMl;
-	QString strOldScale;
-
-	dlg.viewDefaults()->setEnabledScroll(bOldEnableScroll = GasGraphView::m_bDfltScrollEnb);
-	dlg.viewDefaults()->setScale(strOldScale = GasGraphView::m_szScale);
-	dlg.viewDefaults()->setVisibleCost(bOldShowCost = GasPanelView::m_nDfltShowCost);
-	dlg.viewDefaults()->setVisibleMl(bOldShowMl = GasPanelView::m_nDfltShowMl);
-	dlg.viewDefaults()->setVisibleControl(bOldShowControl = GasPanelView::m_nDfltShowControl);
-	dlg.viewDefaults()->setHighCO(nOldHighCO = GasPanelView::m_nDfltHIGH_CO);
-	dlg.viewDefaults()->setHighFGF(nOldHighFGF = GasPanelView::m_nDfltHIGH_FGF);
-	dlg.viewDefaults()->setHighVA(nOldHighVA = GasPanelView::m_nDfltHIGH_VA);
-
-	QString strOldCircuit, strOldSpeed;
 	QString strOldAgent = gasApp->ReadProfile("Defaults", "Agent", QString()).toString();
 
+	QString strOldSpeed;
 	if (GasDoc::m_nDfltSpeed != AFAP)
 		strOldSpeed = QString("%1x").arg(GasDoc::m_nDfltSpeed);
 	else
@@ -881,204 +881,207 @@ void GasMainWindow::setDefaultOptions()
 	GasAnesArray anesArray;
 	int nAnes = anesArray.ReadProfile();
 
-	dlg.simulationDefaults()->setSpeed(strOldSpeed);
-	dlg.simulationDefaults()->setCircuit(strOldCircuit = GasDoc::m_szDfltCircuit);
-	dlg.simulationDefaults()->setFGF(GasDoc::m_fDfltFGF);
-	dlg.simulationDefaults()->setVolumeCKT(GasDoc::m_fDfltVolume[CKT]);
-	dlg.simulationDefaults()->setAgent(anesArray[anesArray.LookupSection(strOldAgent)]->m_strName);
+	dlg->simulationDefaults()->setSpeed(strOldSpeed);
+	dlg->simulationDefaults()->setCircuit(GasDoc::m_szDfltCircuit);
+	dlg->simulationDefaults()->setFGF(GasDoc::m_fDfltFGF);
+	dlg->simulationDefaults()->setVolumeCKT(GasDoc::m_fDfltVolume[CKT]);
+	dlg->simulationDefaults()->setAgent(anesArray[anesArray.LookupSection(strOldAgent)]->m_strName);
 
-	for (int i = 0; i < nAnes; i++)
-	{
+	for (int i = 0; i < nAnes; i++) {
 		GasAnesthetic& anes = *anesArray[i];
-		dlg.colorDefaults()->addAgentSizeCostColor(anes.m_strName, anes.m_nBottleSize, anes.m_fBottleCost, anes.m_defaultColor, anes.m_bIsLiquid);
+		dlg->colorDefaults()->addAgentSizeCostColor(anes.m_strName, anes.m_nBottleSize, anes.m_fBottleCost, anes.m_defaultColor, anes.m_bIsLiquid);
 	}
 
-	if (dlg.exec() == QDialog::Rejected)		 //Shows the dialog as a modal dialog
-		return;
+	// Snapshot current state — used inside the accepted lambda for change detection.
+	// Re-reading statics is safe because nothing modifies them while the dialog is open.
+	auto applyChanges = [this, dlg]() {
+		// Snapshot before applying so we only write changed values
+		int    nOldBeep      = GasDoc::m_nBeep;
+		int    nOldLabel     = GasGraphView::m_nLineLabelType;
+		int    nOldThick     = GasGraphView::m_nLineWidth - 1;
+		int    nOldPercent   = GasGraphView::m_nScrollPercent;
+		bool   bOldGraphpaper  = GasGraphView::m_bGraphpaper;
+		bool   bOldEnableScroll = GasGraphView::m_bDfltScrollEnb;
+		bool   bOldShowCost    = GasPanelView::m_nDfltShowCost;
+		bool   bOldShowMl      = GasPanelView::m_nDfltShowMl;
+		bool   bOldShowControl = GasPanelView::m_nDfltShowControl;
+		quint16 nOldHighCO  = GasPanelView::m_nDfltHIGH_CO;
+		quint16 nOldHighFGF = GasPanelView::m_nDfltHIGH_FGF;
+		quint16 nOldHighVA  = GasPanelView::m_nDfltHIGH_VA;
+		QString strOldScale   = GasGraphView::m_szScale;
+		QString strOldCircuit = GasDoc::m_szDfltCircuit;
+		QString strOldSpeed;
+		if (GasDoc::m_nDfltSpeed != AFAP)
+			strOldSpeed = QString("%1x").arg(GasDoc::m_nDfltSpeed);
+		else
+			strOldSpeed = tr("AFAP");
+		QString strOldAgent = gasApp->ReadProfile("Defaults", "Agent", QString()).toString();
 
-	GasAttributeMap agentsAndSizes = dlg.colorDefaults()->getSizes();
-	GasAttributeMap agentsAndCosts = dlg.colorDefaults()->getCosts();
-	GasAttributeMap agentsAndColors = dlg.colorDefaults()->getColors();
-	for (int i = 0; i < nAnes; i++)
-	{
-		GasAnesthetic& anes = *anesArray[i];
-		QString name = anes.m_strName;
-		if (agentsAndSizes.contains(name) && agentsAndCosts.contains(name) && agentsAndColors.contains(name))
-		{
-			int size = agentsAndSizes[name].toInt();
-			if (size != 0 && anes.m_nBottleSize != size)
-				gasApp->WriteProfile(anes.m_strSectionName, "BottleSize", size);
+		GasAnesArray anesArray;
+		int nAnes = anesArray.ReadProfile();
 
-			double cost = agentsAndCosts[name].toDouble();
-			if (anes.m_fBottleCost != cost)
-			{
-				if (cost != 0.0)
-					gasApp->WriteProfile(anes.m_strSectionName, "BottleCost", cost);
-				else
-					gasApp->WriteProfile(anes.m_strSectionName, "BottleCost", 0);
+		GasAttributeMap agentsAndSizes  = dlg->colorDefaults()->getSizes();
+		GasAttributeMap agentsAndCosts  = dlg->colorDefaults()->getCosts();
+		GasAttributeMap agentsAndColors = dlg->colorDefaults()->getColors();
+		for (int i = 0; i < nAnes; i++) {
+			GasAnesthetic& anes = *anesArray[i];
+			QString name = anes.m_strName;
+			if (agentsAndSizes.contains(name) && agentsAndCosts.contains(name) && agentsAndColors.contains(name)) {
+				int size = agentsAndSizes[name].toInt();
+				if (size != 0 && anes.m_nBottleSize != size)
+					gasApp->WriteProfile(anes.m_strSectionName, "BottleSize", size);
+				double cost = agentsAndCosts[name].toDouble();
+				if (anes.m_fBottleCost != cost)
+					gasApp->WriteProfile(anes.m_strSectionName, "BottleCost", cost != 0.0 ? cost : 0);
+				QString color = agentsAndColors[name].toString();
+				if (anes.m_defaultColor != color)
+					gasApp->WriteProfile(anes.m_strSectionName, "Color", color);
 			}
-
-			QString color = agentsAndColors[name].toString();
-			if (anes.m_defaultColor != color)
-				gasApp->WriteProfile(anes.m_strSectionName, "Color", color);
 		}
-	}
 
-	if (!FNear(GasDoc::m_fDfltWeight, dlg.patientParameters()->weight())) {
-		GasDoc::m_fDfltWeight = dlg.patientParameters()->weight();
-		gasApp->WriteProfile("Defaults", "Weight", GasDoc::m_fDfltWeight);
-	}
-
-	if (!FNear(GasDoc::m_fDfltVolume[ALV], dlg.patientParameters()->volumeALV())) {
-		GasDoc::m_fDfltVolume[ALV] = dlg.patientParameters()->volumeALV();
-		gasApp->WriteProfile("Volumes", "ALV", GasDoc::m_fDfltVolume[ALV]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltVolume[VRG], dlg.patientParameters()->volumeVRG())) {
-		GasDoc::m_fDfltVolume[VRG] = dlg.patientParameters()->volumeVRG();
-		gasApp->WriteProfile("Volumes", "VRG", GasDoc::m_fDfltVolume[VRG]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltVolume[MUS], dlg.patientParameters()->volumeMUS())) {
-		GasDoc::m_fDfltVolume[MUS] = dlg.patientParameters()->volumeMUS();
-		gasApp->WriteProfile("Volumes", "MUS", GasDoc::m_fDfltVolume[MUS]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltVolume[FAT], dlg.patientParameters()->volumeFAT())) {
-		GasDoc::m_fDfltVolume[FAT] = dlg.patientParameters()->volumeFAT();
-		gasApp->WriteProfile("Volumes", "FAT", GasDoc::m_fDfltVolume[FAT]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltVolume[VEN], dlg.patientParameters()->volumeVEN())) {
-		GasDoc::m_fDfltVolume[VEN] = dlg.patientParameters()->volumeVEN();
-		gasApp->WriteProfile("Volumes", "VEN", GasDoc::m_fDfltVolume[VEN]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltRatio[VRG], dlg.patientParameters()->ratioVRG() / 100.0F)) {
-		GasDoc::m_fDfltRatio[VRG] = dlg.patientParameters()->ratioVRG() / 100.0F;
-		gasApp->WriteProfile("Ratio", "VRG", GasDoc::m_fDfltRatio[VRG]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltRatio[MUS], dlg.patientParameters()->ratioMUS() / 100.0F)) {
-		GasDoc::m_fDfltRatio[MUS] = dlg.patientParameters()->ratioMUS() / 100.0F;
-		gasApp->WriteProfile("Ratio", "MUS", GasDoc::m_fDfltRatio[MUS]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltRatio[FAT], dlg.patientParameters()->ratioFAT() / 100.0F)) {
-		GasDoc::m_fDfltRatio[FAT] = dlg.patientParameters()->ratioFAT() / 100.0F;
-		gasApp->WriteProfile("Ratio", "FAT", GasDoc::m_fDfltRatio[FAT]);
-	}
-
-	if (!FNear(GasDoc::m_fDfltCO, dlg.patientParameters()->NormalCO())) {
-		GasDoc::m_fDfltCO = dlg.patientParameters()->NormalCO();
-		gasApp->WriteProfile("Defaults", "CO", GasDoc::m_fDfltCO);
-	}
-
-	if (!FNear(GasDoc::m_fDfltVA, dlg.patientParameters()->NormalVA())) {
-		GasDoc::m_fDfltVA = dlg.patientParameters()->NormalVA();
-		gasApp->WriteProfile("Defaults", "VA", GasDoc::m_fDfltVA);
-	}
-
-	bool bChangeGraphs = false;
-
-	int nNewBeep = dlg.programDefaults()->signal();
-	if (nOldBeep != nNewBeep) {
-		GasDoc::m_nBeep = nNewBeep;
-		gasApp->WriteProfile("Defaults", "Click", GasDoc::m_nBeep);
-	}
-	if (nOldLabel != dlg.programDefaults()->lineLabel()) {
-		GasGraphView::m_nLineLabelType = dlg.programDefaults()->lineLabel();
-		gasApp->WriteProfile("Defaults", "LineLabels", GasGraphView::m_nLineLabelType);
-		bChangeGraphs = true;
-	}
-	if (nOldThick != dlg.programDefaults()->lineThickness()) {
-		GasGraphView::m_nLineWidth = dlg.programDefaults()->lineThickness() + 1;
-		gasApp->WriteProfile("Defaults", "LineWidth", GasGraphView::m_nLineWidth);
-		bChangeGraphs = true;
-	}
-	if (nOldPercent != dlg.programDefaults()->jumpPercent()) {
-		GasGraphView::m_nScrollPercent = dlg.programDefaults()->jumpPercent();
-		gasApp->WriteProfile("Defaults", "ScrollPercent", GasGraphView::m_nScrollPercent);
-	}
-	if (bOldGraphpaper != dlg.programDefaults()->isUseGraphpaper()) {
-		GasGraphView::m_bGraphpaper = dlg.programDefaults()->isUseGraphpaper();
-		gasApp->WriteProfile("Defaults", "GraphPaper", GasGraphView::m_bGraphpaper);
-		bChangeGraphs = true;
-	}
-
-	if (bChangeGraphs)
-		foreach(GasChildWindow *child, allChildren()) {
-		child->graphView()->DrawGraphs(true);
-	}
-
-	if (bOldEnableScroll != dlg.viewDefaults()->isEnabledScroll()) {
-		GasGraphView::m_bDfltScrollEnb = dlg.viewDefaults()->isEnabledScroll();
-		gasApp->WriteProfile("Defaults", "Scroll", GasGraphView::m_bDfltScrollEnb);
-	}
-	QString strNewScale = dlg.viewDefaults()->scale();
-	if (strOldScale != strNewScale) {
-		int pos = strNewScale.indexOf(' ');
-		GasGraphView::m_nDfltScaleMinutes = strNewScale.left(pos).toShort();
-		GasGraphView::m_szScale = strNewScale;
-		if ((pos = strNewScale.indexOf(QRegularExpression(QObject::tr("[HM]")), pos)) != -1)
-			if (strNewScale.at(pos) == QObject::tr("[HM]").at(1))
-				GasGraphView::m_nDfltScaleMinutes *= 60;
-		gasApp->WriteProfile("Defaults", "GraphMinutes", GasGraphView::m_nDfltScaleMinutes);
-	}
-	if (bOldShowCost != dlg.viewDefaults()->isVisibleCost()) {
-
-		GasPanelView::m_nDfltShowCost = dlg.viewDefaults()->isVisibleCost();
-		gasApp->WriteProfile("Defaults", "ShowCost", GasPanelView::m_nDfltShowCost);
-	}
-	if (bOldShowMl != dlg.viewDefaults()->isVisibleMl()) {
-
-		GasPanelView::m_nDfltShowMl = dlg.viewDefaults()->isVisibleMl();
-		gasApp->WriteProfile("Defaults", "ShowMl", GasPanelView::m_nDfltShowMl);
-	}
-	if (bOldShowControl != dlg.viewDefaults()->isVisibleControl()) {
-		GasPanelView::m_nDfltShowControl = dlg.viewDefaults()->isVisibleControl();
-		gasApp->WriteProfile("Defaults", "ShowControl", GasPanelView::m_nDfltShowControl);
-	}
-	if (nOldHighCO != dlg.viewDefaults()->highCO()) {
-		GasPanelView::m_nDfltHIGH_CO = dlg.viewDefaults()->highCO();
-		gasApp->WriteProfile("Defaults", "HighCO", GasPanelView::m_nDfltHIGH_CO);
-	}
-	if (nOldHighFGF != dlg.viewDefaults()->highFGF()) {
-		GasPanelView::m_nDfltHIGH_FGF = dlg.viewDefaults()->highFGF();
-		gasApp->WriteProfile("Defaults", "HighFGF", GasPanelView::m_nDfltHIGH_FGF);
-	}
-	if (nOldHighVA != dlg.viewDefaults()->highVA()) {
-		GasPanelView::m_nDfltHIGH_VA = dlg.viewDefaults()->highVA();
-		gasApp->WriteProfile("Defaults", "HighVA", GasPanelView::m_nDfltHIGH_VA);
-	}
-	QString strNewSpeed = dlg.simulationDefaults()->speed();
-	if (strOldSpeed != strNewSpeed) {
-		int nSpeed = AFAP;
-
-		if (strNewSpeed == tr("AFAP") || (nSpeed = strNewSpeed.left(strNewSpeed.indexOf('x')).toInt()) != 0) {
-			GasDoc::m_nDfltSpeed = nSpeed;
-			if (nSpeed == AFAP)
-				gasApp->WriteProfile("Defaults", "Speed", "AFAP");
-			else
-				gasApp->WriteProfile("Defaults", "Speed", nSpeed);
+		if (!FNear(GasDoc::m_fDfltWeight, dlg->patientParameters()->weight())) {
+			GasDoc::m_fDfltWeight = dlg->patientParameters()->weight();
+			gasApp->WriteProfile("Defaults", "Weight", GasDoc::m_fDfltWeight);
 		}
-	}
-	if (strOldCircuit != dlg.simulationDefaults()->circuit()) {
-		GasDoc::m_szDfltCircuit = dlg.simulationDefaults()->circuit();
-		gasApp->WriteProfile("Defaults", "Circuit", GasDoc::m_szDfltCircuit);
-	}
-	if (!FNear(GasDoc::m_fDfltFGF, dlg.simulationDefaults()->FGF())) {
-		GasDoc::m_fDfltFGF = dlg.simulationDefaults()->FGF();
-		gasApp->WriteProfile("Defaults", "FGF", GasDoc::m_fDfltFGF);
-	}
-	if (!FNear(GasDoc::m_fDfltVolume[CKT], dlg.simulationDefaults()->volumeCKT())) {
-		GasDoc::m_fDfltVolume[CKT] = dlg.simulationDefaults()->volumeCKT();
-		gasApp->WriteProfile("Volumes", "CKT", GasDoc::m_fDfltVolume[CKT]);
-	}
-	if (strOldAgent != dlg.simulationDefaults()->agent())
-		gasApp->WriteProfile("Defaults", "Agent", anesArray[anesArray.Lookup(dlg.simulationDefaults()->agent())]->m_strSectionName);
+		if (!FNear(GasDoc::m_fDfltVolume[ALV], dlg->patientParameters()->volumeALV())) {
+			GasDoc::m_fDfltVolume[ALV] = dlg->patientParameters()->volumeALV();
+			gasApp->WriteProfile("Volumes", "ALV", GasDoc::m_fDfltVolume[ALV]);
+		}
+		if (!FNear(GasDoc::m_fDfltVolume[VRG], dlg->patientParameters()->volumeVRG())) {
+			GasDoc::m_fDfltVolume[VRG] = dlg->patientParameters()->volumeVRG();
+			gasApp->WriteProfile("Volumes", "VRG", GasDoc::m_fDfltVolume[VRG]);
+		}
+		if (!FNear(GasDoc::m_fDfltVolume[MUS], dlg->patientParameters()->volumeMUS())) {
+			GasDoc::m_fDfltVolume[MUS] = dlg->patientParameters()->volumeMUS();
+			gasApp->WriteProfile("Volumes", "MUS", GasDoc::m_fDfltVolume[MUS]);
+		}
+		if (!FNear(GasDoc::m_fDfltVolume[FAT], dlg->patientParameters()->volumeFAT())) {
+			GasDoc::m_fDfltVolume[FAT] = dlg->patientParameters()->volumeFAT();
+			gasApp->WriteProfile("Volumes", "FAT", GasDoc::m_fDfltVolume[FAT]);
+		}
+		if (!FNear(GasDoc::m_fDfltVolume[VEN], dlg->patientParameters()->volumeVEN())) {
+			GasDoc::m_fDfltVolume[VEN] = dlg->patientParameters()->volumeVEN();
+			gasApp->WriteProfile("Volumes", "VEN", GasDoc::m_fDfltVolume[VEN]);
+		}
+		if (!FNear(GasDoc::m_fDfltRatio[VRG], dlg->patientParameters()->ratioVRG() / 100.0F)) {
+			GasDoc::m_fDfltRatio[VRG] = dlg->patientParameters()->ratioVRG() / 100.0F;
+			gasApp->WriteProfile("Ratio", "VRG", GasDoc::m_fDfltRatio[VRG]);
+		}
+		if (!FNear(GasDoc::m_fDfltRatio[MUS], dlg->patientParameters()->ratioMUS() / 100.0F)) {
+			GasDoc::m_fDfltRatio[MUS] = dlg->patientParameters()->ratioMUS() / 100.0F;
+			gasApp->WriteProfile("Ratio", "MUS", GasDoc::m_fDfltRatio[MUS]);
+		}
+		if (!FNear(GasDoc::m_fDfltRatio[FAT], dlg->patientParameters()->ratioFAT() / 100.0F)) {
+			GasDoc::m_fDfltRatio[FAT] = dlg->patientParameters()->ratioFAT() / 100.0F;
+			gasApp->WriteProfile("Ratio", "FAT", GasDoc::m_fDfltRatio[FAT]);
+		}
+		if (!FNear(GasDoc::m_fDfltCO, dlg->patientParameters()->NormalCO())) {
+			GasDoc::m_fDfltCO = dlg->patientParameters()->NormalCO();
+			gasApp->WriteProfile("Defaults", "CO", GasDoc::m_fDfltCO);
+		}
+		if (!FNear(GasDoc::m_fDfltVA, dlg->patientParameters()->NormalVA())) {
+			GasDoc::m_fDfltVA = dlg->patientParameters()->NormalVA();
+			gasApp->WriteProfile("Defaults", "VA", GasDoc::m_fDfltVA);
+		}
 
-	// save gascdefaults into .ini
+		bool bChangeGraphs = false;
+		int nNewBeep = dlg->programDefaults()->signal();
+		if (nOldBeep != nNewBeep) {
+			GasDoc::m_nBeep = nNewBeep;
+			gasApp->WriteProfile("Defaults", "Click", GasDoc::m_nBeep);
+		}
+		if (nOldLabel != dlg->programDefaults()->lineLabel()) {
+			GasGraphView::m_nLineLabelType = dlg->programDefaults()->lineLabel();
+			gasApp->WriteProfile("Defaults", "LineLabels", GasGraphView::m_nLineLabelType);
+			bChangeGraphs = true;
+		}
+		if (nOldThick != dlg->programDefaults()->lineThickness()) {
+			GasGraphView::m_nLineWidth = dlg->programDefaults()->lineThickness() + 1;
+			gasApp->WriteProfile("Defaults", "LineWidth", GasGraphView::m_nLineWidth);
+			bChangeGraphs = true;
+		}
+		if (nOldPercent != dlg->programDefaults()->jumpPercent()) {
+			GasGraphView::m_nScrollPercent = dlg->programDefaults()->jumpPercent();
+			gasApp->WriteProfile("Defaults", "ScrollPercent", GasGraphView::m_nScrollPercent);
+		}
+		if (bOldGraphpaper != dlg->programDefaults()->isUseGraphpaper()) {
+			GasGraphView::m_bGraphpaper = dlg->programDefaults()->isUseGraphpaper();
+			gasApp->WriteProfile("Defaults", "GraphPaper", GasGraphView::m_bGraphpaper);
+			bChangeGraphs = true;
+		}
+		if (bChangeGraphs) {
+			foreach(GasChildWindow *child, allChildren())
+				child->graphView()->DrawGraphs(true);
+		}
+
+		if (bOldEnableScroll != dlg->viewDefaults()->isEnabledScroll()) {
+			GasGraphView::m_bDfltScrollEnb = dlg->viewDefaults()->isEnabledScroll();
+			gasApp->WriteProfile("Defaults", "Scroll", GasGraphView::m_bDfltScrollEnb);
+		}
+		QString strNewScale = dlg->viewDefaults()->scale();
+		if (strOldScale != strNewScale) {
+			int pos = strNewScale.indexOf(' ');
+			GasGraphView::m_nDfltScaleMinutes = strNewScale.left(pos).toShort();
+			GasGraphView::m_szScale = strNewScale;
+			if ((pos = strNewScale.indexOf(QRegularExpression(QObject::tr("[HM]")), pos)) != -1)
+				if (strNewScale.at(pos) == QObject::tr("[HM]").at(1))
+					GasGraphView::m_nDfltScaleMinutes *= 60;
+			gasApp->WriteProfile("Defaults", "GraphMinutes", GasGraphView::m_nDfltScaleMinutes);
+		}
+		if (bOldShowCost != dlg->viewDefaults()->isVisibleCost()) {
+			GasPanelView::m_nDfltShowCost = dlg->viewDefaults()->isVisibleCost();
+			gasApp->WriteProfile("Defaults", "ShowCost", GasPanelView::m_nDfltShowCost);
+		}
+		if (bOldShowMl != dlg->viewDefaults()->isVisibleMl()) {
+			GasPanelView::m_nDfltShowMl = dlg->viewDefaults()->isVisibleMl();
+			gasApp->WriteProfile("Defaults", "ShowMl", GasPanelView::m_nDfltShowMl);
+		}
+		if (bOldShowControl != dlg->viewDefaults()->isVisibleControl()) {
+			GasPanelView::m_nDfltShowControl = dlg->viewDefaults()->isVisibleControl();
+			gasApp->WriteProfile("Defaults", "ShowControl", GasPanelView::m_nDfltShowControl);
+		}
+		if (nOldHighCO != dlg->viewDefaults()->highCO()) {
+			GasPanelView::m_nDfltHIGH_CO = dlg->viewDefaults()->highCO();
+			gasApp->WriteProfile("Defaults", "HighCO", GasPanelView::m_nDfltHIGH_CO);
+		}
+		if (nOldHighFGF != dlg->viewDefaults()->highFGF()) {
+			GasPanelView::m_nDfltHIGH_FGF = dlg->viewDefaults()->highFGF();
+			gasApp->WriteProfile("Defaults", "HighFGF", GasPanelView::m_nDfltHIGH_FGF);
+		}
+		if (nOldHighVA != dlg->viewDefaults()->highVA()) {
+			GasPanelView::m_nDfltHIGH_VA = dlg->viewDefaults()->highVA();
+			gasApp->WriteProfile("Defaults", "HighVA", GasPanelView::m_nDfltHIGH_VA);
+		}
+		QString strNewSpeed = dlg->simulationDefaults()->speed();
+		if (strOldSpeed != strNewSpeed) {
+			int nSpeed = AFAP;
+			if (strNewSpeed == tr("AFAP") || (nSpeed = strNewSpeed.left(strNewSpeed.indexOf('x')).toInt()) != 0) {
+				GasDoc::m_nDfltSpeed = nSpeed;
+				gasApp->WriteProfile("Defaults", "Speed", nSpeed == AFAP ? QVariant("AFAP") : QVariant(nSpeed));
+			}
+		}
+		if (strOldCircuit != dlg->simulationDefaults()->circuit()) {
+			GasDoc::m_szDfltCircuit = dlg->simulationDefaults()->circuit();
+			gasApp->WriteProfile("Defaults", "Circuit", GasDoc::m_szDfltCircuit);
+		}
+		if (!FNear(GasDoc::m_fDfltFGF, dlg->simulationDefaults()->FGF())) {
+			GasDoc::m_fDfltFGF = dlg->simulationDefaults()->FGF();
+			gasApp->WriteProfile("Defaults", "FGF", GasDoc::m_fDfltFGF);
+		}
+		if (!FNear(GasDoc::m_fDfltVolume[CKT], dlg->simulationDefaults()->volumeCKT())) {
+			GasDoc::m_fDfltVolume[CKT] = dlg->simulationDefaults()->volumeCKT();
+			gasApp->WriteProfile("Volumes", "CKT", GasDoc::m_fDfltVolume[CKT]);
+		}
+		if (strOldAgent != dlg->simulationDefaults()->agent())
+			gasApp->WriteProfile("Defaults", "Agent", anesArray[anesArray.Lookup(dlg->simulationDefaults()->agent())]->m_strSectionName);
+
+		dlg->deleteLater();
+	};
+
+	dlg->prepare();
+	connect(dlg, &QDialog::accepted, this, applyChanges);
+	connect(dlg, &QDialog::rejected, dlg, &QObject::deleteLater);
+	dlg->open();
 }
 
 // Returns a save-file path from a native dialog. Used by desktop export functions.
@@ -1113,9 +1116,6 @@ bool GasMainWindow::printHelper(const QPrinter::OutputFormat fmt, const QString&
 	prn->setOutputFileName(fname);
     prn->setPageOrientation(QPageLayout::Portrait);
 	updateLocale();
-	qDebug() << "pageRect: " << prn->pageRect(QPrinter::Inch) << '\n';
-	qDebug() << "resolution: " << prn->resolution() << '\n';
-
 	if (!gasPrintDocument)
 		gasPrintDocument = new QTextDocument(this);
 	updateGasPrintDoc("Courier", 10);
@@ -1127,17 +1127,12 @@ bool GasMainWindow::printHelper(const QPrinter::OutputFormat fmt, const QString&
 //Print the current document
 void GasMainWindow::print()
 {
-	if (glm->instance()->validLicenseExists())
-	{
-		if (!printHelper(QPrinter::NativeFormat, QString()))
-			return;
-		QPrintDialog *dlg = new QPrintDialog(prn, this);
-		if (dlg->exec() == QDialog::Accepted)
-			gasPrintDocument->print(prn);
-		delete dlg;
-	} else {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE "), tr("Print not available in student mode"));
-	}
+	if (!printHelper(QPrinter::NativeFormat, QString()))
+		return;
+	QPrintDialog *dlg = new QPrintDialog(prn, this);
+	if (dlg->exec() == QDialog::Accepted)
+		gasPrintDocument->print(prn);
+	delete dlg;
 }
 
 // update printer page size depending on locale
@@ -1189,38 +1184,28 @@ void GasMainWindow::writeHtmlToGasPrintDoc(GasChildWindow* child)
 //Show the print preview dialog
 void GasMainWindow::printPreview()
 {
-	if (glm->instance()->validLicenseExists())
-	{
-		if (!printHelper(QPrinter::NativeFormat, QString()))
-			return;
-		GasPrintPreview *preview = new GasPrintPreview(gasPrintDocument, prn, this);
-		preview->show();
-	} else {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"), tr("Print Preview not available in student mode"));
-	}
+	if (!printHelper(QPrinter::NativeFormat, QString()))
+		return;
+	GasPrintPreview *preview = new GasPrintPreview(gasPrintDocument, prn, this);
+	preview->show();
 }
 
 //Export data to pdf format
 void GasMainWindow::exportToPdf()
 {
-	if (glm->instance()->validLicenseExists())
-	{
-		QString fileName = getExportFileName(tr("Export to PDF"), tr("PDF Files"), tr(".pdf"));
-		if (fileName.isEmpty() || !printHelper(QPrinter::PdfFormat, fileName))
-			return;
-		gasPrintDocument->print(prn);
-		QFileInfo fi(fileName);
-		setSaveDir(fi.path());
-	} else {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"), tr("Export to PDF not available in student mode"));
-	}
+	QString fileName = getExportFileName(tr("Export to PDF"), tr("PDF Files"), tr(".pdf"));
+	if (fileName.isEmpty() || !printHelper(QPrinter::PdfFormat, fileName))
+		return;
+	gasPrintDocument->print(prn);
+	QFileInfo fi(fileName);
+	setSaveDir(fi.path());
 }
 
 #else // Q_OS_WASM ─────────────────────────────────────────────────────────
 
 // Build a self-contained HTML page with the simulation summary + embedded
 // graph image (base64 PNG data URI).  No file I/O — works entirely in memory.
-QString GasMainWindow::buildPrintHtml(GasDoc *doc, const QByteArray &graphPng) const
+QString GasMainWindow::buildPrintHtml(GasDoc *doc, const QByteArray &graphPng, bool autoPrint) const
 {
 	// graphPng is already base64-encoded (from GasGraphView::toArray())
 	const QString b64 = QString::fromLatin1(graphPng);
@@ -1273,96 +1258,100 @@ QString GasMainWindow::buildPrintHtml(GasDoc *doc, const QByteArray &graphPng) c
 		"  <tr><th>Agent</th><th>Dial</th></tr>\n"
 		+ agentRows +
 		"</table>\n"
-		"<img src=\"data:image/png;base64," + b64 + "\" alt=\"Simulation graph\">\n"
-		"</body>\n"
-		"</html>\n";
+		+ (b64.isEmpty() ? QString() :
+		   "<img src=\"data:image/png;base64," + b64 + "\" alt=\"Simulation graph\">\n")
+		+ (autoPrint ?
+		   "<div class=\"noprint\" style=\"margin-top:18px;\">"
+		   "<button onclick=\"window.print()\" "
+		   "style=\"font-size:1em;padding:8px 22px;cursor:pointer;\">"
+		   "&#128438; Print this report</button></div>\n"
+		   : QString())
+		+ "</body>\n"
+		  "</html>\n";
 
 	return html;
 }
 
-// Open a new browser window containing the print-ready HTML, then trigger
-// the browser's built-in print dialog.  Uses Emscripten JS interop —
-// window.open() is allowed because this is called from a user gesture.
+// Download a self-contained HTML report for printing.
+// Avoids window.open() + QDialog::exec() combinations that crash Qt WASM.
 void GasMainWindow::print()
 {
-	if (!glm->instance()->validLicenseExists()) {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
-			tr("Print not available in student mode"));
-		return;
-	}
-
 	GasChildWindow *child = activeChildForced();
 	if (!child) return;
-	if (child->doc()->GetDescription().isEmpty() && !editDescription())
-		return;
 
-	const QString html = buildPrintHtml(child->doc(),
-	                                    FirstGraphView(child->doc())->toArray());
-	const std::string stdHtml = html.toStdString();
+	GasDoc *doc = child->doc();
+	// Use description or fall back to doc title so no dialog is needed.
+	const QString desc = doc->GetDescription().isEmpty()
+	                     ? doc->title() : doc->GetDescription();
 
-	emscripten::val window  = emscripten::val::global("window");
-	emscripten::val popup   = window.call<emscripten::val>("open",
-	                              std::string(""), std::string("_blank"));
-	if (!popup.as<bool>()) {
-		QMessageBox::warning(this, tr("Gas Man\xC2\xAE"),
-			tr("The browser blocked the print window.\n"
-			   "Please allow pop-ups for this page and try again."));
-		return;
-	}
+	GasGraphView *gv = FirstGraphView(doc);
+	const QString html = buildPrintHtml(doc,
+	                                    gv ? gv->toArray() : QByteArray(),
+	                                    /*autoPrint=*/true);
 
-	emscripten::val doc = popup["document"];
-	doc.call<void>("open");
-	doc.call<void>("write", stdHtml);
-	doc.call<void>("close");
-	// document.write/close is synchronous — content is ready immediately.
-	// Calling print() on the popup triggers the browser's own print dialog.
-	popup.call<void>("print");
+	// Download the report; the user opens it in a browser tab and prints there.
+	QFileDialog::saveFileContent(html.toUtf8(), desc + ".html");
 }
 
-// Print preview on WASM: open the formatted page in a new window without
-// auto-triggering the print dialog.  The user can inspect it and use Ctrl+P.
+// Print preview on WASM: same as print() — downloads the report HTML.
 void GasMainWindow::printPreview()
 {
-	if (!glm->instance()->validLicenseExists()) {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
-			tr("Print Preview not available in student mode"));
-		return;
-	}
-
 	GasChildWindow *child = activeChildForced();
 	if (!child) return;
-	if (child->doc()->GetDescription().isEmpty() && !editDescription())
-		return;
 
-	const QString html = buildPrintHtml(child->doc(),
-	                                    FirstGraphView(child->doc())->toArray());
-	const std::string stdHtml = html.toStdString();
+	GasDoc *doc = child->doc();
+	const QString desc = doc->GetDescription().isEmpty()
+	                     ? doc->title() : doc->GetDescription();
 
-	emscripten::val window = emscripten::val::global("window");
-	emscripten::val popup  = window.call<emscripten::val>("open",
-	                             std::string(""), std::string("_blank"));
-	if (!popup.as<bool>()) {
-		QMessageBox::warning(this, tr("Gas Man\xC2\xAE"),
-			tr("The browser blocked the preview window.\n"
-			   "Please allow pop-ups for this page and try again."));
-		return;
-	}
+	GasGraphView *gv = FirstGraphView(doc);
+	const QString html = buildPrintHtml(doc,
+	                                    gv ? gv->toArray() : QByteArray(),
+	                                    /*autoPrint=*/false);
 
-	emscripten::val doc = popup["document"];
-	doc.call<void>("open");
-	doc.call<void>("write", stdHtml);
-	doc.call<void>("close");
-	// No popup.call("print") here — user prints manually from the new window.
+	QFileDialog::saveFileContent(html.toUtf8(), desc + ".html");
 }
 
-// PDF export is not available in the WASM build (requires QtPrintSupport).
-// Inform the user and suggest using XML/JSON export instead.
+// PDF export on WASM: open the HTML report in a new tab and auto-trigger
+// the browser print dialog (user selects "Save as PDF").
+// Falls back to downloading the HTML if the popup is blocked.
 void GasMainWindow::exportToPdf()
 {
-	QMessageBox::information(this, tr("Gas Man\xC2\xAE"),
-		tr("PDF export is not available in the browser version.\n\n"
-		   "To save your simulation, use File \xe2\x86\x92 Export \xe2\x86\x92 XML "
-		   "or JSON, which can be re-opened later."));
+	GasChildWindow *child = activeChildForced();
+	if (!child) return;
+
+	GasDoc *doc = child->doc();
+	GasGraphView *gv = FirstGraphView(doc);
+
+	QString html = buildPrintHtml(doc, gv ? gv->toArray() : QByteArray(), /*autoPrint=*/true);
+	// Auto-trigger the print dialog as soon as the new tab finishes loading
+	html.replace(QLatin1String("</head>"),
+		QLatin1String("<script>window.addEventListener('load',function(){window.print();});</script>\n</head>"));
+
+	const QByteArray utf8 = html.toUtf8();
+	const QByteArray b64  = utf8.toBase64();
+
+	// Open a Blob URL in a new tab; the embedded script fires window.print() on load.
+	int opened = EM_ASM_INT({
+		var b64 = UTF8ToString($0);
+		var binary = atob(b64);
+		var bytes = new Uint8Array(binary.length);
+		for (var i = 0; i < binary.length; i++)
+			bytes[i] = binary.charCodeAt(i);
+		var blob = new Blob([bytes], {type: 'text/html;charset=utf-8'});
+		var url  = URL.createObjectURL(blob);
+		var w    = window.open(url, '_blank');
+		return w ? 1 : 0;
+	}, b64.constData());
+
+	if (!opened) {
+		// Popup blocked — download the HTML so the user can open it manually
+		const QString desc = doc->GetDescription().isEmpty() ? doc->title() : doc->GetDescription();
+		QFileDialog::saveFileContent(utf8, desc + "_print.html");
+		QMessageBox::information(this, tr("Gas Man\xC2\xAE"),
+			tr("The browser blocked the print window.\n\n"
+			   "The report has been downloaded as HTML. Open it and use "
+			   "File \xe2\x86\x92 Print \xe2\x86\x92 Save as PDF."));
+	}
 }
 
 #endif // Q_OS_WASM ─────────────────────────────────────────────────────────
@@ -1397,18 +1386,13 @@ bool GasMainWindow::editDescription()
 //Export data to xml format
 void GasMainWindow::exportToXml()
 {
-	if (!glm->instance()->validLicenseExists()) {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
-			tr("Export to XML not available in student mode"));
-		return;
-	}
-
 	GasChildWindow *child = activeChildForced();
 	if (child->doc()->GetDescription() == "" && !editDescription())
 		return;
 
 	GasDoc *document = child->doc();
-	QByteArray ba    = FirstGraphView(document)->toArray();
+	GasGraphView *gv1 = FirstGraphView(document);
+	QByteArray ba    = gv1 ? gv1->toArray() : QByteArray();
 
 	// Serialize XML to a byte array (works on all platforms)
 	QByteArray xmlBytes;
@@ -1444,12 +1428,6 @@ void GasMainWindow::exportToXml()
 //Export data to JSON format
 void GasMainWindow::exportToJson()
 {
-	if (!glm->instance()->validLicenseExists()) {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE"),
-			tr("Export to JSON not available in student mode"));
-		return;
-	}
-
 	GasChildWindow *child = activeChildForced();
 	if (child->doc()->GetDescription() == "" && !editDescription())
 		return;
@@ -1475,7 +1453,8 @@ void GasMainWindow::exportToJson()
 
 GasGraphView* GasMainWindow::FirstGraphView(GasDoc* pdoc)
 {
-	return FirstGraphWindow(pdoc)->graphView();
+	GasChildWindow *w = FirstGraphWindow(pdoc);
+	return w ? w->graphView() : nullptr;
 }
 
 GasChildWindow* GasMainWindow::FirstGraphWindow(GasDoc *pdoc)
@@ -1486,7 +1465,7 @@ GasChildWindow* GasMainWindow::FirstGraphWindow(GasDoc *pdoc)
 		if (pchild->getViewType() == GRAPH)
 			return pchild;
 	}
-	return children.first();
+	return nullptr;
 }
 
 void GasMainWindow::transform()
@@ -1496,11 +1475,6 @@ void GasMainWindow::transform()
 //Export data to html format
 void GasMainWindow::exportToHtml()
 {
-	if (!glm->instance()->validLicenseExists()) {
-		QMessageBox::information(activeChildForced(), tr("Gas Man\xC2\xAE "), tr("Export to HTML not available in student mode"));
-		return;
-	}
-
 	GasChildWindow* child = activeChildForced();
 	if (child->doc()->GetDescription() == "" && !editDescription())
 		return;
@@ -1509,8 +1483,9 @@ void GasMainWindow::exportToHtml()
 	// On WASM: generate the HTML in memory and trigger a browser download.
 	// writeHtmlToFile() requires the filesystem, so build a simple HTML page
 	// using the same printable-report generator and offer it as a download.
+	GasGraphView *gv2 = FirstGraphView(child->doc());
 	const QString html = buildPrintHtml(child->doc(),
-	                                    FirstGraphView(child->doc())->toArray());
+	                                    gv2 ? gv2->toArray() : QByteArray());
 	QFileDialog::saveFileContent(html.toUtf8(), child->doc()->title() + ".html");
 #else
 	QString fileName = getExportFileName(tr("Export to HTML"), tr("Web Page"), tr(".html"));
@@ -1522,7 +1497,8 @@ void GasMainWindow::exportToHtml()
 void GasMainWindow::writeHtmlToFile(GasDoc* doc, const QString& htmlFileName, bool tmpImage)
 {
 	// get png back, save to image
-	QByteArray ba = FirstGraphView(doc)->toArray();
+	GasGraphView *gv3 = FirstGraphView(doc);
+	QByteArray ba = gv3 ? gv3->toArray() : QByteArray();
 	QImage image = QImage::fromData(QByteArray::fromBase64(ba));
 
 	// create a temporary .png file for image
@@ -1554,7 +1530,7 @@ void GasMainWindow::writeHtmlToFile(GasDoc* doc, const QString& htmlFileName, bo
 	saveTransform(dom, gasApp->getXslFile(), htmlFileName);
 }
 
-bool GasMainWindow::saveTransform(QDomDocument& dom, const QString& transformFileName, const QString& outputFileName)
+bool GasMainWindow::saveTransform(QDomDocument& /*dom*/, const QString& /*transformFileName*/, const QString& /*outputFileName*/)
 {
 	return true;
 }
@@ -1590,12 +1566,14 @@ QString GasMainWindow::createOutputImageFile(QFile& imageFile, const QString& ht
 	return newFileName;
 }
 
+#ifndef Q_OS_WASM
 //Show configuration dialog for the page-related options on a printer
 void GasMainWindow::pageSetup()
 {
 	QPageSetupDialog dlg(prn, this);
 	dlg.exec();
 }
+#endif
 
 //Create a new view for the current simulation
 void GasMainWindow::newView(GasDoc* doc, int nGas, GasViewType viewType)
@@ -1661,8 +1639,15 @@ void GasMainWindow::selectPrintOutput()
 void GasMainWindow::openRecentFile()
 {
 	QAction *action = qobject_cast<QAction *>(sender());
-	if (action)
-		open(action->data().toString());
+	if (!action) return;
+	const QString fileName = action->data().toString();
+#ifdef Q_OS_WASM
+	const QString b64 = gasApp->ReadProfile("RecentFileContents", fileName, QString()).toString();
+	if (!b64.isEmpty())
+		openFromContent(fileName, QByteArray::fromBase64(b64.toLatin1()));
+#else
+	open(fileName);
+#endif
 }
 
 //Show the overlay dialaog
@@ -1804,9 +1789,9 @@ void GasMainWindow::createViewMenu()
 	viewMenu->addAction(overlayAction);
 	viewMenu->addSeparator();
 
-	//	viewMenu->addAction(zoominAction);
-	//	viewMenu->addAction(zoomoutAction);
-	//	viewMenu->addSeparator();
+	viewMenu->addAction(zoominAction);
+	viewMenu->addAction(zoomoutAction);
+	viewMenu->addSeparator();
 	viewMenu->addAction(showToolbarAction);
 }
 
@@ -2071,8 +2056,14 @@ void GasMainWindow::updateRecentFileActions()
 	QStringListIterator it(files);
 	while (it.hasNext()) {
 		QString file = it.next();
-		if (!QFile::exists(file))	//If it does not exist, remove this name the from list
+#ifdef Q_OS_WASM
+		// No real filesystem on WASM — check localStorage cache instead
+		if (gasApp->ReadProfile("RecentFileContents", file, QString()).toString().isEmpty())
 			files.removeAll(file);
+#else
+		if (!QFile::exists(file))
+			files.removeAll(file);
+#endif
 	}
 	//Save recent files to gasman.ini
 	gasApp->WriteProfile("Settings", "RecentFileList", files);
@@ -2265,8 +2256,10 @@ void GasMainWindow::createActions()
 	connect(pdfAction, SIGNAL(triggered()), this, SLOT(exportToPdf()));
 
 
+#ifndef Q_OS_WASM
 	pageSetupAction = new QAction(tr("Page Setup..."), this);
 	connect(pageSetupAction, SIGNAL(triggered()), this, SLOT(pageSetup()));
+#endif
 
 	printSelectAction = new QAction(tr("Print Se&lect..."), this);
 	connect(printSelectAction, SIGNAL(triggered()), this, SLOT(selectPrintOutput()));
@@ -2374,9 +2367,13 @@ void GasMainWindow::createActions()
 	connect(overlayAction, SIGNAL(triggered()), this, SLOT(overlay()));
 
 	zoominAction = new QAction(tr("Zoom &in"), this);
+	zoominAction->setShortcut(QKeySequence::ZoomIn);
+	zoominAction->setShortcutContext(Qt::ApplicationShortcut);
 	connect(zoominAction, SIGNAL(triggered()), this, SLOT(zoomin()));
 
 	zoomoutAction = new QAction(tr("Zoom o&ut"), this);
+	zoomoutAction->setShortcut(QKeySequence::ZoomOut);
+	zoomoutAction->setShortcutContext(Qt::ApplicationShortcut);
 	connect(zoomoutAction, SIGNAL(triggered()), this, SLOT(zoomout()));
 
 
@@ -2495,15 +2492,17 @@ void GasMainWindow::createMenus()
 
 	fileMenu->addAction(printPreviewAction);
 
+#ifndef Q_OS_WASM
 	fileMenu->addAction(pageSetupAction);
+#endif
 	fileMenu->addAction(printSelectAction);
 	fileMenu->addAction(menuExport_to->menuAction());
 	fileMenu->addSeparator();
 	fileMenu->addAction(editDescriptionAction);
 	fileMenu->addSeparator();
-#ifndef Q_OS_MACX
+#ifndef Q_OS_UNIX
 	fileMenu->addAction(sendAction);
-#endif //Q_OS_MACX
+#endif //Q_OS_UNIX
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAction);
 
@@ -2540,7 +2539,13 @@ void GasMainWindow::createMenus()
 	windowMapper = new QSignalMapper(this);
 	createViewMenu();
 	createWindowMenu();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+	connect(windowMapper, &QSignalMapper::mappedObject, this, [this](QObject* obj) {
+		setActiveWindow(qobject_cast<QWidget*>(obj));
+	});
+#else
 	connect(windowMapper, SIGNAL(mapped(QWidget *)), this, SLOT(setActiveWindow(QWidget *)));
+#endif
 	connect(viewMenu, SIGNAL(aboutToShow()), this, SLOT(updateViewMenu()));
 	connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(createWindowMenu()));
 
@@ -2700,8 +2705,10 @@ void GasMainWindow::tabifyChild(GasChildWindow* child)
 		tw->addTab(child, child->title());
 	} else {
 		tw = newTabWidget(child->doc());
-		mdi->addSubWindow(tw);
+		QMdiSubWindow* subWin = mdi->addSubWindow(tw);
 		tw->addTab(child, child->title());
+		QSize mdiSize = mdi->size();
+		subWin->resize(mdiSize.width() / 2, mdiSize.height() * 2 / 3);
 		tw->show();
 	}
 	tw->setUpdatesEnabled(true);

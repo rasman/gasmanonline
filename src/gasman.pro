@@ -3,7 +3,7 @@ MY_OUT_PATH = ../compiled
 
 TEMPLATE = subdirs
 
-
+QMAKE_LFLAGS += -sASYNCIFY
 QMAKE_CXXFLAGS += -rpath=./gasmchn
 QMAKE_CXXFLAGS += -rpath=./gasgraph
 QMAKE_CXXFLAGS += -rpath=./gasgauge

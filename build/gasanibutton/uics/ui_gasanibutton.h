@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasanibutton.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -28,16 +28,16 @@ public:
     void setupUi(QMainWindow *gasanibutton)
     {
         if (gasanibutton->objectName().isEmpty())
-            gasanibutton->setObjectName(QString::fromUtf8("gasanibutton"));
+            gasanibutton->setObjectName("gasanibutton");
         gasanibutton->resize(800, 600);
         centralwidget = new QWidget(gasanibutton);
-        centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
+        centralwidget->setObjectName("centralwidget");
         gasanibutton->setCentralWidget(centralwidget);
         menubar = new QMenuBar(gasanibutton);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
+        menubar->setObjectName("menubar");
         gasanibutton->setMenuBar(menubar);
         statusbar = new QStatusBar(gasanibutton);
-        statusbar->setObjectName(QString::fromUtf8("statusbar"));
+        statusbar->setObjectName("statusbar");
         gasanibutton->setStatusBar(statusbar);
 
         retranslateUi(gasanibutton);

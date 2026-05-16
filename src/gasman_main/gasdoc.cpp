@@ -14,6 +14,9 @@
 	#include <qt_windows.h>
 	#include <mapi.h>
 #endif
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 #include "math.h"
 #include "gasapplication.h"
 #include "gaschildwindow.h"
@@ -30,6 +33,29 @@ float GasDoc::m_fDfltVA;
 float GasDoc::m_fDfltCO;
 float GasDoc::m_fDfltWeight;
 int GasDoc::m_nBeep;
+
+void GasDoc::playBeep()
+{
+#ifdef __EMSCRIPTEN__
+    EM_ASM({
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc  = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+    });
+#else
+    QApplication::beep();
+#endif
+}
+
 int GasDoc::m_nDfltSpeed;
 float GasDoc::m_fDfltFGF;
 QString GasDoc::m_szDfltCircuit;
@@ -287,11 +313,8 @@ bool GasDoc::duplicateAgents()
 {
 	QList<QString> agents;
 	for(int i = 0; i < m_gasArray.size(); ++i)
-	{
 		agents << m_gasArray[i]->m_strAgent;
-	}
-    const QSet<QString>strVe(agents.begin(),agents.begin());
-    return (agents.size() != agents.size()); // return (agents.size() != agents.toSet().size());
+	return agents.size() != QSet<QString>(agents.begin(), agents.end()).size();
 }
 
 // Reset the state from some sample
@@ -420,7 +443,7 @@ void GasDoc::zeroTimer()
 	if ( m_theState == RUNNING_STATE )
 		ChangeState( 0, STOPPED_STATE );
 
-	int ret = QMessageBox::question( childWindows[0], tr( "Gas Man\xC2\xAE" ), strMessage, QMessageBox::Ok, QMessageBox::Cancel | QMessageBox::Default );
+	int ret = QMessageBox::question( childWindows[0], tr( "Gas Man\xC2\xAE" ), strMessage, QMessageBox::Ok | QMessageBox::Cancel );
 	if ( ret != QMessageBox::Ok )
 		return;
 
@@ -592,14 +615,17 @@ void GasDoc::changePatient()
 
 void GasDoc::setBookmark()
 {
-	GasBookmarkDlg dlg;
-
 	if ( m_theState == RUNNING_STATE ) ChangeState( 0, STOPPED_STATE );
 
-	dlg.setHighTime( m_dwMaxTime );
-	dlg.setTime( m_dwTime );
-	dlg.setDoc( this );
-	dlg.exec();
+	GasBookmarkDlg *dlg = new GasBookmarkDlg( qobject_cast<QWidget*>(parent()) );
+	dlg->setHighTime( m_dwMaxTime );
+	dlg->setTime( m_dwTime );
+	dlg->setDoc( this );
+	dlg->prepare();
+
+	connect(dlg, &QDialog::accepted, dlg, &QObject::deleteLater);
+	connect(dlg, &QDialog::rejected, dlg, &QObject::deleteLater);
+	dlg->open();
 }
 void GasDoc::setBkPoint()
 {
@@ -711,15 +737,14 @@ bool GasDoc::CheckChange( bool bTrunc, bool *pStat )
 		
 		if (pStat != NULL)
 			*pStat = true;
-		int ret = QMessageBox::warning( 
+		int ret = QMessageBox::warning(
 			childWindows[0],
 			tr( "Gas Man\xC2\xAE "),
 			tr("<p>Changing conditions while replaying a simulation "
 				"will erase it from this point forward! (This won't "
 				"affect any saved versions.)"
 				"<p>Press 'OK' to proceed..."),
-			QMessageBox::Ok,
-			QMessageBox::Cancel | QMessageBox::Default );
+			QMessageBox::Ok | QMessageBox::Cancel );
 		if ( ret != QMessageBox::Ok )
 		{
 			emit updatePanel();
@@ -1698,16 +1723,7 @@ void GasDoc::CallViews()
 		//for ( QWidget *wnd = QApplication::focusWidget(); wnd; wnd = wnd->parentWidget() ) {
 			//if ( childWindows.contains( qobject_cast<GasChildWindow *>( wnd ) ) ) {
 			if ( childWindows.contains( gasMainWindow->activeChild() ) ) {
-				if ( m_nBeep == 1 ) {
-					QApplication::beep();
-				} else {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-					QString path = gasApp->ReadProfile( "Signals", QString( "System_%1" ).arg( m_nBeep - 1 ), QString() ).toString();
-					if ( QFile::exists( path ) ) QSound::play( path );
-#else
-					QApplication::beep();
-#endif
-				}
+					GasDoc::playBeep();
 			}
 		//}
 	}
@@ -1886,7 +1902,7 @@ bool GasDoc::shouldBreakAtTime(quint32 dwTime)
 
 bool GasDoc::isCondition()
 {	
-	float op1, op2;
+	float op1 = 0.0f, op2 = 0.0f;
 //	int j = 0;
 	QString name;
 	if(op.size()>0){
@@ -2837,7 +2853,11 @@ void GasDoc::updateTitle()
 
 void GasDoc::setCurrentFile( const QString &fileName )
 {
+#ifdef Q_OS_WASM
+	m_curFile = fileName; // canonicalFilePath() returns "" for in-memory browser files
+#else
 	m_curFile = QFileInfo(fileName).canonicalFilePath();
+#endif
 	isUntitled = false;
 	
 	foreach ( GasChildWindow *child, childWindows )
@@ -2869,29 +2889,33 @@ bool GasDoc::isModified()
 
 bool GasDoc::save()
 {
-		
-	if(glm->instance()->validLicenseExists())
-	{
-		if (isUntitled)
-			return saveAs();
-    else
-			return saveFile( m_curFile );
-	}else{
-		QMessageBox::information( childWindows[0], tr( "Gas Man\xC2\xAE" ), tr( "Saving not available in student mode" ) );
-		return true;
-	}
+	if (isUntitled)
+		return saveAs();
+	else
+		return saveFile( m_curFile );
 }
 
 bool GasDoc::saveAs()
 {
-	if(glm->instance()->validLicenseExists())
-	{
 #ifdef Q_OS_WASM
-		// Qt6 WebAssembly: serialize to memory and trigger browser download
+		// Ask user for filename (asyncify makes QInputDialog::getText work on WASM)
+		bool ok;
+		QString fileName = QInputDialog::getText(
+			childWindows[0], tr("Save As"), tr("File name:"),
+			QLineEdit::Normal, title() + ".gas", &ok);
+		if (!ok || fileName.trimmed().isEmpty())
+			return false;
+		if (!fileName.endsWith(".gas", Qt::CaseInsensitive))
+			fileName += ".gas";
+
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		QByteArray content = serializeToByteArray();
 		QApplication::restoreOverrideCursor();
-		QFileDialog::saveFileContent(content, title() + ".gas");
+		// Cache content in localStorage so Open Recent can reload it
+		gasApp->WriteProfile("RecentFileContents", fileName,
+		                     QString::fromLatin1(content.toBase64()));
+		QFileDialog::saveFileContent(content, fileName);
+		setCurrentFile(fileName);
 		return true;
 #else
 		QString startDir = gasMainWindow->SaveDir() + QDir::separator() + title();
@@ -2914,10 +2938,6 @@ bool GasDoc::saveAs()
 		gasMainWindow->setSaveDir(fi.path());
 		return true;
 #endif // Q_OS_WASM
-	}else{
-		QMessageBox::information( childWindows[0], tr( "Gas Man\xC2\xAE "), tr( "Saving not available in student mode" ) );
-		return true;
-	}
 }
 
 //Serialize document to a QByteArray (used by WASM save and potentially others)
@@ -2954,15 +2974,9 @@ static QString msToTimeStr(quint32 ms)
 		.arg(ss, 2, 10, QLatin1Char('0'));
 }
 
-// Helper: "HH:MM:SS" string → milliseconds
-static quint32 timeStrToMs(const QString& s)
-{
-	QStringList parts = s.split(':');
-	if (parts.size() < 3) return 0;
-	return (parts[0].toUInt() * 3600 + parts[1].toUInt() * 60 + parts[2].toUInt()) * 1000;
-}
 
-QByteArray GasDoc::toJsonBytes(bool wantResults) const
+
+QByteArray GasDoc::toJsonBytes(bool wantResults)
 {
 	QJsonObject root;
 	root["datetime"]   = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
@@ -3100,7 +3114,6 @@ QByteArray GasDoc::toJsonBytes(bool wantResults) const
 
 			// ── results for this block ────────────────────────
 			if (wantResults) {
-				int startSamp = nSamp;
 				QJsonArray resultsArr;
 				bool more = true;
 				while (more && nSamp < nSamps) {
@@ -3174,13 +3187,12 @@ static ACktType circuitTypeFromString(const QString& s)
 bool GasDoc::loadFromXmlContent(const QString &fileName, const QByteArray &content)
 {
 	QDomDocument xmlDoc;
-	QString errorMsg;
-	int errorLine = 0, errorCol = 0;
-	if (!xmlDoc.setContent(content, &errorMsg, &errorLine, &errorCol)) {
+	auto parseResult = xmlDoc.setContent(content);
+	if (!parseResult) {
 		QMessageBox::warning(gasMainWindow,
 			tr("Gas Man\xC2\xAE"),
 			tr("Cannot parse XML \"%1\":\nLine %2, col %3: %4")
-				.arg(fileName).arg(errorLine).arg(errorCol).arg(errorMsg));
+				.arg(fileName).arg(parseResult.errorLine).arg(parseResult.errorColumn).arg(parseResult.errorMessage));
 		return false;
 	}
 
@@ -3468,43 +3480,72 @@ bool GasDoc::maybeSave()
 {
     if ( !isModified() )
 		return true;
-	int ret;
-//    int ret = QMessageBox::warning( childWindows[0], tr("Gas Man\xC2\xAE"), tr("<p>The document has been modified. "
-//		"Do you want to save your changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
-	//give the messagebox accelerator key, but no icon. test if the discard and cancel work correctly
-	QMessageBox * box = new QMessageBox();
+
+#ifdef Q_OS_WASM
+	// Qt WASM does not support exec() — use open() with a callback instead.
+	// Return false now to abort the current close; the callback completes it.
+	QMessageBox *box = new QMessageBox();
+	box->setAttribute(Qt::WA_DeleteOnClose);
 	box->setWindowTitle(tr("Gas Man\xC2\xAE - ") + title());
-	 
 	box->setText(tr("<p>The document has been modified. "
-	  		"Do you want to save your changes?"));
+	                "Do you want to save your changes?"));
+	QPushButton *savBtn = box->addButton(tr("&Save"),    QMessageBox::AcceptRole);
+	QPushButton *disBtn = box->addButton(tr("&Discard"), QMessageBox::DestructiveRole);
+	box->addButton(tr("&Cancel"), QMessageBox::RejectRole);
+	box->setDefaultButton(savBtn);
+
+	QPointer<GasDoc> self(this);
+	connect(box, &QMessageBox::buttonClicked, [self, savBtn, disBtn](QAbstractButton *btn) {
+		if (!self) return;
+		if (btn == savBtn)
+			self->save();
+		if (btn == savBtn || btn == disBtn) {
+			// Force-complete the close that was deferred.
+			// Set m_bClosed first so re-entrant GasDoc::close() returns immediately.
+			self->m_bClosed = true;
+			foreach (GasChildWindow *ch, self->childWindows)
+				ch->setWindowModified(false);
+			QList<GasChildWindow*> toClose = self->childWindows;
+			foreach (GasChildWindow *ch, toClose)
+				gasMainWindow->removeChild(ch);
+		}
+		// Cancel: do nothing — the document stays open.
+	});
+
+	box->open();
+	return false; // tell caller close is deferred
+#else
+	int ret;
+	QMessageBox *box = new QMessageBox();
+	box->setWindowTitle(tr("Gas Man\xC2\xAE - ") + title());
+	box->setText(tr("<p>The document has been modified. "
+	                "Do you want to save your changes?"));
 	QPushButton *dis = new QPushButton(tr("&Discard"));
 	QPushButton *sav = new QPushButton(tr("&Save"));
 	QPushButton *can = new QPushButton(tr("&Cancel"));
-#ifdef Q_OS_MAC 
+#ifdef Q_OS_MAC
 	dis->setShortcut(Qt::Key_D);
 	sav->setShortcut(Qt::Key_S);
 	can->setShortcut(Qt::Key_C);
 #endif
- 
-	box->addButton( sav,QMessageBox::AcceptRole);
-	
-	
-	box->addButton( dis,QMessageBox::DestructiveRole);
-	
-	box->addButton( can,QMessageBox::RejectRole);
+	box->addButton(sav, QMessageBox::AcceptRole);
+	box->addButton(dis, QMessageBox::DestructiveRole);
+	box->addButton(can, QMessageBox::RejectRole);
 	box->setDefaultButton(sav);
 	ret = box->exec();
-	 
-	if ( ret == /*QMessageBox::Save */  0)
-        return save();
-	if ( ret ==/* QMessageBox::Cancel*/ 2 )
-        return false;
+	delete box;
 
+	if ( ret == QMessageBox::AcceptRole )    // Save button
+		return save();
+	if ( ret == QMessageBox::RejectRole )    // Cancel button
+		return false;
+	// DestructiveRole = Discard: close without saving
 
-	foreach(GasChildWindow* child, childWindows)
-		child->setWindowModified( false );
+	foreach (GasChildWindow *child, childWindows)
+		child->setWindowModified(false);
 
 	return true;
+#endif // Q_OS_WASM
 }
 
 //This routine sends a message with the document as an attachment
@@ -3590,7 +3631,7 @@ void GasDoc::send()
 #endif
 }
 
-EventList GasDoc::SampComp( GasSample &s1, GasSample &s2 )
+EventList GasDoc::SampComp( GasSample &s1, GasSample &s2 ) const
 {
 	EventList events = 0;
 
@@ -3620,7 +3661,7 @@ QDomElement GasDoc::createDomElement(QDomDocument& doc, const QString& name, con
 		QVariant valVar = attributes.value(str);
 
 		// round to 4 sig digits
-		if(valVar.type() == QVariant::Double)
+		if(valVar.typeId() == QMetaType::Double)
 			valString = QString::number(valVar.toDouble(), 'f', 4);
 		else
 			valString = valVar.toString();			

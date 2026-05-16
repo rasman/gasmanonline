@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gascdefaults.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -30,14 +30,14 @@ public:
     void setupUi(QWidget *GasCDefaults)
     {
         if (GasCDefaults->objectName().isEmpty())
-            GasCDefaults->setObjectName(QString::fromUtf8("GasCDefaults"));
+            GasCDefaults->setObjectName("GasCDefaults");
         GasCDefaults->resize(259, 304);
         hboxLayout = new QHBoxLayout(GasCDefaults);
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
+        hboxLayout->setObjectName("hboxLayout");
         groupBox = new QGroupBox(GasCDefaults);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setObjectName("groupBox");
         hboxLayout1 = new QHBoxLayout(groupBox);
-        hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
+        hboxLayout1->setObjectName("hboxLayout1");
         tableWidget = new QTableWidget(groupBox);
         if (tableWidget->columnCount() < 3)
             tableWidget->setColumnCount(3);
@@ -47,7 +47,7 @@ public:
         tableWidget->setHorizontalHeaderItem(1, __qtablewidgetitem1);
         QTableWidgetItem *__qtablewidgetitem2 = new QTableWidgetItem();
         tableWidget->setHorizontalHeaderItem(2, __qtablewidgetitem2);
-        tableWidget->setObjectName(QString::fromUtf8("tableWidget"));
+        tableWidget->setObjectName("tableWidget");
         tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         tableWidget->setRowCount(0);
         tableWidget->setColumnCount(3);

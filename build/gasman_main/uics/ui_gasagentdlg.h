@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasagentdlg.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define UI_GASAGENTDLG_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
@@ -36,7 +37,7 @@ public:
     void setupUi(QDialog *GasAgent)
     {
         if (GasAgent->objectName().isEmpty())
-            GasAgent->setObjectName(QString::fromUtf8("GasAgent"));
+            GasAgent->setObjectName("GasAgent");
         GasAgent->resize(215, 109);
         GasAgent->setModal(true);
         vboxLayout = new QVBoxLayout(GasAgent);
@@ -46,7 +47,7 @@ public:
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         gridLayout = new QGridLayout();
 #ifndef Q_OS_MAC
         gridLayout->setSpacing(6);
@@ -54,10 +55,10 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         cbCircuit = new QComboBox(GasAgent);
-        cbCircuit->setObjectName(QString::fromUtf8("cbCircuit"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        cbCircuit->setObjectName("cbCircuit");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(cbCircuit->sizePolicy().hasHeightForWidth());
@@ -66,17 +67,17 @@ public:
         gridLayout->addWidget(cbCircuit, 1, 1, 1, 1);
 
         lAgent = new QLabel(GasAgent);
-        lAgent->setObjectName(QString::fromUtf8("lAgent"));
+        lAgent->setObjectName("lAgent");
 
         gridLayout->addWidget(lAgent, 0, 0, 1, 1);
 
         lCircuit = new QLabel(GasAgent);
-        lCircuit->setObjectName(QString::fromUtf8("lCircuit"));
+        lCircuit->setObjectName("lCircuit");
 
         gridLayout->addWidget(lCircuit, 1, 0, 1, 1);
 
         cbAgent = new QComboBox(GasAgent);
-        cbAgent->setObjectName(QString::fromUtf8("cbAgent"));
+        cbAgent->setObjectName("cbAgent");
         sizePolicy.setHeightForWidth(cbAgent->sizePolicy().hasHeightForWidth());
         cbAgent->setSizePolicy(sizePolicy);
 
@@ -85,13 +86,13 @@ public:
 
         vboxLayout->addLayout(gridLayout);
 
-        spacerItem = new QSpacerItem(197, 16, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem = new QSpacerItem(197, 16, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem);
 
         buttonBox = new QDialogButtonBox(GasAgent);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        buttonBox->setObjectName("buttonBox");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(buttonBox->sizePolicy().hasHeightForWidth());

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasbkpoint.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -36,41 +36,41 @@ public:
     void setupUi(QDialog *gasBkPointClass)
     {
         if (gasBkPointClass->objectName().isEmpty())
-            gasBkPointClass->setObjectName(QString::fromUtf8("gasBkPointClass"));
+            gasBkPointClass->setObjectName("gasBkPointClass");
         gasBkPointClass->resize(432, 267);
         vboxLayout = new QVBoxLayout(gasBkPointClass);
         vboxLayout->setSpacing(6);
         vboxLayout->setContentsMargins(11, 11, 11, 11);
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         label = new QLabel(gasBkPointClass);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName("label");
 
         vboxLayout->addWidget(label);
 
         textEdit = new QTextEdit(gasBkPointClass);
-        textEdit->setObjectName(QString::fromUtf8("textEdit"));
+        textEdit->setObjectName("textEdit");
 
         vboxLayout->addWidget(textEdit);
 
         lb_caution = new QLabel(gasBkPointClass);
-        lb_caution->setObjectName(QString::fromUtf8("lb_caution"));
+        lb_caution->setObjectName("lb_caution");
 
         vboxLayout->addWidget(lb_caution);
 
         hboxLayout = new QHBoxLayout();
         hboxLayout->setSpacing(6);
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-        spacerItem = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        hboxLayout->setObjectName("hboxLayout");
+        spacerItem = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         hboxLayout->addItem(spacerItem);
 
         bt_OK = new QPushButton(gasBkPointClass);
-        bt_OK->setObjectName(QString::fromUtf8("bt_OK"));
+        bt_OK->setObjectName("bt_OK");
 
         hboxLayout->addWidget(bt_OK);
 
         bt_Cancel = new QPushButton(gasBkPointClass);
-        bt_Cancel->setObjectName(QString::fromUtf8("bt_Cancel"));
+        bt_Cancel->setObjectName("bt_Cancel");
 
         hboxLayout->addWidget(bt_Cancel);
 

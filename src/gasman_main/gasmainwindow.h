@@ -89,8 +89,10 @@ private slots:
 	void sendMail();	//Send a message with the document as an attachment
 	void aboutGasMan();
 	void print();		// Print current simulation
-	void pageSetup();	//Show the configuration dialog for the 
+#ifndef Q_OS_WASM
+	void pageSetup();	//Show the configuration dialog for the
 						//page-related printer options
+#endif
 	void newView(GasDoc* doc = 0, int nGas = 0, GasViewType viewType=PANEL);
 
 #ifndef Q_OS_WASM
@@ -179,7 +181,7 @@ private:
 	bool printHelper(const QPrinter::OutputFormat fmt, const QString& fname);
 	void writeHtmlToGasPrintDoc(GasChildWindow *child);
 #else
-	QString buildPrintHtml(GasDoc *doc, const QByteArray &graphPng) const;
+	QString buildPrintHtml(GasDoc *doc, const QByteArray &graphPng, bool autoPrint = false) const;
 #endif
 	void writeHtmlToFile(GasDoc* doc, const QString& fileName, bool tmpImage);
 	bool saveTransform(QDomDocument& dom, const QString& transformFileName, const QString& outputFileName);
@@ -246,7 +248,9 @@ private:
 	QAction *overlayAction;
 	QAction *zoominAction;
 	QAction *zoomoutAction;
+#ifndef Q_OS_WASM
 	QAction *pageSetupAction;
+#endif
 	QAction *printAction;
 	QAction *printSelectAction;
 	QAction *rewindAction;

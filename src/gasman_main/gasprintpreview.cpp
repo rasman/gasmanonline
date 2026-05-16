@@ -10,21 +10,6 @@
 #include <QtGui>
 #endif
 
-/*
-	Convert inches to pixels
-*/
-static inline int inchesToPixels( float inches, QPaintDevice *device )
-{
-	return qRound( inches * device->logicalDpiY() );
-}
-
-/*
-	Convert millimeters to inches
-*/
-static inline qreal mmToInches( double mm )
-{
-	return mm*0.039370147;
-}
 
 class GasPreviewView : public QAbstractScrollArea
 {
@@ -135,10 +120,10 @@ void GasPreviewView::paintPage( QPainter *painter, int page )
     painter->drawRect( QRectF( QPointF( 0, 0 ), pgSize + QSizeF( leftMargin + rightMargin, topMargin + bottomMargin ) ) );
     painter->setBrush( Qt::NoBrush );
 
-    col = col.light();
+    col = col.lighter();
     painter->drawLine( QLineF( pgSize.width() + leftMargin + rightMargin, 1, pgSize.width() + leftMargin + rightMargin, pgSize.height() + topMargin + bottomMargin - 1 ) );
 
-    col = col.light();
+    col = col.lighter();
     painter->drawLine( QLineF( pgSize.width() + leftMargin + rightMargin, 2, pgSize.width() + leftMargin + rightMargin, pgSize.height() + topMargin + bottomMargin - 2 ) );
 
     
@@ -262,7 +247,7 @@ GasPrintPreview::GasPrintPreview( const QTextDocument *document, QPrinter *prn, 
 */
 void GasPrintPreview::setup()
 {
-    QSizeF page = printer.pageRect().size();
+    QSizeF page = printer.pageRect(QPrinter::DevicePixel).size();
     page.setWidth( page.width() * view->logicalDpiX() / printer.logicalDpiX() );
     page.setHeight( page.height() * view->logicalDpiY() / printer.logicalDpiY() );
     doc->setPageSize( page );
@@ -272,13 +257,10 @@ void GasPrintPreview::setup()
 	fmt.setPadding( 0 );
 	doc->rootFrame()->setFrameFormat( fmt );
 
-	//Margins do not work right in Qt 4.2.x.
-	//This is a known issue and should be fixed for the next minor release (Qt 4.3.0)
-	//See Task Tracker with ID 136041. http://www.trolltech.com/developer/task-tracker
-	int rightMargin = qAbs( printer.paperRect().right() - printer.pageRect().right() );
-	int bottomMargin = qAbs( printer.paperRect().bottom() - printer.pageRect().bottom() );
-	int leftMargin = qAbs( printer.paperRect().left() - printer.pageRect().left() );
-	int topMargin = qAbs( printer.paperRect().top() - printer.pageRect().top() );
+	int rightMargin = qAbs( (int)(printer.paperRect(QPrinter::DevicePixel).right() - printer.pageRect(QPrinter::DevicePixel).right()) );
+	int bottomMargin = qAbs( (int)(printer.paperRect(QPrinter::DevicePixel).bottom() - printer.pageRect(QPrinter::DevicePixel).bottom()) );
+	int leftMargin = qAbs( (int)(printer.paperRect(QPrinter::DevicePixel).left() - printer.pageRect(QPrinter::DevicePixel).left()) );
+	int topMargin = qAbs( (int)(printer.paperRect(QPrinter::DevicePixel).top() - printer.pageRect(QPrinter::DevicePixel).top()) );
 	
 	view->setLeftMargin( leftMargin );
 	view->setTopMargin( topMargin );

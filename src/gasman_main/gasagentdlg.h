@@ -22,6 +22,8 @@ public:
 	inline void setArray( GasAnesArray *a ) { m_pAnesArray = a; }
 	inline GasAnesArray *array() const { return m_pAnesArray; }
 
+	void prepare();	//Initialize UI controls (populate agent list, set current values)
+
 public slots:
 	int exec();		//Initialize and show the dialog as a modal dialog
 

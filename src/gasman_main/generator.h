@@ -56,7 +56,6 @@ private:
     private:
         bool checkValidation();
         bool m_valid;
-        Generator* m_parent;
     };
 };
 

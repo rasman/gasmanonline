@@ -1,7 +1,6 @@
 #define EMSCRIPTEN 1
 #define _GNU_SOURCE 1
 #define _ILP32 1
-#define _LIBCPP_ABI_VERSION 2
 #define _REENTRANT 1
 #define __ATOMIC_ACQUIRE 2
 #define __ATOMIC_ACQ_REL 4
@@ -10,6 +9,8 @@
 #define __ATOMIC_RELEASE 3
 #define __ATOMIC_SEQ_CST 5
 #define __BIGGEST_ALIGNMENT__ 16
+#define __BITINT_MAXWIDTH__ 128
+#define __BOOL_WIDTH__ 8
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 #define __CHAR16_TYPE__ unsigned short
 #define __CHAR32_TYPE__ unsigned int
@@ -42,10 +43,8 @@
 #define __DECIMAL_DIG__ __LDBL_DECIMAL_DIG__
 #define __DEPRECATED 1
 #define __EMSCRIPTEN_PTHREADS__ 1
+#define __EMSCRIPTEN_SHARED_MEMORY__ 1
 #define __EMSCRIPTEN__ 1
-#define __EMSCRIPTEN_major__ 1
-#define __EMSCRIPTEN_minor__ 39
-#define __EMSCRIPTEN_tiny__ 8
 #define __EXCEPTIONS 1
 #define __FINITE_MATH_ONLY__ 0
 #define __FLOAT128__ 1
@@ -53,7 +52,6 @@
 #define __FLT_DENORM_MIN__ 1.40129846e-45F
 #define __FLT_DIG__ 6
 #define __FLT_EPSILON__ 1.19209290e-7F
-#define __FLT_EVAL_METHOD__ 0
 #define __FLT_HAS_DENORM__ 1
 #define __FLT_HAS_INFINITY__ 1
 #define __FLT_HAS_QUIET_NAN__ 1
@@ -65,6 +63,16 @@
 #define __FLT_MIN_EXP__ (-125)
 #define __FLT_MIN__ 1.17549435e-38F
 #define __FLT_RADIX__ 2
+#define __FPCLASS_NEGINF 0x0004
+#define __FPCLASS_NEGNORMAL 0x0008
+#define __FPCLASS_NEGSUBNORMAL 0x0010
+#define __FPCLASS_NEGZERO 0x0020
+#define __FPCLASS_POSINF 0x0200
+#define __FPCLASS_POSNORMAL 0x0100
+#define __FPCLASS_POSSUBNORMAL 0x0080
+#define __FPCLASS_POSZERO 0x0040
+#define __FPCLASS_QNAN 0x0002
+#define __FPCLASS_SNAN 0x0001
 #define __GCC_ATOMIC_BOOL_LOCK_FREE 2
 #define __GCC_ATOMIC_CHAR16_T_LOCK_FREE 2
 #define __GCC_ATOMIC_CHAR32_T_LOCK_FREE 2
@@ -76,6 +84,10 @@
 #define __GCC_ATOMIC_SHORT_LOCK_FREE 2
 #define __GCC_ATOMIC_TEST_AND_SET_TRUEVAL 1
 #define __GCC_ATOMIC_WCHAR_T_LOCK_FREE 2
+#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 1
+#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 1
+#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 1
+#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 1
 #define __GLIBCXX_BITSIZE_INT_N_0 128
 #define __GLIBCXX_TYPE_INT_N_0 __int128
 #define __GNUC_GNU_INLINE__ 1
@@ -123,35 +135,44 @@
 #define __INT_FAST16_FMTi__ "hi"
 #define __INT_FAST16_MAX__ 32767
 #define __INT_FAST16_TYPE__ short
+#define __INT_FAST16_WIDTH__ 16
 #define __INT_FAST32_FMTd__ "d"
 #define __INT_FAST32_FMTi__ "i"
 #define __INT_FAST32_MAX__ 2147483647
 #define __INT_FAST32_TYPE__ int
+#define __INT_FAST32_WIDTH__ 32
 #define __INT_FAST64_FMTd__ "lld"
 #define __INT_FAST64_FMTi__ "lli"
 #define __INT_FAST64_MAX__ 9223372036854775807LL
 #define __INT_FAST64_TYPE__ long long int
+#define __INT_FAST64_WIDTH__ 64
 #define __INT_FAST8_FMTd__ "hhd"
 #define __INT_FAST8_FMTi__ "hhi"
 #define __INT_FAST8_MAX__ 127
 #define __INT_FAST8_TYPE__ signed char
+#define __INT_FAST8_WIDTH__ 8
 #define __INT_LEAST16_FMTd__ "hd"
 #define __INT_LEAST16_FMTi__ "hi"
 #define __INT_LEAST16_MAX__ 32767
 #define __INT_LEAST16_TYPE__ short
+#define __INT_LEAST16_WIDTH__ 16
 #define __INT_LEAST32_FMTd__ "d"
 #define __INT_LEAST32_FMTi__ "i"
 #define __INT_LEAST32_MAX__ 2147483647
 #define __INT_LEAST32_TYPE__ int
+#define __INT_LEAST32_WIDTH__ 32
 #define __INT_LEAST64_FMTd__ "lld"
 #define __INT_LEAST64_FMTi__ "lli"
 #define __INT_LEAST64_MAX__ 9223372036854775807LL
 #define __INT_LEAST64_TYPE__ long long int
+#define __INT_LEAST64_WIDTH__ 64
 #define __INT_LEAST8_FMTd__ "hhd"
 #define __INT_LEAST8_FMTi__ "hhi"
 #define __INT_LEAST8_MAX__ 127
 #define __INT_LEAST8_TYPE__ signed char
+#define __INT_LEAST8_WIDTH__ 8
 #define __INT_MAX__ 2147483647
+#define __INT_WIDTH__ 32
 #define __LDBL_DECIMAL_DIG__ 36
 #define __LDBL_DENORM_MIN__ 6.47517511943802511092443895822764655e-4966L
 #define __LDBL_DIG__ 33
@@ -167,15 +188,23 @@
 #define __LDBL_MIN_EXP__ (-16381)
 #define __LDBL_MIN__ 3.36210314311209350626267781732175260e-4932L
 #define __LITTLE_ENDIAN__ 1
+#define __LLONG_WIDTH__ 64
 #define __LONG_LONG_MAX__ 9223372036854775807LL
 #define __LONG_MAX__ 2147483647L
-#define __NO_INLINE__ 1
+#define __LONG_WIDTH__ 32
+#define __MEMORY_SCOPE_DEVICE 1
+#define __MEMORY_SCOPE_SINGLE 4
+#define __MEMORY_SCOPE_SYSTEM 0
+#define __MEMORY_SCOPE_WRKGRP 2
+#define __MEMORY_SCOPE_WVFRNT 3
+#define __NO_MATH_ERRNO__ 1
 #define __OBJC_BOOL_IS_BOOL 0
 #define __OPENCL_MEMORY_SCOPE_ALL_SVM_DEVICES 3
 #define __OPENCL_MEMORY_SCOPE_DEVICE 2
 #define __OPENCL_MEMORY_SCOPE_SUB_GROUP 4
 #define __OPENCL_MEMORY_SCOPE_WORK_GROUP 1
 #define __OPENCL_MEMORY_SCOPE_WORK_ITEM 0
+#define __OPTIMIZE__ 1
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __ORDER_LITTLE_ENDIAN__ 1234
 #define __ORDER_PDP_ENDIAN__ 3412
@@ -188,6 +217,7 @@
 #define __PTRDIFF_WIDTH__ 32
 #define __SCHAR_MAX__ 127
 #define __SHRT_MAX__ 32767
+#define __SHRT_WIDTH__ 16
 #define __SIG_ATOMIC_MAX__ 2147483647L
 #define __SIG_ATOMIC_WIDTH__ 32
 #define __SIZEOF_DOUBLE__ 8
@@ -210,7 +240,8 @@
 #define __SIZE_MAX__ 4294967295UL
 #define __SIZE_TYPE__ long unsigned int
 #define __SIZE_WIDTH__ 32
-#define __STDCPP_DEFAULT_NEW_ALIGNMENT__ 16UL
+#define __STDCPP_DEFAULT_NEW_ALIGNMENT__ 8UL
+#define __STDCPP_THREADS__ 1
 #define __STDC_HOSTED__ 1
 #define __STDC_UTF_16__ 1
 #define __STDC_UTF_32__ 1
@@ -307,7 +338,7 @@
 #define __UINT_LEAST8_MAX__ 255
 #define __UINT_LEAST8_TYPE__ unsigned char
 #define __USER_LABEL_PREFIX__ 
-#define __VERSION__ "Clang 11.0.0 (/b/s/w/ir/cache/git/chromium.googlesource.com-external-github.com-llvm-llvm--project 9dc84e9b02d1e402503906099d42fbae4da7d8d9)"
+#define __VERSION__ "Clang 19.0.0git (https:/github.com/llvm/llvm-project 34ba90745fa55777436a2429a51a3799c83c6d4c)"
 #define __WCHAR_MAX__ 2147483647
 #define __WCHAR_TYPE__ int
 #define __WCHAR_WIDTH__ 32
@@ -315,34 +346,65 @@
 #define __WINT_TYPE__ int
 #define __WINT_WIDTH__ 32
 #define __clang__ 1
-#define __clang_major__ 11
+#define __clang_literal_encoding__ "UTF-8"
+#define __clang_major__ 19
 #define __clang_minor__ 0
 #define __clang_patchlevel__ 0
-#define __clang_version__ "11.0.0 (/b/s/w/ir/cache/git/chromium.googlesource.com-external-github.com-llvm-llvm--project 9dc84e9b02d1e402503906099d42fbae4da7d8d9)"
-#define __cplusplus 201103L
+#define __clang_version__ "19.0.0git (https:/github.com/llvm/llvm-project 34ba90745fa55777436a2429a51a3799c83c6d4c)"
+#define __clang_wide_literal_encoding__ "UTF-32"
+#define __cplusplus 201703L
+#define __cpp_aggregate_bases 201603L
+#define __cpp_aggregate_nsdmi 201304L
 #define __cpp_alias_templates 200704L
+#define __cpp_aligned_new 201606L
 #define __cpp_attributes 200809L
-#define __cpp_constexpr 200704
+#define __cpp_binary_literals 201304L
+#define __cpp_capture_star_this 201603L
+#define __cpp_constexpr 201603L
 #define __cpp_constexpr_in_decltype 201711L
 #define __cpp_decltype 200707L
+#define __cpp_decltype_auto 201304L
+#define __cpp_deduction_guides 201703L
 #define __cpp_delegating_constructors 200604L
+#define __cpp_digit_separators 201309L
+#define __cpp_enumerator_attributes 201411L
 #define __cpp_exceptions 199711L
+#define __cpp_fold_expressions 201603L
+#define __cpp_generic_lambdas 201304L
+#define __cpp_guaranteed_copy_elision 201606L
+#define __cpp_hex_float 201603L
+#define __cpp_if_constexpr 201606L
 #define __cpp_impl_destroying_delete 201806L
 #define __cpp_inheriting_constructors 201511L
+#define __cpp_init_captures 201304L
 #define __cpp_initializer_lists 200806L
+#define __cpp_inline_variables 201606L
 #define __cpp_lambdas 200907L
+#define __cpp_named_character_escapes 202207L
+#define __cpp_namespace_attributes 201411L
+#define __cpp_nested_namespace_definitions 201411L
+#define __cpp_noexcept_function_type 201510L
+#define __cpp_nontype_template_args 201411L
+#define __cpp_nontype_template_parameter_auto 201606L
 #define __cpp_nsdmi 200809L
-#define __cpp_range_based_for 200907
+#define __cpp_placeholder_variables 202306L
+#define __cpp_range_based_for 201603L
 #define __cpp_raw_strings 200710L
 #define __cpp_ref_qualifiers 200710L
+#define __cpp_return_type_deduction 201304L
 #define __cpp_rtti 199711L
 #define __cpp_rvalue_references 200610L
-#define __cpp_static_assert 200410
+#define __cpp_static_assert 201411L
+#define __cpp_static_call_operator 202207L
+#define __cpp_structured_bindings 201606L
+#define __cpp_template_auto 201606L
 #define __cpp_threadsafe_static_init 200806L
 #define __cpp_unicode_characters 200704L
 #define __cpp_unicode_literals 200710L
 #define __cpp_user_defined_literals 200809L
+#define __cpp_variable_templates 201304L
 #define __cpp_variadic_templates 200704L
+#define __cpp_variadic_using 201611L
 #define __llvm__ 1
 #define __private_extern__ extern
 #define __unix 1

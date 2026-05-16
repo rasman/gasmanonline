@@ -53,7 +53,7 @@ GasGraphView::GasGraphView( GasDoc *doc, GasChildWindow * childWindow, QWidget *
 	//create connections
 	connect( hsbGraph, SIGNAL( valueChanged( int ) ), this, SLOT( scrollMoved( int ) ) );
 	 
- 	connect(viewComboBox, SIGNAL(currentIndexChanged(const QString&)), 
+ 	connect(viewComboBox, SIGNAL(currentTextChanged(const QString&)),
  					this, SLOT(ChangeScale(const QString&)));
 	
 	m_bColl = false;
@@ -747,6 +747,9 @@ QImage GasGraphView::toImage()
 {
 	FlagHolder fh(&m_bToImage);
 
+#ifdef Q_OS_WASM
+	return grab().toImage();
+#else
 	QPrinter *prn = gasMainWindow->printer();
 	if ( !prn ) return QImage();
 
@@ -861,7 +864,7 @@ QImage GasGraphView::toImage()
 		m_bVaCo = bVaCo[i];
 		p->renderToImage(&image);
 
-#ifndef Q_OS_WIN
+#if !defined(Q_OS_WIN) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 		QCoreApplication::flush();
 #endif
 
@@ -901,7 +904,7 @@ QImage GasGraphView::toImage()
 	m_IARMGraph->SetLoading( false );
 
 	return image;
-
+#endif
 }
 
 QSize GasGraphView::minimumSizeHint() const
@@ -1005,22 +1008,24 @@ void GasGraphView::onDrawCKT(int state)//0x0010
 }
 void GasGraphView::wheelEvent(QWheelEvent * event)
 {
-	int numDegrees = event->delta() / 8;
+	int numDegrees = event->angleDelta().y() / 8;
     int numSteps = numDegrees / 15;
+	bool isHorizontal = (event->angleDelta().x() != 0 && event->angleDelta().y() == 0);
 	if(CKTscroll->isVisible() || hsbGraph->isVisible()){
-	if(event->orientation() ==Qt::Vertical ){
+	if(!isHorizontal){
 		if( CKTscroll->isVisible()){
 			CKTscroll->setValue(CKTscroll->value()+numSteps);
-			
+
 		}else if(hsbGraph->isVisible()){
 			numSteps *=10;
 			hsbGraph->setValue(hsbGraph->value()+numSteps);
-		
+
 		}
-	}else if(event->orientation() ==Qt::Horizontal){
+	}else if(isHorizontal){
 		if(hsbGraph->isVisible()){
+			numSteps = event->angleDelta().x() / 8 / 15;
 			hsbGraph->setValue(hsbGraph->value()+numSteps);
-		
+
 		}
 	}
 	}else{

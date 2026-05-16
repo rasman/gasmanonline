@@ -50,10 +50,10 @@ QString GasAgentDlg::circuit() const
 	return cbCircuit->currentText();
 }
 
-int GasAgentDlg::exec()
+void GasAgentDlg::prepare()
 {
 	Q_ASSERT( m_pAnesArray != 0 );
-	
+
 	GasAnesArray &anesArray = *m_pAnesArray;
 	int nAnes = anesArray.size();
 
@@ -61,9 +61,13 @@ int GasAgentDlg::exec()
 
 	for ( int i = 0; i < nAnes; ++i )
 		cbAgent->addItem( anesArray[i]->m_strName );
-	
+
 	setAgent( m_strAgent );
 	cbAgent->setEnabled( m_agentChangeable );
+}
 
+int GasAgentDlg::exec()
+{
+	prepare();
 	return QDialog::exec();
 }

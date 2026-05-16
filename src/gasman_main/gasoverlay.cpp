@@ -239,7 +239,7 @@ void GasOverlay::init( GasGraphView *pGasGraph )
 				str = str + tr("VA") + "=" + QString::number(pDoc->GetVA()) + "/";			
 		}
 		str.replace( str.length()-1, 1, ")" );
-		QLabel *lGraph;
+		QLabel *lGraph = nullptr;
 		QColor color;
 
 		switch (nDoc)

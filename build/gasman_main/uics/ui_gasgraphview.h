@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasgraphview.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -59,9 +59,9 @@ public:
     void setupUi(QWidget *GasGraphView)
     {
         if (GasGraphView->objectName().isEmpty())
-            GasGraphView->setObjectName(QString::fromUtf8("GasGraphView"));
+            GasGraphView->setObjectName("GasGraphView");
         GasGraphView->resize(712, 400);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(GasGraphView->sizePolicy().hasHeightForWidth());
@@ -70,24 +70,24 @@ public:
         gridLayout = new QGridLayout(GasGraphView);
         gridLayout->setSpacing(0);
         gridLayout->setContentsMargins(8, 8, 8, 8);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         vboxLayout = new QVBoxLayout();
         vboxLayout->setSpacing(0);
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
-        spacerItem = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        vboxLayout->setObjectName("vboxLayout");
+        spacerItem = new QSpacerItem(0, 0, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         vboxLayout->addItem(spacerItem);
 
         lFGF = new QLabel(GasGraphView);
-        lFGF->setObjectName(QString::fromUtf8("lFGF"));
+        lFGF->setObjectName("lFGF");
         lFGF->setAlignment(Qt::AlignCenter);
 
         vboxLayout->addWidget(lFGF);
 
-        spacerItem1 = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem1 = new QSpacerItem(0, 0, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         vboxLayout->addItem(spacerItem1);
 
@@ -95,8 +95,8 @@ public:
         gridLayout->addLayout(vboxLayout, 1, 0, 1, 1);
 
         m_FGFGraph = new GasGraph(GasGraphView);
-        m_FGFGraph->setObjectName(QString::fromUtf8("m_FGFGraph"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        m_FGFGraph->setObjectName("m_FGFGraph");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(1);
         sizePolicy1.setHeightForWidth(m_FGFGraph->sizePolicy().hasHeightForWidth());
@@ -111,18 +111,18 @@ public:
         vboxLayout1 = new QVBoxLayout();
         vboxLayout1->setSpacing(0);
         vboxLayout1->setContentsMargins(0, 0, 0, 0);
-        vboxLayout1->setObjectName(QString::fromUtf8("vboxLayout1"));
-        spacerItem2 = new QSpacerItem(67, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        vboxLayout1->setObjectName("vboxLayout1");
+        spacerItem2 = new QSpacerItem(67, 0, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         vboxLayout1->addItem(spacerItem2);
 
         lDEL = new QLabel(GasGraphView);
-        lDEL->setObjectName(QString::fromUtf8("lDEL"));
+        lDEL->setObjectName("lDEL");
         lDEL->setAlignment(Qt::AlignCenter);
 
         vboxLayout1->addWidget(lDEL);
 
-        spacerItem3 = new QSpacerItem(67, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+        spacerItem3 = new QSpacerItem(67, 0, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
 
         vboxLayout1->addItem(spacerItem3);
 
@@ -130,7 +130,7 @@ public:
         gridLayout->addLayout(vboxLayout1, 2, 0, 1, 1);
 
         m_DELGraph = new GasGraph(GasGraphView);
-        m_DELGraph->setObjectName(QString::fromUtf8("m_DELGraph"));
+        m_DELGraph->setObjectName("m_DELGraph");
         sizePolicy1.setHeightForWidth(m_DELGraph->sizePolicy().hasHeightForWidth());
         m_DELGraph->setSizePolicy(sizePolicy1);
         m_DELGraph->setProperty("RMarginPct", QVariant(3));
@@ -143,10 +143,10 @@ public:
         vboxLayout2 = new QVBoxLayout();
         vboxLayout2->setSpacing(0);
         vboxLayout2->setContentsMargins(0, 0, 0, 0);
-        vboxLayout2->setObjectName(QString::fromUtf8("vboxLayout2"));
+        vboxLayout2->setObjectName("vboxLayout2");
         agent = new QLabel(GasGraphView);
-        agent->setObjectName(QString::fromUtf8("agent"));
-        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        agent->setObjectName("agent");
+        QSizePolicy sizePolicy2(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Fixed);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
         sizePolicy2.setHeightForWidth(agent->sizePolicy().hasHeightForWidth());
@@ -156,41 +156,41 @@ public:
         vboxLayout2->addWidget(agent);
 
         groupBox = new QGroupBox(GasGraphView);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        QSizePolicy sizePolicy3(QSizePolicy::Preferred, QSizePolicy::Maximum);
+        groupBox->setObjectName("groupBox");
+        QSizePolicy sizePolicy3(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Maximum);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(groupBox->sizePolicy().hasHeightForWidth());
         groupBox->setSizePolicy(sizePolicy3);
         vboxLayout3 = new QVBoxLayout(groupBox);
-        vboxLayout3->setObjectName(QString::fromUtf8("vboxLayout3"));
+        vboxLayout3->setObjectName("vboxLayout3");
         checkBoxCKT = new QCheckBox(groupBox);
-        checkBoxCKT->setObjectName(QString::fromUtf8("checkBoxCKT"));
+        checkBoxCKT->setObjectName("checkBoxCKT");
         checkBoxCKT->setMinimumSize(QSize(0, 0));
         checkBoxCKT->setChecked(true);
 
         vboxLayout3->addWidget(checkBoxCKT);
 
         checkBoxALV = new QCheckBox(groupBox);
-        checkBoxALV->setObjectName(QString::fromUtf8("checkBoxALV"));
+        checkBoxALV->setObjectName("checkBoxALV");
         checkBoxALV->setChecked(true);
 
         vboxLayout3->addWidget(checkBoxALV);
 
         checkBoxVRG = new QCheckBox(groupBox);
-        checkBoxVRG->setObjectName(QString::fromUtf8("checkBoxVRG"));
+        checkBoxVRG->setObjectName("checkBoxVRG");
         checkBoxVRG->setChecked(true);
 
         vboxLayout3->addWidget(checkBoxVRG);
 
         checkBoxMUS = new QCheckBox(groupBox);
-        checkBoxMUS->setObjectName(QString::fromUtf8("checkBoxMUS"));
+        checkBoxMUS->setObjectName("checkBoxMUS");
         checkBoxMUS->setChecked(true);
 
         vboxLayout3->addWidget(checkBoxMUS);
 
         checkBoxFAT = new QCheckBox(groupBox);
-        checkBoxFAT->setObjectName(QString::fromUtf8("checkBoxFAT"));
+        checkBoxFAT->setObjectName("checkBoxFAT");
         checkBoxFAT->setChecked(true);
 
         vboxLayout3->addWidget(checkBoxFAT);
@@ -202,13 +202,13 @@ public:
         gridLayout->addLayout(vboxLayout2, 3, 0, 1, 1);
 
         m_IARMGraph = new GasGraph(GasGraphView);
-        m_IARMGraph->setObjectName(QString::fromUtf8("m_IARMGraph"));
-        QSizePolicy sizePolicy4(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        m_IARMGraph->setObjectName("m_IARMGraph");
+        QSizePolicy sizePolicy4(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Preferred);
         sizePolicy4.setHorizontalStretch(0);
         sizePolicy4.setVerticalStretch(2);
         sizePolicy4.setHeightForWidth(m_IARMGraph->sizePolicy().hasHeightForWidth());
         m_IARMGraph->setSizePolicy(sizePolicy4);
-        m_IARMGraph->setCursor(QCursor(Qt::PointingHandCursor));
+        m_IARMGraph->setCursor(QCursor(Qt::CursorShape::PointingHandCursor));
         m_IARMGraph->setProperty("RMarginPct", QVariant(3));
         m_IARMGraph->setProperty("TMarginPct", QVariant(5));
         m_IARMGraph->setProperty("BMarginPct", QVariant(20));
@@ -222,13 +222,13 @@ public:
 
         gridLayout->addWidget(m_IARMGraph, 3, 1, 1, 1);
 
-        spacerItem4 = new QSpacerItem(16, 182, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        spacerItem4 = new QSpacerItem(16, 182, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         gridLayout->addItem(spacerItem4, 3, 2, 1, 1);
 
         CKTscroll = new QScrollBar(GasGraphView);
-        CKTscroll->setObjectName(QString::fromUtf8("CKTscroll"));
-        QSizePolicy sizePolicy5(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        CKTscroll->setObjectName("CKTscroll");
+        QSizePolicy sizePolicy5(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
         sizePolicy5.setHorizontalStretch(0);
         sizePolicy5.setVerticalStretch(0);
         sizePolicy5.setHeightForWidth(CKTscroll->sizePolicy().hasHeightForWidth());
@@ -239,24 +239,24 @@ public:
         gridLayout->addWidget(CKTscroll, 3, 4, 1, 1);
 
         viewComboBox = new QComboBox(GasGraphView);
-        viewComboBox->setObjectName(QString::fromUtf8("viewComboBox"));
+        viewComboBox->setObjectName("viewComboBox");
 
         gridLayout->addWidget(viewComboBox, 4, 0, 1, 1);
 
         hsbGraph = new QScrollBar(GasGraphView);
-        hsbGraph->setObjectName(QString::fromUtf8("hsbGraph"));
+        hsbGraph->setObjectName("hsbGraph");
         hsbGraph->setFocusPolicy(Qt::StrongFocus);
         hsbGraph->setOrientation(Qt::Horizontal);
 
         gridLayout->addWidget(hsbGraph, 4, 1, 1, 1);
 
-        spacerItem5 = new QSpacerItem(20, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        spacerItem5 = new QSpacerItem(20, 20, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         gridLayout->addItem(spacerItem5, 4, 4, 1, 1);
 
         bt_coll = new QToolButton(GasGraphView);
-        bt_coll->setObjectName(QString::fromUtf8("bt_coll"));
-        QSizePolicy sizePolicy6(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        bt_coll->setObjectName("bt_coll");
+        QSizePolicy sizePolicy6(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
         sizePolicy6.setHorizontalStretch(0);
         sizePolicy6.setVerticalStretch(0);
         sizePolicy6.setHeightForWidth(bt_coll->sizePolicy().hasHeightForWidth());

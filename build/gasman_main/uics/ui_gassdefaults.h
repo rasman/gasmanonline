@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gassdefaults.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -45,7 +45,7 @@ public:
     void setupUi(QWidget *GasSDefaults)
     {
         if (GasSDefaults->objectName().isEmpty())
-            GasSDefaults->setObjectName(QString::fromUtf8("GasSDefaults"));
+            GasSDefaults->setObjectName("GasSDefaults");
         GasSDefaults->resize(270, 257);
         vboxLayout = new QVBoxLayout(GasSDefaults);
 #ifndef Q_OS_MAC
@@ -54,7 +54,7 @@ public:
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         hboxLayout = new QHBoxLayout();
 #ifndef Q_OS_MAC
         hboxLayout->setSpacing(6);
@@ -62,7 +62,7 @@ public:
 #ifndef Q_OS_MAC
         hboxLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
+        hboxLayout->setObjectName("hboxLayout");
         gridLayout = new QGridLayout();
 #ifndef Q_OS_MAC
         gridLayout->setSpacing(6);
@@ -70,10 +70,10 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         dsbFGF = new QDoubleSpinBox(GasSDefaults);
-        dsbFGF->setObjectName(QString::fromUtf8("dsbFGF"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        dsbFGF->setObjectName("dsbFGF");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(dsbFGF->sizePolicy().hasHeightForWidth());
@@ -82,18 +82,18 @@ public:
         gridLayout->addWidget(dsbFGF, 0, 1, 1, 1);
 
         lSemiClosed = new QLabel(GasSDefaults);
-        lSemiClosed->setObjectName(QString::fromUtf8("lSemiClosed"));
+        lSemiClosed->setObjectName("lSemiClosed");
 
         gridLayout->addWidget(lSemiClosed, 0, 0, 1, 1);
 
         lCircuitVolume = new QLabel(GasSDefaults);
-        lCircuitVolume->setObjectName(QString::fromUtf8("lCircuitVolume"));
+        lCircuitVolume->setObjectName("lCircuitVolume");
 
         gridLayout->addWidget(lCircuitVolume, 1, 0, 1, 1);
 
         dsbCKT = new QDoubleSpinBox(GasSDefaults);
-        dsbCKT->setObjectName(QString::fromUtf8("dsbCKT"));
-        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        dsbCKT->setObjectName("dsbCKT");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(dsbCKT->sizePolicy().hasHeightForWidth());
@@ -104,7 +104,7 @@ public:
 
         hboxLayout->addLayout(gridLayout);
 
-        spacerItem = new QSpacerItem(91, 60, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        spacerItem = new QSpacerItem(91, 60, QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Minimum);
 
         hboxLayout->addItem(spacerItem);
 
@@ -116,41 +116,41 @@ public:
         gridLayout1->setSpacing(6);
 #endif
         gridLayout1->setContentsMargins(0, 0, 0, 0);
-        gridLayout1->setObjectName(QString::fromUtf8("gridLayout1"));
+        gridLayout1->setObjectName("gridLayout1");
         lSpeed = new QLabel(GasSDefaults);
-        lSpeed->setObjectName(QString::fromUtf8("lSpeed"));
+        lSpeed->setObjectName("lSpeed");
 
         gridLayout1->addWidget(lSpeed, 0, 0, 1, 1);
 
         cbSpeed = new QComboBox(GasSDefaults);
-        cbSpeed->setObjectName(QString::fromUtf8("cbSpeed"));
+        cbSpeed->setObjectName("cbSpeed");
 
         gridLayout1->addWidget(cbSpeed, 1, 0, 1, 1);
 
         lAgent = new QLabel(GasSDefaults);
-        lAgent->setObjectName(QString::fromUtf8("lAgent"));
+        lAgent->setObjectName("lAgent");
 
         gridLayout1->addWidget(lAgent, 0, 2, 1, 1);
 
         cbAgent = new QComboBox(GasSDefaults);
-        cbAgent->setObjectName(QString::fromUtf8("cbAgent"));
+        cbAgent->setObjectName("cbAgent");
 
         gridLayout1->addWidget(cbAgent, 1, 2, 1, 1);
 
         lCircuit = new QLabel(GasSDefaults);
-        lCircuit->setObjectName(QString::fromUtf8("lCircuit"));
+        lCircuit->setObjectName("lCircuit");
 
         gridLayout1->addWidget(lCircuit, 0, 1, 1, 1);
 
         cbCircuit = new QComboBox(GasSDefaults);
-        cbCircuit->setObjectName(QString::fromUtf8("cbCircuit"));
+        cbCircuit->setObjectName("cbCircuit");
 
         gridLayout1->addWidget(cbCircuit, 1, 1, 1, 1);
 
 
         vboxLayout->addLayout(gridLayout1);
 
-        spacerItem1 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem1 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem1);
 

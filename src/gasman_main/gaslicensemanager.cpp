@@ -40,44 +40,13 @@ void GasLicenseManager::clearRegister()
 // keeps user from validating the key on startup then changing the name and company later
 bool GasLicenseManager::validLicenseExists()
 {
-	if(validLicense)
-		return true;
-
-	QString name, company, info, key;
-
-	{
-		QSettings settings("Med Man", "Gas Man");
-
-		name = ReadReg(settings, "Application", "Owner", QString()).toString();
-		company = ReadReg(settings, "Application", "Company", QString()).toString();
-		info = ReadReg(settings, "Application", "Info", QString()).toString();
-		key = ReadReg(settings, "Application", "Key", QString()).toString();
-		validLicense =  isLicenseValid(name, company, info, key);
-	}
-
-	if ( !validLicense )
-	{
-		name = gasApp->ReadProfile("License", "Owner", QString()).toString();
-		company = gasApp->ReadProfile("License", "Company", QString()).toString();
-		info = gasApp->ReadProfile("License", "Info", QString()).toString();
-		key = gasApp->ReadProfile("License", "Key", QString()).toString();
-		validLicense =  isLicenseValid(name, company, info, key);
-	}
-
-	if(validLicense)
-	{
-		licOwner = name.isEmpty() ? " " : name;
-		licCompany = company.isEmpty() ? " " : company;
-		licInfo = info.isEmpty() ? " " : info;
-		licKey = key.isEmpty() ? " " : key;
-	} 
-	return validLicense;
+	return true;
 }
 
 
 // algorithm goes here!!
 bool GasLicenseManager::isLicenseValid(
-	const QString &name, const QString &company, const QString &info, const QString &licenseKey, bool *isGlobal
+	const QString &, const QString &, const QString &, const QString &, bool *
 )
 {
 	return true;

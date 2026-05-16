@@ -1,4 +1,7 @@
 #include "assistant.h"
+
+#ifndef __EMSCRIPTEN__
+
 #include <QApplication>
 #include <QProcess>
 #include <QLibraryInfo>
@@ -66,3 +69,12 @@ void Assistant::showDocumentation(const QString &page)
 
 	proc->write(ba + page.toLocal8Bit() + '\0');
  }
+
+#else
+
+Assistant::Assistant(void) {}
+Assistant::~Assistant(void) {}
+bool Assistant::startAssistant() { return false; }
+void Assistant::showDocumentation(const QString &) {}
+
+#endif

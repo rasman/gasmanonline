@@ -4,7 +4,7 @@
 #include "import_plugins.h"
 
 Generator::ValidationThread::ValidationThread(Generator *parent)
-    : QThread(parent), m_parent(parent)
+    : QThread(parent)
 {
 }
 

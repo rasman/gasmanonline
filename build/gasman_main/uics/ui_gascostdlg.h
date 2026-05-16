@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gascostdlg.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define UI_GASCOSTDLG_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
@@ -39,7 +40,7 @@ public:
     void setupUi(QDialog *GasCost)
     {
         if (GasCost->objectName().isEmpty())
-            GasCost->setObjectName(QString::fromUtf8("GasCost"));
+            GasCost->setObjectName("GasCost");
         GasCost->resize(186, 119);
         GasCost->setModal(true);
         vboxLayout = new QVBoxLayout(GasCost);
@@ -49,7 +50,7 @@ public:
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         gridLayout = new QGridLayout();
 #ifndef Q_OS_MAC
         gridLayout->setSpacing(6);
@@ -57,15 +58,15 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         lMilliliters = new QLabel(GasCost);
-        lMilliliters->setObjectName(QString::fromUtf8("lMilliliters"));
+        lMilliliters->setObjectName("lMilliliters");
 
         gridLayout->addWidget(lMilliliters, 0, 2, 1, 1);
 
         dsbCost = new QDoubleSpinBox(GasCost);
-        dsbCost->setObjectName(QString::fromUtf8("dsbCost"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        dsbCost->setObjectName("dsbCost");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(dsbCost->sizePolicy().hasHeightForWidth());
@@ -74,36 +75,36 @@ public:
         gridLayout->addWidget(dsbCost, 1, 1, 1, 1);
 
         lDollars = new QLabel(GasCost);
-        lDollars->setObjectName(QString::fromUtf8("lDollars"));
+        lDollars->setObjectName("lDollars");
 
         gridLayout->addWidget(lDollars, 1, 2, 1, 1);
 
         sbSize = new QSpinBox(GasCost);
-        sbSize->setObjectName(QString::fromUtf8("sbSize"));
+        sbSize->setObjectName("sbSize");
         sizePolicy.setHeightForWidth(sbSize->sizePolicy().hasHeightForWidth());
         sbSize->setSizePolicy(sizePolicy);
 
         gridLayout->addWidget(sbSize, 0, 1, 1, 1);
 
         lSize = new QLabel(GasCost);
-        lSize->setObjectName(QString::fromUtf8("lSize"));
+        lSize->setObjectName("lSize");
 
         gridLayout->addWidget(lSize, 0, 0, 1, 1);
 
         lCost = new QLabel(GasCost);
-        lCost->setObjectName(QString::fromUtf8("lCost"));
+        lCost->setObjectName("lCost");
 
         gridLayout->addWidget(lCost, 1, 0, 1, 1);
 
 
         vboxLayout->addLayout(gridLayout);
 
-        spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem);
 
         buttonBox = new QDialogButtonBox(GasCost);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
 

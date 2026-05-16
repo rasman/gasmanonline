@@ -20,7 +20,7 @@ int main( int argc, char **argv )
 	QString version = QT_VERSION_STR;
 
 	//Construct a GasMan application object
-#if QT_VERSION >= 0x050700
+#if QT_VERSION >= 0x050700 && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 #endif
 	GasApplication app( argc, argv );
@@ -55,13 +55,13 @@ int main( int argc, char **argv )
 
 	QTranslator translator;
 	////Load a translation file gasman_<locale>.qm
-	translator.load( "gasman_" + locale, qApp->applicationDirPath() + dirPath );
+	(void)translator.load( "gasman_" + locale, qApp->applicationDirPath() + dirPath );
 	////Install a translation file gasman_<locale>.qm
 	app.installTranslator( &translator );
 
-	QTranslator qtTranslator; 
+	QTranslator qtTranslator;
 	////Load a translation file qt_<locale>.qm
-	qtTranslator.load( "qt_" + locale, qApp->applicationDirPath() + dirPath ); 
+	(void)qtTranslator.load( "qt_" + locale, qApp->applicationDirPath() + dirPath ); 
 	////Install a translation file qt_<locale>.qm
 	app.installTranslator( &qtTranslator );
 

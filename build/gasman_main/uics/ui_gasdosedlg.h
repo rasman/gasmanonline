@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'gasdosedlg.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.7
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define UI_GASDOSEDLG_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
@@ -36,7 +37,7 @@ public:
     void setupUi(QDialog *GasDose)
     {
         if (GasDose->objectName().isEmpty())
-            GasDose->setObjectName(QString::fromUtf8("GasDose"));
+            GasDose->setObjectName("GasDose");
         GasDose->resize(176, 86);
         GasDose->setModal(true);
         gridLayout = new QGridLayout(GasDose);
@@ -46,7 +47,7 @@ public:
 #ifndef Q_OS_MAC
         gridLayout->setContentsMargins(9, 9, 9, 9);
 #endif
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setObjectName("gridLayout");
         vboxLayout = new QVBoxLayout();
 #ifndef Q_OS_MAC
         vboxLayout->setSpacing(6);
@@ -54,7 +55,7 @@ public:
 #ifndef Q_OS_MAC
         vboxLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
+        vboxLayout->setObjectName("vboxLayout");
         hboxLayout = new QHBoxLayout();
 #ifndef Q_OS_MAC
         hboxLayout->setSpacing(6);
@@ -62,15 +63,15 @@ public:
 #ifndef Q_OS_MAC
         hboxLayout->setContentsMargins(0, 0, 0, 0);
 #endif
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
+        hboxLayout->setObjectName("hboxLayout");
         lUnitDose = new QLabel(GasDose);
-        lUnitDose->setObjectName(QString::fromUtf8("lUnitDose"));
+        lUnitDose->setObjectName("lUnitDose");
 
         hboxLayout->addWidget(lUnitDose);
 
         dsbUnitDose = new QDoubleSpinBox(GasDose);
-        dsbUnitDose->setObjectName(QString::fromUtf8("dsbUnitDose"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        dsbUnitDose->setObjectName("dsbUnitDose");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(dsbUnitDose->sizePolicy().hasHeightForWidth());
@@ -81,12 +82,12 @@ public:
 
         vboxLayout->addLayout(hboxLayout);
 
-        spacerItem = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        spacerItem = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         vboxLayout->addItem(spacerItem);
 
         buttonBox = new QDialogButtonBox(GasDose);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
 
