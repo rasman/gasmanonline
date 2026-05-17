@@ -16,6 +16,18 @@ lessThan(QT_MAJOR_VERSION, 6): QT += multimedia
 # Asyncify enables blocking event loops (QDrag::exec, QDialog::exec) on the WASM main thread
 wasm: QMAKE_LFLAGS += -sASYNCIFY -sASYNCIFY_STACK_SIZE=16384 -sASYNCIFY_IMPORTS=qt_asyncify_suspend_js,qt_asyncify_resume_js
 
+wasm {
+    # Use our versioned HTML template instead of Qt's default (qtlogo.svg etc.)
+    QMAKE_WASM_HTML_TEMPLATE = $$PWD/index.html
+
+    # Rename the linker-generated gasman.html to index.html so the deployment
+    # folder has only the standard entry point (gasman.html is not kept).
+    !isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK += &&
+    QMAKE_POST_LINK += cp $$shell_path($$PWD/index.html) $$shell_path($$OUT_PWD/index.html)
+    QMAKE_POST_LINK += && cp $$shell_path($$PWD/../rsc/images/gasman_lg.png) $$shell_path($$OUT_PWD/gasman-logo.png)
+    QMAKE_POST_LINK += && cp $$shell_path($$PWD/../rsc/images/gasman.png) $$shell_path($$OUT_PWD/gasman.png)
+}
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17

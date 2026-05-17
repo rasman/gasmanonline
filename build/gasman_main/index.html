@@ -1,70 +1,75 @@
+<!--
+    Gas Man WASM — HTML shell for Qt 6.8 WebAssembly build.
+    This file is the qmake WASM template (QMAKE_WASM_HTML_TEMPLATE).
+    Qt copies it to the build directory as gasman.html; the post-build
+    rule in gasman_main.pro then copies it to index.html.
+
+    DO NOT hand-edit the build-output copies — edit this file instead.
+-->
 <!doctype html>
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
-    <!--Set visual viewport size for mobile devices to the device size,
-        which results in a scale of 1 and a 1:1 mapping between CSS pixels
-        and Qt device independent pixels. -->
     <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0"/>
-
-    <title>gasman</title>
+    <title>Gas Man — Web Edition</title>
     <style>
-      /* Make the html body cover the entire (visual) viewport with no scroll bars. */
-      html, body { padding: 0; margin: 0; overflow:hidden; height: 100vh }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas { border: 0px none; background-color: white; height:100%; width:100%; }
-      /* The contenteditable property is set to true for the canvas in order to support
-         clipboard events. Hide the resulting focus frame and set the cursor back to
-         the default cursor. */
-      canvas { outline: 0px solid transparent; caret-color: transparent; cursor:default }
+      html, body { padding: 0; margin: 0; overflow: hidden; height: 100% }
+      #screen { width: 100%; height: 100%; }
     </style>
   </head>
-  <body>
+  <body onload="init()">
     <figure style="overflow:visible;" id="qtspinner">
       <center style="margin-top:1.5em; line-height:150%">
         <img src="gasman-logo.png" style="display:block">
-        <strong>Qt for WebAssembly: gasman</strong>
+        <strong>Gas Man&reg; &mdash; Web Edition</strong>
         <div id="qtstatus"></div>
         <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
       </center>
     </figure>
-    <canvas id="qtcanvas" oncontextmenu="event.preventDefault()" contenteditable="true"></canvas>
+    <div id="screen"></div>
 
-    <script type="module">
-      import { default as qtLoad } from './qtloader.js';
+    <script type="text/javascript">
+        async function init()
+        {
+            const spinner = document.querySelector('#qtspinner');
+            const screen  = document.querySelector('#screen');
+            const status  = document.querySelector('#qtstatus');
 
-      const spinner = document.getElementById('qtspinner');
-      const canvas  = document.getElementById('qtcanvas');
-      const status  = document.getElementById('qtstatus');
+            const showUi = (ui) => {
+                [spinner, screen].forEach(element => element.style.display = 'none');
+                if (screen === ui)
+                    screen.style.position = 'default';
+                ui.style.display = 'block';
+            }
 
-      spinner.style.display = 'block';
-      canvas.style.display  = 'none';
+            try {
+                showUi(spinner);
+                status.innerHTML = 'Loading...';
 
-      try {
-        await qtLoad({
-          qt: {
-            canvasElements: [canvas],
-            onLoaded: () => {
-              spinner.style.display = 'none';
-              canvas.style.display  = 'block';
-            },
-            onExit: (exitData) => {
-              let msg = 'Application exit';
-              if (exitData.code  !== undefined) msg += ' with code '  + exitData.code;
-              if (exitData.text  !== undefined) msg += ' ('           + exitData.text + ')';
-              status.innerHTML      = msg;
-              spinner.style.display = 'block';
-              canvas.style.display  = 'none';
-            },
-          }
-        });
-      } catch (e) {
-        status.innerHTML      = 'Failed to load: ' + e;
-        spinner.style.display = 'block';
-        canvas.style.display  = 'none';
-      }
+                const instance = await qtLoad({
+                    qt: {
+                        onLoaded: () => showUi(screen),
+                        onExit: exitData =>
+                        {
+                            status.innerHTML = 'Application exit';
+                            status.innerHTML +=
+                                exitData.code !== undefined ? ` with code ${exitData.code}` : '';
+                            status.innerHTML +=
+                                exitData.text !== undefined ? ` (${exitData.text})` : '';
+                            showUi(spinner);
+                        },
+                        entryFunction: window.gasman_entry,
+                        containerElements: [screen],
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                console.error(e.stack);
+            }
+        }
     </script>
+    <script src="gasman.js"></script>
+    <script type="text/javascript" src="qtloader.js"></script>
   </body>
 </html>

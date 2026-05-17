@@ -1,22 +1,20 @@
 <!--
-Copyright (C) 2024 The Qt Company Ltd.
-SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
--->
+    Gas Man WASM — HTML shell for Qt 6.8 WebAssembly build.
+    This file is the qmake WASM template (QMAKE_WASM_HTML_TEMPLATE).
+    Qt copies it to the build directory as gasman.html; the post-build
+    rule in gasman_main.pro then copies it to index.html.
 
+    DO NOT hand-edit the build-output copies — edit this file instead.
+-->
 <!doctype html>
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
-    <!--Set visual viewport size for mobile devices to the device size,
-        witch results in a scale of 1 and a 1:1 mapping between CSS pixels
-        and Qt device independent pixels. -->
     <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0"/>
-
-    <title>gasman</title>
+    <title>Gas Man — Web Edition</title>
+    <link rel="icon" type="image/png" href="gasman.png">
     <style>
-      /* Make the html body cover the entire (visual) viewport with no scroll bars. */
       html, body { padding: 0; margin: 0; overflow: hidden; height: 100% }
       #screen { width: 100%; height: 100%; }
     </style>
@@ -24,8 +22,8 @@ SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
   <body onload="init()">
     <figure style="overflow:visible;" id="qtspinner">
       <center style="margin-top:1.5em; line-height:150%">
-        <img src="gasman-logo.png" style="display:block"></img>
-        <strong>Qt for WebAssembly: gasman</strong>
+        <img src="gasman-logo.png" style="display:block">
+        <strong>Gas Man&reg; &mdash; Web Edition</strong>
         <div id="qtstatus"></div>
         <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
       </center>
@@ -36,8 +34,8 @@ SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
         async function init()
         {
             const spinner = document.querySelector('#qtspinner');
-            const screen = document.querySelector('#screen');
-            const status = document.querySelector('#qtstatus');
+            const screen  = document.querySelector('#screen');
+            const status  = document.querySelector('#qtstatus');
 
             const showUi = (ui) => {
                 [spinner, screen].forEach(element => element.style.display = 'none');
@@ -64,7 +62,6 @@ SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
                         },
                         entryFunction: window.gasman_entry,
                         containerElements: [screen],
-                        
                     }
                 });
             } catch (e) {
