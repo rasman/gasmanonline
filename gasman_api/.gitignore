@@ -1,0 +1,38 @@
+# CMake build trees
+build/
+compiled/
+out/
+
+# Old VS-era output directories (pre-CMake)
+Release/
+Debug/
+x64/
+gasmanAPI/Release/
+gasmanAPI/Debug/
+GasManWeb/Release/
+GasManWeb/Debug/
+
+# Visual Studio
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+.vs/
+
+# Object / linker intermediates
+*.obj
+*.pch
+*.pdb
+*.iobj
+*.ipdb
+*.tlog
+*.exp
+*.lib
+*.ilk
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

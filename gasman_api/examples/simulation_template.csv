@@ -1,0 +1,104 @@
+# GasMan simulation input - CSV template
+# =========================================
+# Lines starting with # are comments and are ignored.
+# Blank lines are ignored.
+# Copy this file, fill in your values, then run:
+#   gasman_convert simulation_template.csv --format json --output data.json
+#   gasman_convert simulation_template.csv --format xml  --output scenario.xml
+#
+# For Excel users: fill in gasman_template.xlsx, save the sheet as CSV,
+# then run gasman_convert on the CSV, or use python_example.py directly on the xlsx.
+
+# --- Patient -----------------------------------------------------------------
+[patient]
+weight_kg,70
+
+# --- Compartment volumes (litres) --------------------------------------------
+[volumes]
+vrg,6.0
+fat,14.5
+ven,1.0
+alv,2.5
+mus,33.0
+
+# --- Fractional blood flows (fraction of cardiac output) ---------------------
+[flows]
+vrg,0.76
+fat,0.06
+mus,0.18
+
+# --- Anaesthetic agent -------------------------------------------------------
+# Repeat this entire [agent] block for each additional agent.
+# name        : agent name string (must match an entry in gasman.ini)
+# lambdaMus   : muscle/blood partition coefficient
+# lambdaBlood : blood/gas partition coefficient
+# lambdaFat   : fat/blood partition coefficient
+# volatility  : saturated vapour pressure (mmHg at 20 C)
+# bottleSize  : bottle volume (mL)
+# lambdaVrg   : VRG/blood partition coefficient
+# bottleCost  : cost per bottle (currency units)
+[agent]
+name,Sevoflurane
+lambdaMus,2.4
+lambdaBlood,0.65
+lambdaFat,34
+volatility,183
+bottleSize,250
+lambdaVrg,1.1
+bottleCost,75
+
+# --- Simulation settings -----------------------------------------------------
+# Each data row defines one time-step / adjustment event.
+# Columns:
+#   va      - alveolar ventilation (L/min)
+#   fgf     - fresh gas flow (L/min)
+#   circuit - Semi | Closed | Ideal
+#   time    - HH:MM:SS timestamp for this setting
+#   co      - cardiac output (L/min)
+#   del     - vaporiser delivery for the single agent (% or dial setting)
+#   inject  - bolus injection flag (0 = none, 1 = inject)
+#
+# For multiple agents use del1,inject1,del2,inject2,... (see example at end of file).
+[settings]
+va,fgf,circuit,time,co,del,inject
+4,8,Semi,00:00:00,5,3.7,0
+4,2,Semi,00:01:00,5,2.9,0
+4,2,Semi,00:05:00,5,2.5,0
+4,2,Semi,00:10:00,5,2.2,0
+
+
+# =============================================================================
+# MULTI-AGENT EXAMPLE
+# =============================================================================
+# To run a two-agent scenario, replace the single [agent] + [settings] blocks
+# above with the following (remove the leading # from every line):
+#
+# [agent]
+# name,Sevoflurane
+# lambdaMus,2.4
+# lambdaBlood,0.65
+# lambdaFat,34
+# volatility,183
+# bottleSize,250
+# lambdaVrg,1.1
+# bottleCost,75
+#
+# [agent]
+# name,Desflurane
+# lambdaMus,1.97
+# lambdaBlood,0.45
+# lambdaFat,27.2
+# volatility,664
+# bottleSize,240
+# lambdaVrg,1.3
+# bottleCost,90
+#
+# [settings]
+# va,fgf,circuit,time,co,del1,inject1,del2,inject2
+# 4,8,Semi,00:00:00,5,3.7,0,0,0
+# 4,2,Semi,00:01:00,5,2.9,0,0,0
+# 4,2,Semi,00:05:00,5,0,0,6.0,0
+# 4,2,Semi,00:10:00,5,0,0,4.5,0
+#
+# del1/inject1 -> Sevoflurane (first [agent] block)
+# del2/inject2 -> Desflurane  (second [agent] block)

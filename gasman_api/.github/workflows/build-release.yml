@@ -1,0 +1,190 @@
+# build-release.yml
+#
+# Triggered when a tag matching v* is pushed (e.g. v1.2.3).
+# Also runnable manually via the "Run workflow" button on any branch.
+#
+# Produces per-platform release archives and attaches them to the GitHub
+# Release that is created (or already exists) for the triggering tag.
+#
+# Archive contents:
+#   Windows  → gasmanAPI-<version>-windows-x64.zip
+#                 gasmanAPI.dll
+#                 gasmanAPI_static.lib
+#                 gasmanAPI.h
+#                 gasman_run.exe
+#                 gasman.ini
+#
+#   Linux    → gasmanAPI-<version>-linux-x64.tar.gz
+#                 gasmanAPI.so
+#                 libgasmanAPI_static.a
+#                 gasmanAPI.h
+#                 gasman_run
+#                 gasman.ini
+#
+#   macOS    → gasmanAPI-<version>-macos-arm64.tar.gz   (Apple Silicon runner)
+#                 gasmanAPI.dylib
+#                 libgasmanAPI_static.a
+#                 gasmanAPI.h
+#                 gasman_run
+#                 gasman.ini
+
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"          # v1.0.0, v2.3.1-rc1, etc.
+  workflow_dispatch:  # manual trigger from the Actions tab
+
+# ── Shared version helper ────────────────────────────────────────────────────
+# On a tag push  → version = tag name (v1.2.3)
+# On manual run  → version = "dev-<short-sha>"
+env:
+  VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('dev-{0}', github.sha) }}
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build (${{ matrix.os-label }})
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # ── Windows x64 (MSVC via Visual Studio 2022) ─────────────────────
+          - runner:        windows-latest
+            os-label:      windows-x64
+            cmake-flags:   -G "Visual Studio 17 2022" -A x64
+            build-config:  Release
+            archive-name:  windows-x64
+            archive-ext:   zip
+
+          # ── Linux x64 (GCC, Ninja) ─────────────────────────────────────────
+          - runner:        ubuntu-22.04
+            os-label:      linux-x64
+            cmake-flags:   -G Ninja -DCMAKE_BUILD_TYPE=Release
+            build-config:  ""
+            archive-name:  linux-x64
+            archive-ext:   tar.gz
+
+          # ── macOS arm64 (Clang, Ninja, Apple Silicon runner) ───────────────
+          - runner:        macos-14
+            os-label:      macos-arm64
+            cmake-flags:   -G Ninja -DCMAKE_BUILD_TYPE=Release
+            build-config:  ""
+            archive-name:  macos-arm64
+            archive-ext:   tar.gz
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Install build tools (Linux only needs Ninja; macOS has it) ──────
+      - name: Install Ninja (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y ninja-build
+
+      # ── 3. Configure ───────────────────────────────────────────────────────
+      - name: Configure CMake
+        run: >
+          cmake -S . -B build
+          ${{ matrix.cmake-flags }}
+          -DCMAKE_INSTALL_PREFIX=dist
+
+      # ── 4. Build ───────────────────────────────────────────────────────────
+      - name: Build
+        run: >
+          cmake --build build
+          ${{ matrix.build-config != '' && format('--config {0}', matrix.build-config) || '' }}
+          --parallel
+
+      # ── 5. Collect artefacts into a staging folder ─────────────────────────
+      #    We pick files explicitly so we don't accidentally bundle debug
+      #    symbols, .pdb files, import libs that aren't needed, etc.
+      - name: Stage artefacts
+        shell: bash
+        run: |
+          STAGE="stage/gasmanAPI-${{ env.VERSION }}-${{ matrix.archive-name }}"
+          mkdir -p "$STAGE"
+
+          # compiled/ is always the output dir regardless of platform/config
+          SRC="compiled"
+
+          # ── Shared library ────────────────────────────────────────────────
+          for f in gasmanAPI.dll gasmanAPI.so gasmanAPI.dylib; do
+            [ -f "$SRC/$f" ] && cp "$SRC/$f" "$STAGE/"
+          done
+
+          # ── Static library ────────────────────────────────────────────────
+          for f in gasmanAPI_static.lib libgasmanAPI_static.a; do
+            [ -f "$SRC/$f" ] && cp "$SRC/$f" "$STAGE/"
+          done
+
+          # ── CLI runner ────────────────────────────────────────────────────
+          for f in gasman_run gasman_run.exe; do
+            [ -f "$SRC/$f" ] && cp "$SRC/$f" "$STAGE/"
+          done
+
+          # ── Public header ─────────────────────────────────────────────────
+          cp gasmanAPI/gasmanAPI.h "$STAGE/"
+
+          # ── INI data file (required at runtime) ───────────────────────────
+          cp gasman.ini "$STAGE/"
+
+          echo "Staged files:"
+          ls -lh "$STAGE/"
+
+      # ── 6. Pack ────────────────────────────────────────────────────────────
+      - name: Pack (zip — Windows)
+        if: matrix.archive-ext == 'zip'
+        shell: pwsh
+        run: |
+          $name = "gasmanAPI-$env:VERSION-${{ matrix.archive-name }}"
+          Compress-Archive -Path "stage/$name/*" -DestinationPath "stage/$name.zip"
+
+      - name: Pack (tar.gz — Linux / macOS)
+        if: matrix.archive-ext == 'tar.gz'
+        shell: bash
+        run: |
+          NAME="gasmanAPI-${{ env.VERSION }}-${{ matrix.archive-name }}"
+          tar -czf "stage/$NAME.tar.gz" -C stage "$NAME"
+
+      # ── 7. Upload artefact so the release job can download it ──────────────
+      - name: Upload build artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gasmanAPI-${{ env.VERSION }}-${{ matrix.archive-name }}
+          path: stage/gasmanAPI-${{ env.VERSION }}-${{ matrix.archive-name }}.${{ matrix.archive-ext }}
+          if-no-files-found: error
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────────────────
+  release:
+    name: Create / update GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    # Only create a Release on real tag pushes, not on manual workflow runs.
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write   # needed to create the release and upload assets
+
+    steps:
+      - name: Download all build artefacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+
+      - name: List artefacts
+        run: find dist/ -type f | sort
+
+      - name: Create Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "GasMan API ${{ github.ref_name }}"
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          generate_release_notes: true
+          files: dist/**/*
