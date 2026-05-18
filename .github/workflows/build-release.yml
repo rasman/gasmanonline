@@ -53,7 +53,7 @@ jobs:
       matrix:
         include:
           # ── Windows x64 (MSVC via Visual Studio 2022) ─────────────────────
-          - runner:        windows-latest
+          - runner:        windows-2022
             os-label:      windows-x64
             cmake-flags:   -G "Visual Studio 17 2022" -A x64
             build-config:  Release
@@ -89,14 +89,14 @@ jobs:
       # ── 3. Configure ───────────────────────────────────────────────────────
       - name: Configure CMake
         run: >
-          cmake -S . -B build
+          cmake -S gasman_api -B gasman_api/build
           ${{ matrix.cmake-flags }}
-          -DCMAKE_INSTALL_PREFIX=dist
+          -DCMAKE_INSTALL_PREFIX=gasman_api/dist
 
       # ── 4. Build ───────────────────────────────────────────────────────────
       - name: Build
         run: >
-          cmake --build build
+          cmake --build gasman_api/build
           ${{ matrix.build-config != '' && format('--config {0}', matrix.build-config) || '' }}
           --parallel
 
@@ -109,8 +109,8 @@ jobs:
           STAGE="stage/gasmanAPI-${{ env.VERSION }}-${{ matrix.archive-name }}"
           mkdir -p "$STAGE"
 
-          # compiled/ is always the output dir regardless of platform/config
-          SRC="compiled"
+          # gasman_api/compiled/ is the unified output dir for all platforms
+          SRC="gasman_api/compiled"
 
           # ── Shared library ────────────────────────────────────────────────
           for f in gasmanAPI.dll gasmanAPI.so gasmanAPI.dylib; do
@@ -128,10 +128,10 @@ jobs:
           done
 
           # ── Public header ─────────────────────────────────────────────────
-          cp gasmanAPI/gasmanAPI.h "$STAGE/"
+          cp gasman_api/gasmanAPI/gasmanAPI.h "$STAGE/"
 
           # ── INI data file (required at runtime) ───────────────────────────
-          cp gasman.ini "$STAGE/"
+          cp gasman_api/gasman.ini "$STAGE/"
 
           echo "Staged files:"
           ls -lh "$STAGE/"
