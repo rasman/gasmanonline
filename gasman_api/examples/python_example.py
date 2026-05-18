@@ -3,14 +3,14 @@ python_example.py — Example: calling gasmanAPI from Python via ctypes.
 
 Shows how to:
   1. Load gasmanAPI.dll / .so / .dylib at runtime.
-  2. Convert an input file (XML, JSON, or XLSX) into the GasMan native JSON
-     format that GasManJsonToCsv() expects.
+  2. Convert an input file (XML, JSON, CSV, or XLSX) into the GasMan native
+     JSON format that GasManJsonToCsv() expects.
   3. Call GasManJsonToCsv() and write the CSV result.
 
 Usage:
     python python_example.py <input_file> [output_file]
 
-    input_file  — .xml, .json, or .xlsx scenario
+    input_file  — .xml, .json, .csv, or .xlsx scenario
     output_file — optional path for the CSV output (default: output.csv)
 
 Requirements:
@@ -113,6 +113,147 @@ def parse_json(file_path: str) -> dict:
     """Load a GasMan JSON scenario file (native or tagName format)."""
     with open(file_path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def parse_csv(file_path: str) -> dict:
+    """
+    Parse a GasMan sections-based CSV file into the GasMan native JSON format.
+
+    Sections (case-insensitive, lines starting with # are comments):
+      [patient]   — key,value rows (weight_kg)
+      [volumes]   — key,value rows (vrg, fat, ven, alv, mus)
+      [flows]     — key,value rows (vrg, fat, mus)
+      [agent]     — key,value rows; repeat block for each agent
+      [settings]  — first row is header, subsequent rows are data
+    """
+    import csv as csv_mod
+
+    section   = None
+    patient   = {}
+    volumes   = {}
+    flows     = {}
+    agents    = []
+    cur_agent = None
+    settings  = []
+    hdr       = None
+
+    with open(file_path, newline="", encoding="utf-8") as fh:
+        reader = csv_mod.reader(fh)
+        for raw_row in reader:
+            # Rejoin the row so we can strip comment lines
+            line = ",".join(raw_row).strip()
+            if not line or line.startswith("#"):
+                continue
+
+            # Section header?
+            if line.startswith("["):
+                new_sec = line.split("]")[0].lstrip("[").strip().lower()
+                if new_sec == "agent":
+                    # Save previous agent block if any, start a fresh one
+                    if cur_agent is not None:
+                        agents.append(cur_agent)
+                    cur_agent = {}
+                elif new_sec == "settings":
+                    hdr = None  # reset so next row is treated as header
+                section = new_sec
+                continue
+
+            cols = [c.strip() for c in raw_row]
+
+            if section == "patient":
+                if len(cols) >= 2:
+                    patient[cols[0]] = cols[1]
+
+            elif section == "volumes":
+                if len(cols) >= 2:
+                    volumes[cols[0]] = cols[1]
+
+            elif section == "flows":
+                if len(cols) >= 2:
+                    flows[cols[0]] = cols[1]
+
+            elif section == "agent":
+                if cur_agent is not None and len(cols) >= 2:
+                    cur_agent[cols[0]] = cols[1]
+
+            elif section == "settings":
+                if hdr is None:
+                    hdr = [c.lower() for c in cols]
+                else:
+                    row_dict = dict(zip(hdr, cols))
+                    settings.append(row_dict)
+
+    # Flush last agent
+    if cur_agent is not None:
+        agents.append(cur_agent)
+
+    if not agents:
+        raise ValueError("No [agent] block found in CSV.")
+    if not settings:
+        raise ValueError("No [settings] block found in CSV.")
+
+    # ── Build native JSON ─────────────────────────────────────────────────────
+    agent_objects = []
+    for ag in agents:
+        obj = {"name": ag.get("name", "")}
+        for k in ("lambdaMus", "lambdaBlood", "lambdaFat",
+                  "volatility", "bottleSize", "lambdaVrg", "bottleCost"):
+            # CSV keys are lowercase; try exact then lowercase match
+            val = ag.get(k) or ag.get(k.lower())
+            if val is not None:
+                try:
+                    obj[k] = float(val)
+                except ValueError:
+                    obj[k] = val
+        agent_objects.append(obj)
+
+    setting_objects = []
+    for row in settings:
+        # Detect per-agent del/inject columns (del1,inject1,del2,inject2,...)
+        agent_settings = []
+        for i, ag in enumerate(agent_objects, start=1):
+            suffix = str(i) if len(agent_objects) > 1 else ""
+            d_key = f"del{suffix}"
+            j_key = f"inject{suffix}"
+            agent_settings.append({
+                "name":   ag["name"],
+                "del":    float(row.get(d_key, 0.0)),
+                "inject": float(row.get(j_key, 0.0)),
+            })
+
+        setting_objects.append({
+            "time":           row.get("time", "00:00:00"),
+            "va":             float(row.get("va",  4.0)),
+            "fgf":            float(row.get("fgf", 5.0)),
+            "co":             float(row.get("co",  5.0)),
+            "circuit":        row.get("circuit", "Semi"),
+            "agent_settings": agent_settings,
+        })
+
+    weight_kg = float(patient.get("weight_kg", 70.0))
+
+    return {
+        "description": "",
+        "params": {
+            "patient": {
+                "weight":  {"value": weight_kg, "unit": "kilograms"},
+                "volumes": {
+                    "vrg": float(volumes.get("vrg", 6.0)),
+                    "fat": float(volumes.get("fat", 14.5)),
+                    "ven": float(volumes.get("ven", 1.0)),
+                    "alv": float(volumes.get("alv", 2.5)),
+                    "mus": float(volumes.get("mus", 33.0)),
+                },
+                "flows": {
+                    "vrg": float(flows.get("vrg", 0.76)),
+                    "fat": float(flows.get("fat", 0.06)),
+                    "mus": float(flows.get("mus", 0.18)),
+                },
+            },
+            "agents": agent_objects,
+        },
+        "settings": setting_objects,
+    }
 
 
 def parse_xlsx(file_path: str) -> dict:
@@ -270,10 +411,12 @@ def run(input_file: str, output_file: str = "output.csv",
         data = parse_xml(input_file)
     elif ext == ".json":
         data = parse_json(input_file)
+    elif ext == ".csv":
+        data = parse_csv(input_file)
     elif ext == ".xlsx":
         data = parse_xlsx(input_file)
     else:
-        raise ValueError(f"Unsupported file type: {ext!r}  (use .xml, .json, or .xlsx)")
+        raise ValueError(f"Unsupported file type: {ext!r}  (use .xml, .json, .csv, or .xlsx)")
 
     # Remove embedded image data that bloats the payload without adding value.
     if isinstance(data, dict):

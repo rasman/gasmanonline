@@ -371,6 +371,13 @@ void GasDoc::rewind()
         ChangeState(nullptr, STOPPED_STATE);
     }
 
+    // Guard: native JSON scenarios whose first (and only) setting is at time 0
+    // never advance the simulation during loading, so m_pSampArray is empty.
+    // In that case there is no historical state to reset to — the initial
+    // conditions set by SetInitialResults() are already correct.
+    if (m_gasArray.empty() || m_gasArray.at(0)->m_pSampArray->empty())
+        return;
+
     ResetState(*m_gasArray.at(0)->m_pSampArray->at(0));
     for (size_t ng = 0; ng < m_gasArray.size(); ++ng)
         m_gasArray.at(ng)->LoadFirstSampleState();
@@ -1410,6 +1417,15 @@ void GasDoc::Flush()
 std::string GasDoc::dumpCSV(int startSecond, int endSecond, int everySeconds)
 {
     using namespace std::literals;
+
+    // Advance simulation only when no samples exist yet — this happens for
+    // native JSON scenarios whose only setting is at time 0 (m_pSampArray is
+    // empty after loading).  For tagName/XML files the simulation has already
+    // been run during loadJsonResults, so we must NOT call loadJsonRunTo here
+    // (m_dwTime < m_dwHighTime after rewind → ExtendResultSet returns false).
+    if (!m_gasArray.empty() && m_gasArray.at(0)->m_pSampArray->empty()) {
+        loadJsonRunTo(static_cast<uint32_t>(endSecond) * 1000);
+    }
 
     int maxSecond = static_cast<int>(GetHighTime());
     std::ostringstream oss;

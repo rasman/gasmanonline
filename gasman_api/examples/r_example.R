@@ -38,9 +38,18 @@ suppressPackageStartupMessages(library(jsonlite))
 
 .find_binary <- function(name) {
   ext  <- if (.Platform$OS.type == "windows") ".exe" else ""
-  path <- file.path(.repo_root(), "compiled", paste0(name, ext))
-  if (!file.exists(path))
-    stop(name, " not found at ", path, ". Build the project first.")
+  fname <- paste0(name, ext)
+  # Search order: script dir → working dir → ../compiled/
+  candidates <- c(
+    file.path(.script_dir(),         fname),
+    file.path(getwd(),               fname),
+    file.path(.repo_root(), "compiled", fname)
+  )
+  path <- Filter(file.exists, candidates)[1]
+  if (is.na(path))
+    stop(name, " not found. Looked in:\n",
+         paste(" ", candidates, collapse = "\n"),
+         "\nBuild the project first.")
   path
 }
 
@@ -49,9 +58,18 @@ suppressPackageStartupMessages(library(jsonlite))
                  Windows = ".dll",
                  Darwin  = ".dylib",
                  ".so")
-  path <- file.path(.repo_root(), "compiled", paste0("gasmanAPI", ext))
-  if (!file.exists(path))
-    stop("gasmanAPI library not found at ", path, ". Build the project first.")
+  fname <- paste0("gasmanAPI", ext)
+  # Search order: script dir → working dir → ../compiled/
+  candidates <- c(
+    file.path(.script_dir(),         fname),
+    file.path(getwd(),               fname),
+    file.path(.repo_root(), "compiled", fname)
+  )
+  path <- Filter(file.exists, candidates)[1]
+  if (is.na(path))
+    stop("gasmanAPI library not found. Looked in:\n",
+         paste(" ", candidates, collapse = "\n"),
+         "\nBuild the project first.")
   path
 }
 
@@ -246,6 +264,190 @@ make_scenario <- function(agent       = "Sevoflurane",
 
 
 # =============================================================================
+# File → JSON string converter  (used by Approach B)
+# =============================================================================
+
+#' Convert any supported input file to a JSON string the DLL can consume.
+#'
+#' Handles .xml (tagName JSON), .json (pass-through), .csv (sections format),
+#' and .xlsx (GasMan template layout).  The returned string is ready to pass
+#' directly to api$run().
+#'
+#' @param file_path  Path to a .xml, .json, .csv, or .xlsx scenario file.
+#' @return A JSON character string.
+parse_file_to_json_str <- function(file_path) {
+  ext <- tolower(tools::file_ext(file_path))
+  switch(ext,
+    json = {
+      doc <- jsonlite::fromJSON(file_path, simplifyVector = FALSE)
+      doc[["imageData"]] <- NULL          # strip embedded images
+      jsonlite::toJSON(doc, auto_unbox = TRUE)
+    },
+    xml = {
+      if (!requireNamespace("xml2", quietly = TRUE))
+        stop("Package 'xml2' is required for XML input.\n",
+             "Run:  install.packages('xml2')")
+      root <- xml2::xml_root(xml2::read_xml(file_path))
+      jsonlite::toJSON(.xml_to_list(root), auto_unbox = TRUE)
+    },
+    csv  = jsonlite::toJSON(.parse_csv(file_path),  auto_unbox = TRUE),
+    xlsx = {
+      if (!requireNamespace("readxl", quietly = TRUE))
+        stop("Package 'readxl' is required for XLSX input.\n",
+             "Run:  install.packages('readxl')")
+      jsonlite::toJSON(.parse_xlsx(file_path), auto_unbox = TRUE)
+    },
+    stop("Unsupported file type: '.", ext,
+         "' — use .xml, .json, .csv, or .xlsx")
+  )
+}
+
+# ── XML → tagName list  (mirrors python_example.py _xml_element_to_dict) ────
+.xml_to_list <- function(node) {
+  result <- list(tagName = xml2::xml_name(node))
+  attrs  <- xml2::xml_attrs(node)
+  for (nm in names(attrs)) result[[nm]] <- attrs[[nm]]
+  children <- xml2::xml_children(node)
+  if (length(children) == 0L) {
+    txt <- trimws(xml2::xml_text(node))
+    if (nzchar(txt)) result[["text"]] <- txt
+  }
+  for (child in children) {
+    tag <- xml2::xml_name(child)
+    cv  <- .xml_to_list(child)
+    if (is.null(result[[tag]])) {
+      result[[tag]] <- cv
+    } else {
+      prev <- result[[tag]]
+      result[[tag]] <- if (is.list(prev) && is.null(names(prev)))
+                         c(prev, list(cv))
+                       else
+                         list(prev, cv)
+    }
+  }
+  result
+}
+
+# ── CSV sections format  (mirrors CsvReader.h / python_example.py) ──────────
+.parse_csv <- function(file_path) {
+  lines <- readLines(file_path, warn = FALSE)
+  lines <- lines[!grepl("^\\s*#", lines) & nzchar(trimws(lines))]
+
+  section      <- NULL
+  agent_cur    <- list()
+  agents       <- list()
+  settings_hdr <- NULL
+  settings_rows <- list()
+  patient <- list(
+    weight  = list(value = 70, unit = "kilograms"),
+    volumes = list(vrg = 6.0, fat = 14.5, ven = 1.0, alv = 2.5, mus = 33.0),
+    flows   = list(vrg = 0.76, fat = 0.06, mus = 0.18)
+  )
+
+  for (ln in lines) {
+    if (grepl("^\\s*\\[", ln)) {
+      if (!is.null(section) && section == "agent" && length(agent_cur) > 0) {
+        agents <- c(agents, list(agent_cur)); agent_cur <- list()
+      }
+      section      <- tolower(trimws(sub("^\\s*\\[([^]]+)\\].*$", "\\1", ln)))
+      settings_hdr <- NULL
+      next
+    }
+    parts <- trimws(strsplit(ln, ",")[[1L]])
+    if (is.null(section) || length(parts) < 2L) next
+
+    if      (section == "patient")  patient$weight$value         <- as.numeric(parts[2L])
+    else if (section == "volumes")  patient$volumes[[parts[1L]]] <- as.numeric(parts[2L])
+    else if (section == "flows")    patient$flows[[parts[1L]]]   <- as.numeric(parts[2L])
+    else if (section == "agent") {
+      key <- parts[1L]
+      agent_cur[[key]] <- if (key == "name") parts[2L] else as.numeric(parts[2L])
+    } else if (section == "settings") {
+      if (is.null(settings_hdr)) settings_hdr <- parts
+      else settings_rows <- c(settings_rows, list(setNames(as.list(parts), settings_hdr)))
+    }
+  }
+  if (length(agent_cur) > 0) agents <- c(agents, list(agent_cur))
+  if (length(agents)  == 0)  stop("No [agent] block found in CSV.")
+  if (length(settings_rows) == 0) stop("No [settings] data found in CSV.")
+
+  settings <- lapply(settings_rows, function(row) {
+    n <- length(agents)
+    agent_settings <- lapply(seq_len(n), function(i) {
+      dk <- if (i == 1L) "del"    else paste0("del",    i)
+      ik <- if (i == 1L) "inject" else paste0("inject", i)
+      list(name = agents[[i]]$name, del = as.numeric(row[[dk]]),
+           inject = as.numeric(row[[ik]]))
+    })
+    list(time = row[["time"]], va = as.numeric(row[["va"]]),
+         fgf  = as.numeric(row[["fgf"]]), co = as.numeric(row[["co"]]),
+         circuit = row[["circuit"]], agent_settings = agent_settings)
+  })
+  list(description = "", params = list(patient = patient, agents = agents),
+       settings = settings)
+}
+
+# ── XLSX GasMan template  (mirrors python_example.py parse_xlsx) ────────────
+.parse_xlsx <- function(file_path) {
+  df <- readxl::read_excel(file_path, col_names = FALSE, .name_repair = "minimal")
+
+  find_row <- function(kw) {
+    for (i in seq_len(nrow(df)))
+      if (any(grepl(kw, df[i, ], ignore.case = TRUE))) return(i)
+    stop("Keyword '", kw, "' not found in XLSX.")
+  }
+
+  p <- find_row("Patient - Weight")
+  a <- find_row("Agents")
+  s <- find_row("Settings")
+
+  patient <- list(
+    weight  = list(value = as.numeric(df[[p + 1L, 3L]]), unit = "kilograms"),
+    volumes = list(vrg = as.numeric(df[[p + 3L, 2L]]),
+                   fat = as.numeric(df[[p + 4L, 2L]]),
+                   ven = as.numeric(df[[p + 5L, 2L]]),
+                   alv = as.numeric(df[[p + 6L, 2L]]),
+                   mus = as.numeric(df[[p + 7L, 2L]])),
+    flows   = list(vrg = as.numeric(df[[p +  9L, 2L]]),
+                   fat = as.numeric(df[[p + 10L, 2L]]),
+                   mus = as.numeric(df[[p + 11L, 2L]]))
+  )
+
+  agent_hdr <- tolower(gsub("\\s+", "", unlist(df[a + 1L, ])))
+  agents <- Filter(
+    function(ag) !is.null(ag[["name"]]) && !is.na(ag[["name"]]),
+    lapply(seq(a + 2L, s - 1L), function(i) {
+      row <- setNames(as.list(unlist(df[i, ])), agent_hdr)
+      lapply(row, function(v) suppressWarnings(
+        if (!is.na(as.numeric(v))) as.numeric(v) else v))
+    })
+  )
+
+  set_hdr <- tolower(gsub("\\s+", "_", unlist(df[s + 1L, ])))
+  to_time_str <- function(v) {
+    s <- as.character(v)
+    if (grepl(":", s)) return(s)
+    total <- round(as.numeric(s) * 86400)
+    sprintf("%02d:%02d:%02d", total %/% 3600L, (total %% 3600L) %/% 60L, total %% 60L)
+  }
+
+  settings <- Filter(Negate(is.null), lapply(seq(s + 2L, nrow(df)), function(i) {
+    row <- setNames(as.list(unlist(df[i, ])), set_hdr)
+    if (all(is.na(unlist(row)))) return(NULL)
+    list(time = to_time_str(row[["time"]]), va = as.numeric(row[["va"]]),
+         fgf  = as.numeric(row[["fgf"]]),  co = as.numeric(row[["co"]]),
+         circuit = as.character(row[["circuit"]]),
+         agent_settings = list(list(name   = agents[[1L]][["name"]],
+                                    del    = as.numeric(row[["del"]]),
+                                    inject = as.numeric(row[["inject"]]))))
+  }))
+
+  list(description = "", params = list(patient = patient, agents = agents),
+       settings = settings)
+}
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -268,16 +470,14 @@ if (!interactive()) {
                   output_file,
                   paste(names(result), collapse = ", ")))
 
-  # ── Approach B demo (DLL) ─────────────────────────────────────────────────
+  # ── Approach B — same file via DLL ───────────────────────────────────────
   if (requireNamespace("Rcpp", quietly = TRUE)) {
     message("\nApproach B — same simulation via DLL ...")
     tryCatch({
       api      <- load_api()
-      scenario <- make_scenario()
-      json_str <- toJSON(scenario, auto_unbox = TRUE)
+      json_str <- parse_file_to_json_str(input_file)
       csv_text <- api$run(json_str, end_sec = 300L, every_sec = 10L)
 
-      # Parse the CSV string into a data.frame
       result_dll <- read.csv(text = csv_text, stringsAsFactors = FALSE)
       message(sprintf("DLL returned %d rows — first row: Time=%s ALV=%s",
                       nrow(result_dll),
