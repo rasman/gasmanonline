@@ -348,6 +348,9 @@ def parse_xlsx(file_path: str) -> dict:
             return val.strftime("%H:%M:%S")
         s = str(val).strip()
         if ":" in s:
+            # Normalise to HH:MM:SS — the engine requires exactly 3 components
+            if s.count(":") == 1:
+                s += ":00"
             return s
         # Excel stores time as a fraction of a day
         try:
@@ -389,6 +392,25 @@ def parse_xlsx(file_path: str) -> dict:
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _last_setting_sec(data: dict) -> int:
+    """Return the last setting's time in seconds, or 0 if unavailable."""
+    settings = data.get("settings", [])
+    if not settings:
+        return 0
+    raw = settings[-1].get("time", "00:00:00")
+    if isinstance(raw, time):
+        return raw.hour * 3600 + raw.minute * 60 + raw.second
+    parts = str(raw).strip().split(":")
+    try:
+        if len(parts) == 3:
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+    except ValueError:
+        pass
+    return 0
+
+
 def _serialize(data):
     """Recursively convert datetime.time objects to HH:MM:SS strings."""
     if isinstance(data, dict):
@@ -401,9 +423,13 @@ def _serialize(data):
 
 
 def run(input_file: str, output_file: str = "output.csv",
-        start_sec: int = 0, end_sec: int = 300, every_sec: int = 10) -> None:
+        start_sec: int = 0, end_sec: int = -1, every_sec: int = 10) -> None:
     """
     Load gasmanAPI, parse *input_file*, run the simulation, write *output_file*.
+
+    end_sec defaults to -1, which means "auto": the simulation runs to at least
+    the time of the last settings entry (minimum 300 s).  Pass an explicit value
+    to override.
     """
     ext = os.path.splitext(input_file)[1].lower()
 
@@ -421,6 +447,9 @@ def run(input_file: str, output_file: str = "output.csv",
     # Remove embedded image data that bloats the payload without adding value.
     if isinstance(data, dict):
         data.pop("imageData", None)
+
+    if end_sec < 0:
+        end_sec = max(300, _last_setting_sec(data))
 
     lib = load_gasmanAPI()
 

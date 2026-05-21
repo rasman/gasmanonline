@@ -31,7 +31,6 @@ function octave_example(input_file, output_file)
   end
 
   START_SEC = 0;
-  END_SEC   = 300;
   EVERY_SEC = 10;
 
   % ── Locate gasman_run ───────────────────────────────────────────────────────
@@ -66,8 +65,8 @@ function octave_example(input_file, output_file)
 
   % ── Run simulation ─────────────────────────────────────────────────────────
   tmp_csv = [tempname(), '.csv'];
-  cmd = sprintf('"%s" "%s" --start %d --end %d --every %d --output "%s"', ...
-      runner, input_file, START_SEC, END_SEC, EVERY_SEC, tmp_csv);
+  cmd = sprintf('"%s" "%s" --start %d --every %d --output "%s"', ...
+      runner, input_file, START_SEC, EVERY_SEC, tmp_csv);
 
   [status, out] = system(cmd);
 

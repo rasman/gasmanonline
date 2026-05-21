@@ -30,7 +30,6 @@ if nargin < 2 || isempty(output_file)
 end
 
 START_SEC = 0;
-END_SEC   = 300;
 EVERY_SEC = 10;
 
 % ---------------------------------------------------------------------------
@@ -39,6 +38,17 @@ EVERY_SEC = 10;
 examples_dir = fileparts(mfilename('fullpath'));
 repo_root    = fileparts(examples_dir);
 compiled_dir = fullfile(repo_root, 'compiled');
+
+% ── Parse scenario once to determine simulation end time ────────────────────
+% Both Approach A (DLL) and Approach B (CLI) reuse this result.
+END_SEC  = 300;
+scenario = struct();
+try
+    scenario = gasman_parse_input_file(input_file);
+    END_SEC  = max(END_SEC, gasman_last_sec(scenario));
+catch ME
+    warning('gasman:parse', 'Pre-parse for end-time detection failed: %s', ME.message);
+end
 
 % ============================================================================
 % Approach A — DLL via loadlibrary / calllib
@@ -71,8 +81,7 @@ else
     end
 
     if libisloaded('gasmanAPI')
-        % ── Parse the actual input file ───────────────────────────────────────
-        scenario = gasman_parse_input_file(input_file);
+        % ── Use the pre-parsed scenario ───────────────────────────────────────
         json_str = jsonencode(scenario);   % requires MATLAB R2016b+
 
         % ── Call GasManJsonToCsv ──────────────────────────────────────────────
@@ -492,6 +501,10 @@ function scenario = gasman_parse_xlsx(file_path)
                     mod(total_sec, 60));
             else
                 ts = char(string(tv));
+                % Normalise HH:MM → HH:MM:SS; engine requires 3 components
+                if sum(ts == ':') == 1
+                    ts = [ts, ':00'];
+                end
             end
         end
 
@@ -563,6 +576,33 @@ end
 % ============================================================================
 % Helper: parse CSV text output from GasManJsonToCsv into a MATLAB table
 % ============================================================================
+
+function sec = gasman_last_sec(scenario)
+% Return the last setting's time in seconds (minimum 0).
+    sec = 0;
+    if ~isstruct(scenario) || ~isfield(scenario, 'settings'), return; end
+    S = scenario.settings;
+    if iscell(S),      last = S{end};
+    elseif isstruct(S), last = S(end);
+    else,              return; end
+    if isfield(last, 'time')
+        sec = gasman_time_to_sec(last.time);
+    end
+end
+
+function sec = gasman_time_to_sec(ts)
+% Parse HH:MM:SS (or HH:MM) time string to seconds.
+    parts = strsplit(char(ts), ':');
+    if numel(parts) >= 3
+        sec = str2double(parts{1})*3600 + str2double(parts{2})*60 + str2double(parts{3});
+    elseif numel(parts) == 2
+        sec = str2double(parts{1})*3600 + str2double(parts{2})*60;
+    else
+        sec = 0;
+    end
+    if isnan(sec), sec = 0; end
+end
+
 
 function T = gasman_csv_to_table(csv_text)
 % Parse the CSV string returned by GasManJsonToCsv into a MATLAB table.
