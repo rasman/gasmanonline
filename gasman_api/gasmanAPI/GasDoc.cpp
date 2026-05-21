@@ -19,6 +19,9 @@ std::string GasDoc::m_szDfltCircuit;
 COMP_ARRAY GasDoc::m_fDfltVolume;
 COMP_ARRAY GasDoc::m_fDfltRatio;
 
+// Exponential compartment integration ("differential extrapolation") by Xin Bao,
+// introduced for the veterinary adaptation (wide weight range: small to large mammals).
+
 // STATS
 int gTotVernier[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -317,7 +320,14 @@ void GasDoc::ResetState(const GasSample& samp)
     m_fCO = samp.m_fCO;
 }
 
-// Compute terms invariant with CO, weight and selected anesthetic
+// Precompute flow and exponential decay terms that are invariant within a
+// setting period (i.e. don't change until CO, weight, or agent changes).
+//
+// fEffectiveFlowTo[i] = CO * lambdaBG * bloodFlowFraction[i]   (L/min)
+// fExp[j][i]          = exp(-effectiveFlow * dt / (volume * lambda * 2^j))
+//                       precomputed for all MAX_VERNIER sub-step levels j.
+//   CKT and ALV are flow-dependent so only the exponent base is stored here;
+//   the final exp() is completed in Calc() once per sub-step.
 
 void GasDoc::ComputeTerms(float /*fFGF*/, float /*fVA*/, float fCO, float fWeight, int nAgent,
                           COMP_ARRAY &fEffectiveFlowTo, COMP_ARRAY (&fExp)[MAX_VERNIER])
@@ -663,18 +673,27 @@ RES_ARRAY& GasDoc::ResultsFromHistoryAt(uint32_t dwTime, int nGas)
 }
  
 /////////////////////////////////////////////////////////////////////////////
-// Routine to calculate a set of simulation results given a previous set. It
-// will step forward dt/1<<nVernier seconds, so you should call this routine
-// (and the CalcUptake routine) 1<<nVernier times to advance the simulation one
-// breath. If any deltas exceed x% (see code) of the max delivered setting,
-// Calc returns FALSE. You must then call Calc again after resetting the
-// results and doubling the vernier.
-
-// NOTE: Results are in percent litres anesthesia (La/L*100) EXCEPT!!!
-// DEL(ivered) and UPT(ake), which are in litres (La).
+// Advance compartment pressures by one sub-step of dt/2^nVerner minutes.
+//
+// Algorithm (Xin Bao, veterinary adaptation):
+//   Each compartment uses the exact solution to its first-order linear ODE:
+//     P(t+dt) = P_target * (1 - exp(-k*dt)) + P(t) * exp(-k*dt)
+//   where k = effective_flow / (volume * solubility).
+//   This is sometimes called differential extrapolation — it is NOT Euler
+//   forward-difference and NOT Runge-Kutta.
+//
+// Adaptive sub-stepping (Verner):
+//   Call this routine (and CalcUptake) 2^nVerner times per breath to
+//   advance one full breath period. If the result is numerically dubious
+//   (fast compartment change or negative pressure), Calc returns FALSE;
+//   the caller must reset results, increment nVerner, and retry with
+//   twice as many sub-steps (up to MAX_VERNIER).
+//
+// NOTE: Results are in percent litres anaesthetic (La/L*100) EXCEPT
+//       DEL(ivered) and UPT(ake), which are in litres (La).
 /////////////////////////////////////////////////////////////////////////////
 
-// FALSE if nVernier needs doubling
+// Returns FALSE if nVerner needs doubling
 bool GasDoc::Calc(GasSample &samp, int nInjections, bool bFlush, RES_ARRAY &fResults,
                   COMP_ARRAY &fEffectiveFlowTo,
                   COMP_ARRAY &fExp,
