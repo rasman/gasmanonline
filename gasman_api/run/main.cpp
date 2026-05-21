@@ -209,17 +209,19 @@ int main(int argc, char* argv[])
     if (endAuto) {
         try {
             auto j = nlohmann::json::parse(jsonStr);
-            const auto& settings = j.value("settings", nlohmann::json::array());
-            if (settings.is_array() && !settings.empty()) {
-                std::string tStr = settings.back().value("time", std::string("00:00:00"));
-                std::istringstream ts(tStr);
-                std::string tok;
-                int parts[3] = {0, 0, 0};
-                int idx = 0;
-                while (idx < 3 && std::getline(ts, tok, ':'))
-                    parts[idx++] = std::stoi(tok);
-                int computed = parts[0] * 3600 + parts[1] * 60 + parts[2];
-                endSec = std::max(endSec, computed);
+            auto it = j.find("settings");
+            if (it != j.end() && it->is_array() && !it->empty()) {
+                auto tit = it->back().find("time");
+                if (tit != it->back().end() && tit->is_string()) {
+                    std::istringstream ts(tit->get<std::string>());
+                    std::string tok;
+                    int parts[3] = {0, 0, 0};
+                    int idx = 0;
+                    while (idx < 3 && std::getline(ts, tok, ':'))
+                        parts[idx++] = std::stoi(tok);
+                    int computed = parts[0] * 3600 + parts[1] * 60 + parts[2];
+                    endSec = (std::max)(endSec, computed);
+                }
             }
         } catch (...) {}
     }
