@@ -74,6 +74,19 @@ suppressPackageStartupMessages(library(jsonlite))
 }
 
 
+# Extract the last setting's time in seconds from a parsed scenario list.
+.last_setting_sec <- function(doc) {
+  settings <- doc[["settings"]]
+  if (!is.list(settings) || length(settings) == 0L) return(300L)
+  last_time <- settings[[length(settings)]][["time"]]
+  if (is.null(last_time)) return(300L)
+  parts <- strsplit(as.character(last_time), ":")[[1L]]
+  if (length(parts) != 3L) return(300L)
+  sec <- as.integer(parts[1L]) * 3600L + as.integer(parts[2L]) * 60L + as.integer(parts[3L])
+  max(300L, sec)
+}
+
+
 # =============================================================================
 # Approach A — CLI via system2(gasman_run)
 # =============================================================================
@@ -426,7 +439,12 @@ parse_file_to_json_str <- function(file_path) {
   set_hdr <- tolower(gsub("\\s+", "_", unlist(df[s + 1L, ])))
   to_time_str <- function(v) {
     s <- as.character(v)
-    if (grepl(":", s)) return(s)
+    if (grepl(":", s)) {
+      # Normalise HH:MM → HH:MM:SS; engine requires exactly 3 components
+      if (lengths(regmatches(s, gregexpr(":", s, fixed = TRUE))) == 1L)
+        s <- paste0(s, ":00")
+      return(s)
+    }
     total <- round(as.numeric(s) * 86400)
     sprintf("%02d:%02d:%02d", total %/% 3600L, (total %% 3600L) %/% 60L, total %% 60L)
   }
@@ -461,8 +479,15 @@ if (!interactive()) {
   input_file  <- argv[1]
   output_file <- if (length(argv) == 2L) argv[2] else "output.csv"
 
+  # Derive end_sec from the last setting so the output covers the full scenario.
+  end_sec <- tryCatch({
+    json_str_tmp <- parse_file_to_json_str(input_file)
+    doc_tmp      <- jsonlite::fromJSON(json_str_tmp, simplifyVector = FALSE)
+    .last_setting_sec(doc_tmp)
+  }, error = function(e) 300L)
+
   message("Approach A — running simulation via gasman_run CLI ...")
-  result <- run_cli(input_file)
+  result <- run_cli(input_file, end_sec = end_sec)
 
   write.csv(result, output_file, row.names = FALSE)
   message(sprintf("Written %d rows to %s  (columns: %s)",
@@ -476,7 +501,7 @@ if (!interactive()) {
     tryCatch({
       api      <- load_api()
       json_str <- parse_file_to_json_str(input_file)
-      csv_text <- api$run(json_str, end_sec = 300L, every_sec = 10L)
+      csv_text <- api$run(json_str, end_sec = end_sec, every_sec = 10L)
 
       result_dll <- read.csv(text = csv_text, stringsAsFactors = FALSE)
       message(sprintf("DLL returned %d rows — first row: Time=%s ALV=%s",

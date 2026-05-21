@@ -350,8 +350,12 @@ inline std::string fractionToTimeStr(double frac)
 inline std::string asTimeString(const std::string& raw)
 {
     if (raw.empty()) return "00:00:00";
-    // Check if it looks like HH:MM:SS already
-    if (raw.size() >= 5 && raw[2] == ':') return raw;
+    // Check if it looks like HH:MM or HH:MM:SS already
+    if (raw.size() >= 5 && raw[2] == ':') {
+        // Normalise HH:MM → HH:MM:SS; the engine requires exactly 3 components
+        if (raw.size() == 5) return raw + ":00";
+        return raw;
+    }
     // Try numeric fraction
     try {
         double v = std::stod(raw);

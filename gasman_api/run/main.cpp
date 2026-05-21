@@ -8,7 +8,7 @@
 //
 // Options:
 //   --start  <sec>   Simulation start time in seconds     (default 0)
-//   --end    <sec>   Simulation end time in seconds       (default 300)
+//   --end    <sec>   Simulation end time in seconds       (default: auto — last setting time)
 //   --every  <sec>   Output row interval in seconds       (default 10)
 //   --output <file>  Write CSV to <file> instead of stdout
 //   --ini    <file>  Path to gasman.ini                   (default: auto)
@@ -74,7 +74,7 @@ static void printUsage(const char* prog)
         << "\n"
         << "Options:\n"
         << "  --start  <sec>   Start time in seconds  (default 0)\n"
-        << "  --end    <sec>   End time in seconds    (default 300)\n"
+        << "  --end    <sec>   End time in seconds    (default: last setting time)\n"
         << "  --every  <sec>   Row interval in secs   (default 10)\n"
         << "  --output <file>  Write CSV to <file>    (default: stdout)\n"
         << "  --ini    <file>  Path to gasman.ini     (default: auto-locate)\n"
@@ -106,8 +106,9 @@ int main(int argc, char* argv[])
     std::string outputPath;
     std::string iniPath;
     int startSec  = 0;
-    int endSec    = 300;
+    int endSec    = 300;   // used as fallback when auto-detection finds nothing
     int everySec  = 10;
+    bool endAuto  = true;  // auto-detect end time from last setting
 
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
@@ -120,7 +121,7 @@ int main(int argc, char* argv[])
         };
 
         if      (a == "--start")  startSec   = std::atoi(need("--start").c_str());
-        else if (a == "--end")    endSec     = std::atoi(need("--end").c_str());
+        else if (a == "--end")  { endSec = std::atoi(need("--end").c_str()); endAuto = false; }
         else if (a == "--every")  everySec   = std::atoi(need("--every").c_str());
         else if (a == "--output") outputPath = need("--output");
         else if (a == "--ini")    iniPath    = need("--ini");
@@ -202,6 +203,25 @@ int main(int argc, char* argv[])
     catch (const std::exception& ex) {
         std::cerr << "Error reading input: " << ex.what() << "\n";
         return 1;
+    }
+
+    // ── Auto-detect end time from last setting ───────────────────────────────
+    if (endAuto) {
+        try {
+            auto j = nlohmann::json::parse(jsonStr);
+            const auto& settings = j.value("settings", nlohmann::json::array());
+            if (settings.is_array() && !settings.empty()) {
+                std::string tStr = settings.back().value("time", std::string("00:00:00"));
+                std::istringstream ts(tStr);
+                std::string tok;
+                int parts[3] = {0, 0, 0};
+                int idx = 0;
+                while (idx < 3 && std::getline(ts, tok, ':'))
+                    parts[idx++] = std::stoi(tok);
+                int computed = parts[0] * 3600 + parts[1] * 60 + parts[2];
+                endSec = std::max(endSec, computed);
+            }
+        } catch (...) {}
     }
 
     // ── Initialise the simulation engine ─────────────────────────────────────
