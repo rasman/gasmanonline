@@ -75,8 +75,10 @@ extern "C" GASMAN_API const char* GasManJsonToCsv(
     app.ReadProfile("Application", "Locale", locale);
     try {
         std::locale::global(std::locale(locale));
-    } catch (const std::runtime_error&) {
-        std::locale::global(std::locale("en_US.UTF-8"));
+    } catch (...) {
+        try {
+            std::locale::global(std::locale::classic());
+        } catch (...) {}
     }
 
     if (!app.initialize())

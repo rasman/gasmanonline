@@ -1437,20 +1437,34 @@ std::string GasDoc::dumpCSV(int startSecond, int endSecond, int everySeconds)
 {
     using namespace std::literals;
 
-    // Advance simulation only when no samples exist yet — this happens for
-    // native JSON scenarios whose only setting is at time 0 (m_pSampArray is
-    // empty after loading).  For tagName/XML files the simulation has already
-    // been run during loadJsonResults, so we must NOT call loadJsonRunTo here
-    // (m_dwTime < m_dwHighTime after rewind → ExtendResultSet returns false).
-    if (!m_gasArray.empty() && m_gasArray.at(0)->m_pSampArray->empty()) {
-        loadJsonRunTo(static_cast<uint32_t>(endSecond) * 1000);
+    // Always advance the simulation to endSecond if it hasn't reached there yet.
+    // This covers three cases:
+    //   1. Native JSON with only a t=0 setting (m_pSampArray empty after load).
+    //   2. Native JSON with multiple settings — simulation stops at the last
+    //      setting's time unless we extend it here.
+    //   3. tagName/XML already simulated to or past endSecond — the condition
+    //      m_dwCalcTime < targetMs is false, so this is a safe no-op.
+    //
+    // After rewind(), m_dwTime is reset to 0 while m_dwHighTime/m_dwCalcTime
+    // still point to the end of data computed during JSON loading.  Sync
+    // m_dwTime forward first so ExtendResultSet() does not see a "historical
+    // gap" (m_dwTime < m_dwHighTime) and refuse to extend further.
+    if (!m_gasArray.empty()) {
+        uint32_t targetMs = static_cast<uint32_t>(endSecond) * 1000;
+        m_dwTime = m_dwHighTime;   // bridge the rewind() gap
+        // Extend one extra tick past targetMs so that Get*() always uses the
+        // historical ResultsAt() path (dwt < m_dwCalcTime).  When dwt ==
+        // m_dwCalcTime the getters fall into a "current time" branch that
+        // reads m_fResults, which rewind() reset to t=0 values.
+        if (m_dwCalcTime <= targetMs)
+            loadJsonRunTo(targetMs + m_cMSec_dx);
     }
 
     int maxSecond = static_cast<int>(GetHighTime());
     std::ostringstream oss;
 
     oss << "Time,Agent,FGF,VA,CO,CKT,ALV,ART,VRG,MUS,FAT,VEN,Uptake,Delivered\n"s;
-    for (int s = std::min(startSecond, maxSecond); s < std::min(endSecond, maxSecond); s += everySeconds)
+    for (int s = std::min(startSecond, maxSecond); s <= std::min(endSecond, maxSecond); s += everySeconds)
     {
         auto fMin = s / 60.0F;
         auto hh = static_cast<int>(s / 3600);

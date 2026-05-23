@@ -431,6 +431,8 @@ def run(input_file: str, output_file: str = "output.csv",
     the time of the last settings entry (minimum 300 s).  Pass an explicit value
     to override.
     """
+    lib = load_gasmanAPI()   # must load before pandas to avoid CRT version conflict
+
     ext = os.path.splitext(input_file)[1].lower()
 
     if ext == ".xml":
@@ -450,8 +452,6 @@ def run(input_file: str, output_file: str = "output.csv",
 
     if end_sec < 0:
         end_sec = max(300, _last_setting_sec(data))
-
-    lib = load_gasmanAPI()
 
     payload = json.dumps(_serialize(data)).encode("utf-8")
     result  = lib.GasManJsonToCsv(payload, len(payload), start_sec, end_sec, every_sec)
