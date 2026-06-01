@@ -243,6 +243,23 @@ protected:
     COMP_ARRAY m_fRatio; // Proportion of CO to compartment
 
 private:
+    // Scalar simulation state snapshot taken just before rewind() so that
+    // dumpCSV() can restore the correct settings when it extends the run.
+    // rewind() calls ResetState(samp[0]) which clobbers m_fFGF/VA/CO/DEL
+    // back to t=0 values; without this the extension uses wrong parameters.
+    struct PostLoadState {
+        bool          valid   = false;
+        float         fgf     = 0.0f;
+        float         va      = 0.0f;
+        float         co      = 0.0f;
+        bool          rtnEnb  = false;
+        bool          uptEnb  = false;
+        bool          vapEnb  = false;
+        std::string   circuit;
+        std::vector<float> del;   // one entry per active gas
+    };
+    PostLoadState m_postLoad;
+
     uint32_t m_SerializationFlags;
 
     std::string description;

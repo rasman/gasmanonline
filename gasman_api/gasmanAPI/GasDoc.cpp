@@ -1396,6 +1396,31 @@ void GasDoc::SetCircuit(void *that, const std::string &circuit)
 void GasDoc::SetWeight(void *that, const float &fWeight)
 {
     m_fWeight = fWeight;
+
+    // Allometrically scale the simulation time step for non-standard patient
+    // weight.  This is the ONE side-effect of the original Qt SetWeight() that
+    // is not otherwise reproduced: in the original it runs on the user weight
+    // change at m_dwCalcTime == 0 (see GasManQt/src/gasdoc.cpp SetWeight()).
+    //
+    //     factor = 10 * weight^0.25 / 28.92508          (≈1.0 at 70 kg)
+    //     SetTimeVariables(round(DT * factor))
+    //
+    // The m_dwCalcTime == 0 guard makes this fire only at scenario load — when
+    // loadJsonPatientWeight() applies the patient weight before any simulation
+    // has run — and never during sample replay (where weight changes occur at
+    // m_dwCalcTime > 0 and the original likewise skips the rescale via that==0).
+    //
+    // All OTHER dependent-setting cascades in the original (VA/CO scaling,
+    // Open-circuit FGF floor, Closed-circuit FGF, FGF==0 ⇒ Closed) are GUI-only:
+    // they run exclusively when that != 0 (interactive edits) and are skipped on
+    // file replay.  The API drives every Set* with that == nullptr (the replay
+    // convention) and consumes already-resolved scenario values, so reproducing
+    // those cascades would diverge from the original's replay path.  Hence the
+    // remaining Set* methods are deliberately bare assignments.
+    if (m_dwCalcTime == 0 && m_fWeight > 0.0F) {
+        double factor = 10.0F * sqrt(sqrt(m_fWeight)) / 28.92508F;
+        SetTimeVariables(static_cast<uint16_t>(DT * factor + 0.5F));
+    }
 }
 
 void GasDoc::SetVA(void *that, const float &fVA)
@@ -1451,6 +1476,25 @@ std::string GasDoc::dumpCSV(int startSecond, int endSecond, int everySeconds)
     // gap" (m_dwTime < m_dwHighTime) and refuse to extend further.
     if (!m_gasArray.empty()) {
         uint32_t targetMs = static_cast<uint32_t>(endSecond) * 1000;
+
+        // Restore the scalar settings that were active at the END of the
+        // preloaded run.  rewind() -> ResetState(samp[0]) already clobbered
+        // m_fFGF/VA/CO/DEL back to t=0 values; m_postLoad was populated just
+        // before rewind() in loadJsonFile() so it has the correct end-of-run
+        // values (including any mid-run changes like DEL 3.7->2.0 or FGF 8->0.9).
+        if (m_postLoad.valid) {
+            m_fFGF       = m_postLoad.fgf;
+            m_fVA        = m_postLoad.va;
+            m_fCO        = m_postLoad.co;
+            m_bRtnEnb    = m_postLoad.rtnEnb;
+            m_bUptEnb    = m_postLoad.uptEnb;
+            m_bVapEnb    = m_postLoad.vapEnb;
+            m_strCircuit = m_postLoad.circuit;
+            for (size_t ng = 0; ng < m_gasArray.size() && ng < m_postLoad.del.size(); ++ng)
+                m_gasArray.at(ng)->m_fDEL = m_postLoad.del[ng];
+            m_postLoad.valid = false;
+        }
+
         m_dwTime = m_dwHighTime;   // bridge the rewind() gap
         // Extend one extra tick past targetMs so that Get*() always uses the
         // historical ResultsAt() path (dwt < m_dwCalcTime).  When dwt ==
@@ -1566,6 +1610,22 @@ bool GasDoc::loadJsonFile(const char *jsonStr, int len)
     }
 
     if (gotParams && gotSettings) {
+        // Snapshot scalar settings BEFORE rewind() clobbers them back to t=0.
+        // rewind() → ResetState(samp[0]) sets m_fFGF/VA/CO to the first sample
+        // and LoadFirstSampleState() resets m_fDEL likewise.  dumpCSV() needs
+        // the END-of-run values to extend the simulation correctly.
+        m_postLoad.valid   = true;
+        m_postLoad.fgf     = m_fFGF;
+        m_postLoad.va      = m_fVA;
+        m_postLoad.co      = m_fCO;
+        m_postLoad.rtnEnb  = m_bRtnEnb;
+        m_postLoad.uptEnb  = m_bUptEnb;
+        m_postLoad.vapEnb  = m_bVapEnb;
+        m_postLoad.circuit = m_strCircuit;
+        m_postLoad.del.clear();
+        for (auto* g : m_gasArray)
+            m_postLoad.del.push_back(g->m_fDEL);
+
         rewind();
         return true;
     }
