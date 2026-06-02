@@ -1507,8 +1507,17 @@ std::string GasDoc::dumpCSV(int startSecond, int endSecond, int everySeconds)
     int maxSecond = static_cast<int>(GetHighTime());
     std::ostringstream oss;
 
+    // Never emit rows faster than the integration step (DT).  The engine only
+    // produces real data at DT ticks (one nominal breath), so a finer interval
+    // would just repeat the tick value and imply a resolution the model does
+    // not have.  Upsampling to a finer grid (e.g. second-by-second) is the
+    // caller's responsibility — see the Python example's --interp option, which
+    // does a first-order (linear) interpolation between these DT-spaced rows.
+    const int dtSec = std::max(1, (static_cast<int>(m_cMSec_dx) + 999) / 1000); // ceil(DT/1000)
+    const int step  = std::max(everySeconds, dtSec);
+
     oss << "Time,Agent,FGF,VA,CO,CKT,ALV,ART,VRG,MUS,FAT,VEN,Uptake,Delivered\n"s;
-    for (int s = std::min(startSecond, maxSecond); s <= std::min(endSecond, maxSecond); s += everySeconds)
+    for (int s = std::min(startSecond, maxSecond); s <= std::min(endSecond, maxSecond); s += step)
     {
         auto fMin = s / 60.0F;
         auto hh = static_cast<int>(s / 3600);
@@ -1706,8 +1715,20 @@ bool GasDoc::updateVolume(json& elem, const std::string& name, AResult compartme
     {
         try
         {
+            // Store the raw compartment volume, exactly as the original Qt app
+            // does (GasManQt patient dialog sets m_fVolume directly).  The patient
+            // weight is applied later in ComputeTerms()/CalcUptake() via
+            // fWtFactor = weight/STD_WEIGHT, so it must NOT be folded in here.
+            //
+            // The previous "STD_WEIGHT * v / m_fWeight" normalisation only ever
+            // produced correct numbers by accident: nlohmann sorts object keys, so
+            // "volumes" was parsed before "weight" while m_fWeight was still the
+            // default 70 (making the factor 70/70 == 1).  If weight were ever
+            // applied first (ordered_json, tagName XML, hand-written JSON) the
+            // weight would be double-counted and the kinetics corrupted.  Storing
+            // the raw value removes that load-order dependency.
             double v = jsonNum(elem[name]);
-            m_fVolume[compartment] = static_cast<float>(STD_WEIGHT * v / m_fWeight);
+            m_fVolume[compartment] = static_cast<float>(v);
         }
         catch (const std::exception&)
         {
@@ -2119,6 +2140,19 @@ bool GasDoc::loadNativeJsonParams(json& params)
 
     if (params.contains("agents") && !loadNativeJsonAgents(params["agents"]))
         return false;
+
+    // Optional manual integration time-step in milliseconds.  When present it
+    // OVERRIDES the weight-derived allometric DT (SetWeight applies that as
+    // patient weight loads above; setting it here last makes the manual value
+    // win).  The PK trajectory is nearly invariant to DT — the compartment ODEs
+    // use exact exponential integration per step plus adaptive vernier
+    // sub-stepping — so this mainly controls output/sample granularity.  Absent
+    // ⇒ unchanged behaviour (allometric, or plain DT for the ini-default weight).
+    if (params.contains("dt_ms")) {
+        double dt = jsonNum(params["dt_ms"]);
+        if (dt >= 100.0 && dt <= 60000.0)
+            SetTimeVariables(static_cast<uint16_t>(dt + 0.5));
+    }
 
     return true;
 }

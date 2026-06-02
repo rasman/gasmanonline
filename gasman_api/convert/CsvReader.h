@@ -81,6 +81,7 @@ struct Setting {
 struct GasManInput {
     // [patient]
     float weightKg  = 70.0f;
+    float dtMs      = 0.0f;   ///< optional manual integration step (ms)
 
     // [volumes]
     float vrgVol    = 6.0f;
@@ -93,6 +94,16 @@ struct GasManInput {
     float vrgFlow   = 0.76f;
     float fatFlow   = 0.06f;
     float musFlow   = 0.18f;
+
+    // Presence flags — true only when the CSV/XLSX actually supplied the block.
+    // When false, the writer OMITS that block from the JSON so the simulation
+    // engine falls back to its gasman.ini defaults (the ini wins).  This keeps
+    // the C++ readers consistent with the Python converter and prevents the
+    // struct's stand-in defaults from masking a customised gasman.ini.
+    bool  hasWeight  = false;
+    bool  hasVolumes = false;
+    bool  hasFlows   = false;
+    bool  hasDt      = false;
 
     // [agent] — one entry per [agent] section (at least one expected)
     std::vector<AgentParams> agents;
@@ -262,8 +273,14 @@ inline GasManInput parseCsvFile(const std::string& path)
                 std::string key = cols[0];
                 std::transform(key.begin(), key.end(), key.begin(),
                                [](unsigned char c){ return std::tolower(c); });
-                if (key == "weight_kg")
+                if (key == "weight_kg") {
                     inp.weightKg = csv_detail::to_float(cols[1]);
+                    inp.hasWeight = true;
+                }
+                else if (key == "dt_ms") {
+                    inp.dtMs = csv_detail::to_float(cols[1]);
+                    inp.hasDt = true;
+                }
             }
             break;
 
@@ -272,11 +289,14 @@ inline GasManInput parseCsvFile(const std::string& path)
                 std::string key = cols[0];
                 std::transform(key.begin(), key.end(), key.begin(),
                                [](unsigned char c){ return std::tolower(c); });
+                bool matched = true;
                 if      (key == "vrg") inp.vrgVol = csv_detail::to_float(cols[1]);
                 else if (key == "fat") inp.fatVol = csv_detail::to_float(cols[1]);
                 else if (key == "ven") inp.venVol = csv_detail::to_float(cols[1]);
                 else if (key == "alv") inp.alvVol = csv_detail::to_float(cols[1]);
                 else if (key == "mus") inp.musVol = csv_detail::to_float(cols[1]);
+                else matched = false;
+                if (matched) inp.hasVolumes = true;
             }
             break;
 
@@ -285,9 +305,12 @@ inline GasManInput parseCsvFile(const std::string& path)
                 std::string key = cols[0];
                 std::transform(key.begin(), key.end(), key.begin(),
                                [](unsigned char c){ return std::tolower(c); });
+                bool matched = true;
                 if      (key == "vrg") inp.vrgFlow = csv_detail::to_float(cols[1]);
                 else if (key == "fat") inp.fatFlow = csv_detail::to_float(cols[1]);
                 else if (key == "mus") inp.musFlow = csv_detail::to_float(cols[1]);
+                else matched = false;
+                if (matched) inp.hasFlows = true;
             }
             break;
 

@@ -48,18 +48,24 @@ inline std::string toJson(const GasManInput& inp)
     using writer_detail::fmtF;
 
     // ── Agents array ─────────────────────────────────────────────────────────
+    // Emit a numeric agent field ONLY when it was actually supplied (> 0).  An
+    // unset field defaults to 0 in GasManInput; emitting that 0 would overwrite
+    // the engine's gasman.ini value (e.g. lambdaBlood = 0 → divide-by-zero →
+    // NaN).  Omitting it lets the agent's ini section win — so "[agent] name,X"
+    // alone is a valid, fully ini-driven agent.
     json agentsArr = json::array();
     for (const auto& a : inp.agents) {
-        json agent = {
-            {"name",        a.name},
-            {"lambdaBlood", std::stod(fmtF(a.lambdaBlood))},
-            {"lambdaVrg",   std::stod(fmtF(a.lambdaVrg))},
-            {"lambdaFat",   std::stod(fmtF(a.lambdaFat))},
-            {"lambdaMus",   std::stod(fmtF(a.lambdaMus))},
-            {"volatility",  std::stod(fmtF(a.volatility))},
-            {"bottleSize",  std::stod(fmtF(a.bottleSize))},
-            {"bottleCost",  std::stod(fmtF(a.bottleCost))}
+        json agent = { {"name", a.name} };
+        auto put = [&](const char* k, float v) {
+            if (v > 0.0f) agent[k] = std::stod(fmtF(v));
         };
+        put("lambdaBlood", a.lambdaBlood);
+        put("lambdaVrg",   a.lambdaVrg);
+        put("lambdaFat",   a.lambdaFat);
+        put("lambdaMus",   a.lambdaMus);
+        put("volatility",  a.volatility);
+        put("bottleSize",  a.bottleSize);
+        put("bottleCost",  a.bottleCost);
         agentsArr.push_back(agent);
     }
 
@@ -90,27 +96,36 @@ inline std::string toJson(const GasManInput& inp)
         settingsArr.push_back(setting);
     }
 
+    // ── Params: include only blocks the input actually supplied ───────────────
+    // Omitted blocks fall back to gasman.ini in the engine (the ini wins).
+    json patient = json::object();
+    if (inp.hasWeight)
+        patient["weight"] = {{"value", std::stod(fmtF(inp.weightKg))}, {"unit", "kilograms"}};
+    if (inp.hasVolumes)
+        patient["volumes"] = {
+            {"vrg", std::stod(fmtF(inp.vrgVol))},
+            {"fat", std::stod(fmtF(inp.fatVol))},
+            {"ven", std::stod(fmtF(inp.venVol))},
+            {"alv", std::stod(fmtF(inp.alvVol))},
+            {"mus", std::stod(fmtF(inp.musVol))}
+        };
+    if (inp.hasFlows)
+        patient["flows"] = {
+            {"vrg", std::stod(fmtF(inp.vrgFlow))},
+            {"fat", std::stod(fmtF(inp.fatFlow))},
+            {"mus", std::stod(fmtF(inp.musFlow))}
+        };
+
+    json params = { {"agents", agentsArr} };
+    if (!patient.empty())
+        params["patient"] = patient;
+    if (inp.hasDt)
+        params["dt_ms"] = std::stod(fmtF(inp.dtMs));
+
     // ── Root document ─────────────────────────────────────────────────────────
     json root = {
         {"description", ""},
-        {"params", {
-            {"patient", {
-                {"weight",  {{"value", std::stod(fmtF(inp.weightKg))}, {"unit", "kilograms"}}},
-                {"volumes", {
-                    {"vrg", std::stod(fmtF(inp.vrgVol))},
-                    {"fat", std::stod(fmtF(inp.fatVol))},
-                    {"ven", std::stod(fmtF(inp.venVol))},
-                    {"alv", std::stod(fmtF(inp.alvVol))},
-                    {"mus", std::stod(fmtF(inp.musVol))}
-                }},
-                {"flows", {
-                    {"vrg", std::stod(fmtF(inp.vrgFlow))},
-                    {"fat", std::stod(fmtF(inp.fatFlow))},
-                    {"mus", std::stod(fmtF(inp.musFlow))}
-                }}
-            }},
-            {"agents", agentsArr}
-        }},
+        {"params", params},
         {"settings", settingsArr}
     };
 
@@ -173,39 +188,46 @@ inline std::string toXml(const GasManInput& inp)
     x << "<?xml version='1.0' encoding='utf-8'?>\n";
     x << "<gasman description=\"\">\n";
 
-    // <params>
+    // <params> — emit only the patient blocks the input supplied; omitted ones
+    // fall back to gasman.ini in the engine (the ini wins).
     x << "  <params>\n";
-    x << "    <patient>\n";
-    x << "      <weight"
-      << attr("unit",  std::string("kilograms"))
-      << attr("value", inp.weightKg)
-      << "/>\n";
-    x << "      <volumes"
-      << attr("vrg", inp.vrgVol)
-      << attr("fat", inp.fatVol)
-      << attr("ven", inp.venVol)
-      << attr("alv", inp.alvVol)
-      << attr("mus", inp.musVol)
-      << "/>\n";
-    x << "      <flows"
-      << attr("vrg", inp.vrgFlow)
-      << attr("fat", inp.fatFlow)
-      << attr("mus", inp.musFlow)
-      << "/>\n";
-    x << "    </patient>\n";
+    if (inp.hasWeight || inp.hasVolumes || inp.hasFlows) {
+        x << "    <patient>\n";
+        if (inp.hasWeight)
+            x << "      <weight"
+              << attr("unit",  std::string("kilograms"))
+              << attr("value", inp.weightKg)
+              << "/>\n";
+        if (inp.hasVolumes)
+            x << "      <volumes"
+              << attr("vrg", inp.vrgVol)
+              << attr("fat", inp.fatVol)
+              << attr("ven", inp.venVol)
+              << attr("alv", inp.alvVol)
+              << attr("mus", inp.musVol)
+              << "/>\n";
+        if (inp.hasFlows)
+            x << "      <flows"
+              << attr("vrg", inp.vrgFlow)
+              << attr("fat", inp.fatFlow)
+              << attr("mus", inp.musFlow)
+              << "/>\n";
+        x << "    </patient>\n";
+    }
 
+    // Emit an agent attribute only when supplied (> 0); an unset 0 would
+    // overwrite the engine's gasman.ini value and break the model (NaN).
     x << "    <agents>\n";
     for (const auto& a : inp.agents) {
-        x << "      <agent"
-          << attr("name",        a.name)
-          << attr("lambdaMus",   a.lambdaMus)
-          << attr("lambdaBlood", a.lambdaBlood)
-          << attr("lambdaFat",   a.lambdaFat)
-          << attr("volatility",  a.volatility)
-          << attr("bottleSize",  a.bottleSize)
-          << attr("lambdaVrg",   a.lambdaVrg)
-          << attr("bottleCost",  a.bottleCost)
-          << "/>\n";
+        x << "      <agent" << attr("name", a.name);
+        if (a.lambdaMus   > 0.0f) x << attr("lambdaMus",   a.lambdaMus);
+        if (a.lambdaBlood > 0.0f) x << attr("lambdaBlood", a.lambdaBlood);
+        if (a.lambdaFat   > 0.0f) x << attr("lambdaFat",   a.lambdaFat);
+        if (a.volatility  > 0.0f) x << attr("volatility",  a.volatility);
+        if (a.bottleSize  > 0.0f) x << attr("bottleSize",  a.bottleSize);
+        if (a.lambdaVrg   > 0.0f) x << attr("lambdaVrg",   a.lambdaVrg);
+        if (a.bottleCost  > 0.0f) x << attr("bottleCost",  a.bottleCost);
+        x << "/>\n";
     }
     x << "    </agents>\n";
     x << "  </params>\n";

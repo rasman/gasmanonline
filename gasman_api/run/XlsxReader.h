@@ -440,6 +440,9 @@ inline GasManInput parseXlsxFile(const std::string& path)
         inp.vrgFlow = getCellF(grid, patRow + 9,  1, inp.vrgFlow);
         inp.fatFlow = getCellF(grid, patRow + 10, 1, inp.fatFlow);
         inp.musFlow = getCellF(grid, patRow + 11, 1, inp.musFlow);
+
+        // The template always carries these blocks, so mark them present.
+        inp.hasWeight = inp.hasVolumes = inp.hasFlows = true;
     }
 
     // ── Agents ───────────────────────────────────────────────────────────────

@@ -1,0 +1,42 @@
+# GasMan simulation - MINIMAL input
+# =============================================================================
+# The ONLY required blocks are [agent] (just a name) and [settings].
+# Everything else falls back to gasman.ini - the ini wins when omitted.
+#
+# OPTIONAL blocks/keys (all default from gasman.ini if left out):
+#   [patient] weight_kg  - patient weight in kg. Also sets the allometric
+#                          breath-interval (DT) unless dt_ms is given below.
+#   [patient] dt_ms      - integration time-step / breath interval, in ms.
+#                          Omit for the weight-derived allometric value
+#                          (~6000 ms at 70 kg). This is the per-breath step;
+#                          the model is validated around it - finer is not
+#                          "more physiological", just a finer ODE solve.
+#   [volumes] vrg fat ven alv mus  - compartment volumes (litres)
+#   [flows]   vrg fat mus          - blood-flow fractions of cardiac output
+#   [agent]   lambdaBlood lambdaVrg lambdaMus lambdaFat volatility
+#             bottleSize bottleCost - per-agent constants. Taken from the
+#                          agent's own gasman.ini section when omitted.
+#
+# [settings] columns, one row per adjustment event:
+#   va      - alveolar ventilation (L/min)
+#   fgf     - fresh gas flow (L/min)
+#   circuit - Semi | Open | Closed | Ideal
+#   time    - H:MM:SS  (hours MAY exceed 24, e.g. 28:00:00 for long cases)
+#   co      - cardiac output (L/min)
+#   del     - vaporiser dial / delivered % for the agent
+#   inject  - bolus injection flag (0 = none, 1 = inject)
+#   multi-agent: use del1,inject1,del2,inject2,... (one pair per [agent] block)
+# =============================================================================
+
+[agent]
+name,Sevoflurane
+
+[patient]
+dt_ms,6000
+
+[settings]
+va,fgf,circuit,time,co,del,inject
+4,8,Semi,0:00:00,5,3.7,0
+4,2,Semi,0:01:00,5,2.9,0
+4,2,Semi,0:05:00,5,2.5,0
+4,2,Semi,0:10:00,5,2.2,0

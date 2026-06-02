@@ -101,6 +101,93 @@ start build\gasman_api.sln
 
 ---
 
+## Getting started — end to end
+
+A minimal setup needs three things in one place: the built **binary**, the
+**`gasman.ini`** settings file, and your **scenario**.
+
+**1. Build** (see Quick start above). Binaries and a copy of `gasman.ini` land in
+`gasman_api/compiled/`.
+
+**2. Know where `gasman.ini` must be.** Every entry point looks for `gasman.ini`
+next to the binary (the build copies it there automatically). It holds the agent
+library (partition coefficients, volatility, bottle sizes) and the default
+patient (weight, compartment volumes, blood-flow ratios). **These defaults are
+the fallback for anything your scenario omits — the ini wins when a value is not
+supplied.**
+
+**3. Write a minimal scenario.** The only required blocks are an `[agent]` name
+and a `[settings]` table. Everything else falls back to `gasman.ini`. See
+[`examples/simulation_minimal.csv`](examples/simulation_minimal.csv):
+
+```csv
+[agent]
+name,Sevoflurane
+
+[settings]
+va,fgf,circuit,time,co,del,inject
+4,8,Semi,0:00:00,5,3.7,0
+4,2,Semi,0:01:00,5,2.9,0
+4,2,Semi,0:05:00,5,2.5,0
+4,2,Semi,0:10:00,5,2.2,0
+```
+
+**4. Run it** — either the self-contained CLI or the Python example. Both honour
+the minimal form (ini fills the rest) and the `dt_ms` override:
+
+```bash
+# CLI (no Python, no shared lib):
+compiled/gasman_run examples/simulation_minimal.csv --output result.csv
+
+# Python (ctypes → shared lib):
+python examples/python_example.py examples/simulation_minimal.csv result.csv
+```
+
+> `--interp` (second-by-second display interpolation) is Python-only — it is a
+> post-processing step on the returned CSV, not an engine feature.
+
+**Optional overrides** (all default from `gasman.ini` when omitted):
+
+| Where | Key(s) | Effect |
+|---|---|---|
+| `[patient]` | `weight_kg` | patient weight; also sets the allometric breath-interval (DT) |
+| `[patient]` | `dt_ms` | integration time-step / breath interval in ms (overrides allometric) |
+| `[volumes]` | `vrg fat ven alv mus` | compartment volumes (L) |
+| `[flows]` | `vrg fat mus` | blood-flow fractions of cardiac output |
+| `[agent]` | `lambdaBlood lambdaVrg lambdaMus lambdaFat volatility bottleSize bottleCost` | per-agent constants (else from the agent's ini section) |
+
+### Time step (DT) and output resolution
+
+The engine advances in discrete steps of **DT** — one nominal breath. By default
+DT is derived allometrically from patient weight (~6000 ms = 10 breaths/min at
+70 kg; finer for lighter patients, coarser for heavier). Set `dt_ms` in
+`[patient]` to override it with a fixed value.
+
+**The engine never returns rows faster than DT.** If you request a finer output
+interval than DT, it is clamped to DT — the model only has real data at DT ticks,
+so a finer interval would merely repeat values. The PK trajectory is nearly
+invariant to DT anyway (exact per-step exponential integration plus adaptive
+sub-stepping); a finer DT is a more precise solution of the continuous equations,
+not a more faithful model of discrete breathing.
+
+To **display** second-by-second values, upsample the DT-spaced output with the
+Python example's `--interp` option, which does first-order (linear) interpolation
+between ticks (no new physiology, just a straight line between real points):
+
+```bash
+# DT≈6 s engine output, linearly interpolated to 1 s for plotting:
+python examples/python_example.py examples/simulation_minimal.csv result.csv --interp=1
+```
+
+### Excel input
+
+In `examples/gasman_template.xlsx` the **`time` column is formatted as Text**, so
+values like `8:30:00` stay literal instead of being converted to an Excel
+time-of-day serial (which also cannot represent times ≥ 24:00:00). Keep that
+column as Text when adding rows; enter times as `H:MM:SS`.
+
+---
+
 ## Tool reference
 
 ### `gasman_run` — self-contained simulation runner
@@ -150,7 +237,8 @@ const char* GasManJsonToCsv(
     int         len,       // byte length of jsonStr
     int         startSecond,
     int         endSecond,
-    int         everySeconds
+    int         everySeconds   // clamped up to DT — output is never finer than
+                               // one integration step (one nominal breath)
 );
 
 /* Structured error reporting -------------------------------------------- */
@@ -218,27 +306,36 @@ Examples:
   gasman_convert examples/simulation_template.csv --format xml
 ```
 
-**CSV format** — edit `examples/simulation_template.csv` as your starting point.
+**CSV format** — edit `examples/simulation_template.csv` for the fully-specified
+form, or `examples/simulation_minimal.csv` for the smallest valid input.
 
-Single-agent (use `del` / `inject`):
+Only `[agent]` (a name) and `[settings]` are **required**; `[patient]`,
+`[volumes]`, `[flows]`, and the per-agent constants are all optional and fall
+back to `gasman.ini`. Single-agent (use `del` / `inject`):
+
+```csv
+[agent]
+name,Sevoflurane
+
+[settings]
+va,fgf,circuit,time,co,del,inject
+4,8,Semi,0:00:00,5,3.7,0
+4,2,Semi,0:05:00,5,2.5,0
+```
+
+Add the optional blocks to override the ini defaults (e.g. a non-default weight,
+or `dt_ms` to fix the time step):
 
 ```csv
 [patient]
 weight_kg,70
+dt_ms,6000
 
 [volumes]
 vrg,6.0  fat,14.5  ven,1.0  alv,2.5  mus,33.0
 
 [flows]
 vrg,0.76  fat,0.06  mus,0.18
-
-[agent]
-name,Sevoflurane
-
-[settings]
-va,fgf,circuit,time,co,del,inject
-4,8,Semi,00:00:00,5,3.7,0
-4,2,Semi,00:05:00,5,2.5,0
 ```
 
 Multi-agent (add a second `[agent]` block; use `del1`/`inject1`, `del2`/`inject2`, …):
@@ -289,7 +386,18 @@ python python_example.py example_1.xml
 python python_example.py data.json
 python python_example.py gasman_template.xlsx
 python python_example.py example_1.xml my_output.csv
+
+# Minimal scenario (only agent + settings; everything else from gasman.ini):
+python python_example.py simulation_minimal.csv result.csv
+
+# Upsample the DT-spaced output to 1 s by linear interpolation (display only):
+python python_example.py simulation_minimal.csv result.csv --interp=1
 ```
+
+The `--interp[=SEC]` flag linearly interpolates between the engine's DT ticks to
+produce a finer, evenly spaced grid (default 1 s). It adds display resolution
+only — no physiology beyond the straight line between real points. The
+`interpolate_csv()` helper can be imported and reused.
 
 This file is intentionally kept simple — use it as a starting point for
 integrating the shared library into a Python server or notebook.

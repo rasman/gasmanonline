@@ -8,10 +8,17 @@ Shows how to:
   3. Call GasManJsonToCsv() and write the CSV result.
 
 Usage:
-    python python_example.py <input_file> [output_file]
+    python python_example.py <input_file> [output_file] [--interp[=SEC]]
 
     input_file  — .xml, .json, .csv, or .xlsx scenario
     output_file — optional path for the CSV output (default: output.csv)
+    --interp    — upsample the engine output to a finer, evenly spaced grid by
+                  first-order (linear) interpolation.  Default step is 1 s
+                  (--interp=2 for 2 s, etc.).  The engine never returns data
+                  faster than the integration step DT (one nominal breath,
+                  ~6 s); this option fills the gaps for display only and adds
+                  no physiological information beyond the straight-line
+                  assumption between DT ticks.
 
 Requirements:
     pip install pandas openpyxl   (only needed for .xlsx input)
@@ -230,28 +237,39 @@ def parse_csv(file_path: str) -> dict:
             "agent_settings": agent_settings,
         })
 
-    weight_kg = float(patient.get("weight_kg", 70.0))
+    # Emit patient sub-objects ONLY for values the CSV actually supplies.
+    # Anything omitted is left out of the JSON entirely, so the DLL falls back
+    # to its gasman.ini defaults (the ini wins).  In practice a scenario only
+    # needs an [agent] name and a [settings] block; [patient]/[volumes]/[flows]
+    # are all optional.  Only recognised compartment keys are forwarded.
+    patient_obj = {}
+    if "weight_kg" in patient:
+        patient_obj["weight"] = {"value": float(patient["weight_kg"]),
+                                 "unit": "kilograms"}
+
+    vol_obj = {k: float(v) for k, v in volumes.items()
+               if k in ("vrg", "fat", "ven", "alv", "mus")}
+    if vol_obj:
+        patient_obj["volumes"] = vol_obj
+
+    flow_obj = {k: float(v) for k, v in flows.items()
+                if k in ("vrg", "fat", "mus")}
+    if flow_obj:
+        patient_obj["flows"] = flow_obj
+
+    params = {"agents": agent_objects}
+    if patient_obj:
+        params["patient"] = patient_obj
+
+    # Optional manual integration time-step (ms), from a [patient] dt_ms row.
+    # Overrides the weight-derived allometric DT in the DLL.  Omit to keep the
+    # automatic behaviour.
+    if "dt_ms" in patient:
+        params["dt_ms"] = float(patient["dt_ms"])
 
     return {
         "description": "",
-        "params": {
-            "patient": {
-                "weight":  {"value": weight_kg, "unit": "kilograms"},
-                "volumes": {
-                    "vrg": float(volumes.get("vrg", 6.0)),
-                    "fat": float(volumes.get("fat", 14.5)),
-                    "ven": float(volumes.get("ven", 1.0)),
-                    "alv": float(volumes.get("alv", 2.5)),
-                    "mus": float(volumes.get("mus", 33.0)),
-                },
-                "flows": {
-                    "vrg": float(flows.get("vrg", 0.76)),
-                    "fat": float(flows.get("fat", 0.06)),
-                    "mus": float(flows.get("mus", 0.18)),
-                },
-            },
-            "agents": agent_objects,
-        },
+        "params": params,
         "settings": setting_objects,
     }
 
@@ -422,14 +440,92 @@ def _serialize(data):
     return data
 
 
+def interpolate_csv(csv_text: str, step_sec: int = 1) -> str:
+    """First-order (linear) interpolation of the engine's DT-spaced output onto
+    a finer, evenly spaced time grid (default 1 s).
+
+    The simulation engine only produces real values at DT ticks (one nominal
+    breath, ~6 s) and never returns rows faster than DT.  This routine draws a
+    straight line between successive ticks to show second-by-second values.  It
+    is a *display* convenience only — it introduces no new physiology beyond the
+    linear assumption between ticks.  Numeric columns are interpolated; the
+    Agent column is carried; Time is rebuilt at the finer step.  Multi-agent
+    output (several rows per timestamp) is handled per agent.
+    """
+    import bisect
+    lines = [ln for ln in csv_text.splitlines() if ln.strip()]
+    if len(lines) < 3:
+        return csv_text
+    header = lines[0].split(",")
+    ti, ai = header.index("Time"), header.index("Agent")
+
+    def t2s(t):
+        p = t.split(":")
+        return int(p[0]) * 3600 + int(p[1]) * 60 + int(p[2])
+
+    def s2t(s):
+        # Match the engine's unpadded "H:M:S" time format so a single parser
+        # handles both raw and interpolated output.
+        h, r = divmod(int(s), 3600)
+        m, sec = divmod(r, 60)
+        return f"{h}:{m}:{sec}"
+
+    series, order = {}, []
+    for ln in lines[1:]:
+        c = ln.split(",")
+        a = c[ai]
+        if a not in series:
+            series[a] = []
+            order.append(a)
+        series[a].append((t2s(c[ti]), c))
+    for a in order:
+        series[a].sort(key=lambda x: x[0])
+    times = {a: [r[0] for r in series[a]] for a in order}
+
+    t0 = min(v[0][0] for v in series.values())
+    t1 = max(v[-1][0] for v in series.values())
+
+    out = [",".join(header)]
+    for sec in range(t0, t1 + 1, step_sec):
+        for a in order:
+            ts, rows = times[a], series[a]
+            if sec <= ts[0]:
+                c = list(rows[0][1])
+            elif sec >= ts[-1]:
+                c = list(rows[-1][1])
+            else:
+                j = bisect.bisect_right(ts, sec) - 1
+                t_lo, c_lo = ts[j], rows[j][1]
+                t_hi, c_hi = ts[j + 1], rows[j + 1][1]
+                f = (sec - t_lo) / (t_hi - t_lo)
+                c = list(c_lo)
+                if f > 0.0:
+                    for i in range(len(header)):
+                        if i in (ti, ai):
+                            continue
+                        try:
+                            lo, hi = float(c_lo[i]), float(c_hi[i])
+                            c[i] = f"{lo + (hi - lo) * f:.6g}"
+                        except ValueError:
+                            c[i] = c_lo[i]
+            c[ti] = s2t(sec)
+            out.append(",".join(c))
+    return "\n".join(out) + "\n"
+
+
 def run(input_file: str, output_file: str = "output.csv",
-        start_sec: int = 0, end_sec: int = -1, every_sec: int = 10) -> None:
+        start_sec: int = 0, end_sec: int = -1, every_sec: int = 10,
+        interp: int = 0) -> None:
     """
     Load gasmanAPI, parse *input_file*, run the simulation, write *output_file*.
 
     end_sec defaults to -1, which means "auto": the simulation runs to at least
     the time of the last settings entry (minimum 300 s).  Pass an explicit value
     to override.
+
+    interp > 0 upsamples the engine output to a *interp*-second grid by linear
+    interpolation.  In that mode the engine is asked for its finest real data
+    (every_sec=1, which the DLL clamps up to DT), then the gaps are filled here.
     """
     lib = load_gasmanAPI()   # must load before pandas to avoid CRT version conflict
 
@@ -453,8 +549,12 @@ def run(input_file: str, output_file: str = "output.csv",
     if end_sec < 0:
         end_sec = max(300, _last_setting_sec(data))
 
+    # When interpolating, ask the engine for its finest real grid (every_sec=1,
+    # which the DLL clamps up to DT) so the interpolation starts from DT ticks.
+    dll_every = 1 if interp > 0 else every_sec
+
     payload = json.dumps(_serialize(data)).encode("utf-8")
-    result  = lib.GasManJsonToCsv(payload, len(payload), start_sec, end_sec, every_sec)
+    result  = lib.GasManJsonToCsv(payload, len(payload), start_sec, end_sec, dll_every)
     err_code = lib.GasManLastError()
 
     if result is None:
@@ -465,16 +565,29 @@ def run(input_file: str, output_file: str = "output.csv",
         err_msg = lib.GasManErrorString(err_code).decode("utf-8")
         raise RuntimeError(f"Simulation failed [code {err_code}: {err_msg}] — {csv_text}")
 
+    if interp > 0:
+        csv_text = interpolate_csv(csv_text, interp)
+
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(csv_text)
-    print(f"CSV output written to: {output_file}")
+    print(f"CSV output written to: {output_file}"
+          + (f" (interpolated to {interp}s)" if interp > 0 else ""))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) not in (2, 3):
+    # Parse positional args + optional --interp[=SEC] flag.
+    _interp = 0
+    _pos = []
+    for _a in sys.argv[1:]:
+        if _a.startswith("--interp"):
+            _interp = int(_a.split("=", 1)[1]) if "=" in _a else 1
+        else:
+            _pos.append(_a)
+
+    if len(_pos) not in (1, 2):
         print(__doc__)
         sys.exit(1)
 
-    _input  = sys.argv[1]
-    _output = sys.argv[2] if len(sys.argv) == 3 else "output.csv"
-    run(_input, _output)
+    _input  = _pos[0]
+    _output = _pos[1] if len(_pos) == 2 else "output.csv"
+    run(_input, _output, interp=_interp)
