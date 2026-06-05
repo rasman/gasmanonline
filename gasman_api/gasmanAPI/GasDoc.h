@@ -108,7 +108,13 @@ private:
 	
     RES_ARRAY &ResultsFromHistoryAt(uint32_t dwTime, int nGas);
     inline uint32_t GetDwTime(float fMin) {
-        uint32_t dwt = uint32_t(fMin * 60000.0F);
+        // Round to the nearest millisecond rather than truncating.  fMin is a
+        // float minute (e.g. seconds/60), so fMin*60000 carries float error:
+        // 126 s -> 2.1f -> 125999.99 -> truncation gave 125999, which falls in
+        // the PREVIOUS integration tick and made the readback return the prior
+        // tick's value (a one-sample "stall" / saccade in fine-grained output).
+        // Rounding recovers the intended millisecond/tick.
+        uint32_t dwt = uint32_t(fMin * 60000.0F + 0.5F);
         assert(dwt <= m_dwHighTime + 100L);
         return std::min(dwt, m_dwHighTime);
     }

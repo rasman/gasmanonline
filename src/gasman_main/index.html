@@ -17,9 +17,32 @@
     <style>
       html, body { padding: 0; margin: 0; overflow: hidden; height: 100% }
       #screen { width: 100%; height: 100%; }
+      #qterror {
+        display: none;
+        max-width: 40em;
+        margin: 2em auto;
+        padding: 0 1.25em;
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+        color: #222;
+        text-align: left;
+      }
+      #qterror h2 { text-align: center; }
+      #qterror ul { padding-left: 1.25em; }
+      #qterror .reload {
+        display: inline-block;
+        margin-top: 0.5em;
+        padding: 0.5em 1.1em;
+        font: inherit;
+        cursor: pointer;
+        border: 1px solid #888;
+        border-radius: 6px;
+        background: #f4f4f4;
+      }
+      #qterror .note { color: #666; font-size: 0.9em; }
     </style>
   </head>
-  <body onload="init()">
+  <body>
     <figure style="overflow:visible;" id="qtspinner">
       <center style="margin-top:1.5em; line-height:150%">
         <img src="gasman-logo.png" style="display:block">
@@ -30,19 +53,53 @@
     </figure>
     <div id="screen"></div>
 
+    <!-- Shown only if the app fails to start (blocked load, etc.) -->
+    <div id="qterror">
+      <center><img src="gasman-logo.png" style="display:block"></center>
+      <h2>Gas Man&reg; couldn't start</h2>
+      <p>The simulator runs as a WebAssembly application with background workers.
+         Some <strong>ad blockers, script blockers, or anti-cryptomining tools</strong>
+         mistake that pattern for a miner and block it, which stops Gas Man from loading.</p>
+      <p>Try any of these:</p>
+      <ul>
+        <li>Disable your ad / script / privacy blocker for
+            <strong>gasmanweb.com</strong>, then reload.</li>
+        <li>Open this page in a <strong>private / incognito window</strong>.</li>
+        <li>Try a different browser (Chrome, Edge, or Safari).</li>
+      </ul>
+      <center><a href="#" class="reload" id="qtreload">Reload Gas Man</a></center>
+      <p class="note">On a slow connection the app is a large download and may
+         still be loading — if so, it will appear here shortly without any action.</p>
+    </div>
+
     <script type="text/javascript">
         async function init()
         {
             const spinner = document.querySelector('#qtspinner');
             const screen  = document.querySelector('#screen');
             const status  = document.querySelector('#qtstatus');
+            const errorUi = document.querySelector('#qterror');
+
+            let started = false;   // set once the wasm app has loaded
 
             const showUi = (ui) => {
-                [spinner, screen].forEach(element => element.style.display = 'none');
+                [spinner, screen, errorUi].forEach(element => element.style.display = 'none');
                 if (screen === ui)
                     screen.style.position = 'default';
                 ui.style.display = 'block';
             }
+
+            const showError = () => {
+                if (started) return;   // app loaded after all — don't override it
+                showUi(errorUi);
+            }
+
+            // The most common failure (a blocker cancelling the wasm/worker fetch)
+            // makes qtLoad hang rather than reject, so a try/catch alone never
+            // fires.  A watchdog surfaces guidance if nothing has loaded in time.
+            // A late success still wins, because onLoaded sets started=true and
+            // switches to the app even after this fires.
+            const watchdog = setTimeout(showError, 25000);
 
             try {
                 showUi(spinner);
@@ -50,15 +107,20 @@
 
                 const instance = await qtLoad({
                     qt: {
-                        onLoaded: () => showUi(screen),
+                        onLoaded: () => { started = true; clearTimeout(watchdog); showUi(screen); },
                         onExit: exitData =>
                         {
+                            clearTimeout(watchdog);
                             status.innerHTML = 'Application exit';
                             status.innerHTML +=
                                 exitData.code !== undefined ? ` with code ${exitData.code}` : '';
                             status.innerHTML +=
                                 exitData.text !== undefined ? ` (${exitData.text})` : '';
-                            showUi(spinner);
+                            // A WASM app that exits/aborts (rather than running) is a
+                            // failure to the user — show the guidance instead of a
+                            // frozen spinner.
+                            started = false;
+                            showError();
                         },
                         entryFunction: window.gasman_entry,
                         containerElements: [screen],
@@ -67,8 +129,28 @@
             } catch (e) {
                 console.error(e);
                 console.error(e.stack);
+                clearTimeout(watchdog);
+                showError();
             }
         }
+
+        // Start the app from inside this (already-running) inline script rather
+        // than via a <body onload="..."> attribute: some privacy/security
+        // browser extensions and CSP setups strip inline event-handler
+        // attributes (onload/onclick), which would silently prevent the app —
+        // and this loading/error logic — from ever running.  addEventListener
+        // here is not an inline attribute, so it is not affected.
+        window.addEventListener('load', init);
+
+        // Wire the Reload link the same way (no inline onclick).
+        document.addEventListener('DOMContentLoaded', function () {
+            var reload = document.getElementById('qtreload');
+            if (reload)
+                reload.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    location.reload();
+                });
+        });
     </script>
     <script src="gasman.js"></script>
     <script type="text/javascript" src="qtloader.js"></script>

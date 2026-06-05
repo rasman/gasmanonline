@@ -221,7 +221,12 @@ private:
 	QVector<float> pctMacForTargetsAtTime(QList<int>& targets, quint32 dwTime);
 	bool shouldBreakAtTime(quint32 dwTime);
 	inline quint32 GetDwTime( float fMin ) {
-		quint32 dwt = quint32( fMin * 60000.0F );
+		// Round to the nearest millisecond rather than truncating.  fMin is a
+		// float minute, so fMin*60000 carries float error: e.g. 126 s -> 2.1f
+		// -> 125999.99 -> truncation gave 125999, which falls in the PREVIOUS
+		// integration tick and made the value lookup return the prior tick's
+		// value (a one-sample "stall" / saccade visible in fine-grained reads).
+		quint32 dwt = quint32( fMin * 60000.0F + 0.5F );
 		Q_ASSERT( dwt <= m_dwHighTime + 100L );
 		return qMin( dwt, m_dwHighTime );
 	}
@@ -234,6 +239,8 @@ private:
 	QString getDefaultAgentColor(const QString &agent);
 	QString getDefaultAgentColor(const int nGas) const;
 	EventList SampComp( GasSample &s1, GasSample &s2 ) const;
+	void replayRunTo( quint32 targetMs );               // synchronously advance simulation to targetMs
+	void applyXmlSetting( const QDomElement &elem );    // apply one <setting> element during load
 	QDomElement createDomElement(
 		QDomDocument& doc, 
 		const QString& name, 

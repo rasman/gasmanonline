@@ -1066,12 +1066,12 @@ retry:	for ( nv = 0; nv < 1 << nVernier; ++nv ) {
 		bFlush = false;
 	}
 
-	// Save the new 'old' interval  
+	// Save the new 'old' interval
 
 	if ( dwBaseTime <= m_dwOldStart && m_dwOldStart <= dwNext && dwNext <= m_dwOldNext ) {
 		m_dwOldStart = dwBaseTime;
 		if ( m_dwOldNext - m_dwOldStart > m_dwSampTime )
-			m_dwOldNext = m_dwOldStart + m_dwSampTime; 
+			m_dwOldNext = m_dwOldStart + m_dwSampTime;
 	}
 	else
 	if ( m_dwOldStart <= dwBaseTime && dwBaseTime <= m_dwOldNext && m_dwOldNext <= dwNext ) {
@@ -3209,6 +3209,73 @@ static ACktType circuitTypeFromString(const QString& s)
 	return SEMI_CKT;
 }
 
+// Parse "HH:MM:SS" → milliseconds.
+static quint32 parseTimeStr(const QString& timeStr)
+{
+	QStringList hms = timeStr.split(':');
+	if (hms.size() != 3) return 0;
+	return (quint32)(hms[0].toUInt() * 3600 + hms[1].toUInt() * 60 + hms[2].toUInt()) * 1000;
+}
+
+// Synchronously advance the simulation to targetMs, mirroring the API's loadJsonRunTo.
+// Sets state to RUNNING_STATE for the duration so ExtendResultSet() is satisfied.
+void GasDoc::replayRunTo(quint32 targetMs)
+{
+	if (targetMs == 0 || m_dwTime >= targetMs)
+		return;
+	const AState savedState = m_theState;
+	m_bSpeedup        = true;
+	m_theState        = RUNNING_STATE;
+	m_dwNextDisplayTime = 0L;   // suppress CallViews() inside ExtendResultSet
+	while (m_dwTime < targetMs) {
+		if (!ExtendResultSet())
+			break;
+		m_dwTime = m_dwHighTime = m_dwCalcTime;
+	}
+	m_theState  = savedState;
+	m_bSpeedup  = false;
+}
+
+// Apply one <setting> element: advance the clock, truncate, then set all parameters.
+// Uses nullptr for the 'that' pointer on every Set* call so we drive each setter as an
+// internal (non-user) change — this avoids the circuit-type handler recalculating FGF
+// and avoids double-Truncate.  We call Truncate() once explicitly instead.
+void GasDoc::applyXmlSetting(const QDomElement& elem)
+{
+	// 1. Advance simulation to this setting's timestamp.
+	replayRunTo(parseTimeStr(elem.attribute("time")));
+
+	// 2. Mark this moment as a change point (forces a new sample on next step).
+	Truncate();
+
+	// 3. Circuit type — set internally to skip FGF recalculation side-effect.
+	ACktType ct = circuitTypeFromString(elem.attribute("circuit", "Semi"));
+	SetCircuit(nullptr,
+		ct == OPEN_CKT   ? tr("Open", "open circuit") :
+		ct == CLOSED_CKT ? tr("Closed") :
+		ct == IDEAL_CKT  ? tr("Ideal") : tr("Semi-closed"));
+
+	// 4. Scalar parameters.
+	if (!elem.attribute("fgf").isEmpty()) SetFGF(nullptr, elem.attribute("fgf").toFloat());
+	if (!elem.attribute("va") .isEmpty()) SetVA (nullptr, elem.attribute("va") .toFloat());
+	if (!elem.attribute("co") .isEmpty()) SetCO (nullptr, elem.attribute("co") .toFloat());
+
+	// 5. Circuit flags encoded in the suffix, e.g. "Semi(VUR)*":
+	//    V → vapour enabled; U → uptake DISABLED; R → return DISABLED; * → flush (transient).
+	QString circuit = elem.attribute("circuit");
+	m_bVapEnb = circuit.contains('V', Qt::CaseSensitive);
+	m_bUptEnb = !circuit.contains('U', Qt::CaseSensitive);
+	m_bRtnEnb = !circuit.contains('R', Qt::CaseSensitive);
+
+	// 6. Agent settings (DEL).
+	QDomElement asDom = elem.firstChildElement("agentsettings");
+	if (!asDom.isNull()) {
+		QDomNodeList asList = asDom.elementsByTagName("agentsetting");
+		for (int i = 0; i < asList.size() && i < m_gasArray.size(); i++)
+			SetDEL(nullptr, i, asList.at(i).toElement().attribute("del", "0").toFloat());
+	}
+}
+
 bool GasDoc::loadFromXmlContent(const QString &fileName, const QByteArray &content)
 {
 	QDomDocument xmlDoc;
@@ -3274,25 +3341,14 @@ bool GasDoc::loadFromXmlContent(const QString &fileName, const QByteArray &conte
 		}
 	}
 
-	// First setting — initial simulation state
+	// Replay all settings in order — each one advances the simulation clock,
+	// truncates at that time, then applies the new parameters.
 	QDomElement settingsElem = root.firstChildElement("settings");
 	if (!settingsElem.isNull()) {
-		QDomElement first = settingsElem.firstChildElement("setting");
-		if (!first.isNull()) {
-			SetFGF(gasMainWindow, first.attribute("fgf", "5").toFloat());
-			SetVA (gasMainWindow, first.attribute("va",  "4").toFloat());
-			SetCO (gasMainWindow, first.attribute("co",  "5").toFloat());
-			SetCircuit(gasMainWindow,
-				QString(QChar(circuitTypeFromString(first.attribute("circuit","Semi")) == OPEN_CKT   ? 'O' :
-				               circuitTypeFromString(first.attribute("circuit","Semi")) == CLOSED_CKT ? 'C' :
-				               circuitTypeFromString(first.attribute("circuit","Semi")) == IDEAL_CKT  ? 'I' : 'S')));
-
-			QDomElement asDom = first.firstChildElement("agentsettings");
-			if (!asDom.isNull()) {
-				QDomNodeList asList = asDom.elementsByTagName("agentsetting");
-				for (int i = 0; i < asList.size() && i < m_gasArray.size(); i++)
-					SetDEL(gasMainWindow, i, asList.at(i).toElement().attribute("del","0").toFloat());
-			}
+		QDomElement settingElem = settingsElem.firstChildElement("setting");
+		while (!settingElem.isNull()) {
+			applyXmlSetting(settingElem);
+			settingElem = settingElem.nextSiblingElement("setting");
 		}
 	}
 
@@ -3361,22 +3417,42 @@ bool GasDoc::loadFromJsonContent(const QString &fileName, const QByteArray &cont
 			AddAgent(agents[i].toObject()["name"].toString());
 	}
 
-	// First setting — initial simulation state
+	// Replay all settings in order.
 	QJsonArray settings = root["settings"].toArray();
-	if (!settings.isEmpty()) {
-		QJsonObject first = settings[0].toObject();
-		SetFGF(gasMainWindow, (float)first["fgf"].toDouble(5.0));
-		SetVA (gasMainWindow, (float)first["va"] .toDouble(4.0));
-		SetCO (gasMainWindow, (float)first["co"] .toDouble(5.0));
+	for (int si = 0; si < settings.size(); si++) {
+		QJsonObject s = settings[si].toObject();
 
-		QString ctype = first["circuit"].toString("Semi");
+		// Advance simulation clock to this setting's timestamp.
+		replayRunTo(parseTimeStr(s["time"].toString("0:0:0")));
+
+		// Mark this moment as a change point.
+		Truncate();
+
+		// Circuit — set internally to skip FGF recalculation side-effect.
+		QString ctype = s["circuit"].toString("Semi");
 		ACktType ct   = circuitTypeFromString(ctype);
-		SetCircuit(gasMainWindow,
-			QString(QChar(ct == OPEN_CKT ? 'O' : ct == CLOSED_CKT ? 'C' : ct == IDEAL_CKT ? 'I' : 'S')));
+		SetCircuit(nullptr,
+			ct == OPEN_CKT   ? tr("Open", "open circuit") :
+			ct == CLOSED_CKT ? tr("Closed") :
+			ct == IDEAL_CKT  ? tr("Ideal") : tr("Semi-closed"));
 
-		QJsonArray agentSettings = first["agent_settings"].toArray();
-		for (int i = 0; i < agentSettings.size() && i < m_gasArray.size(); i++)
-			SetDEL(gasMainWindow, i, (float)agentSettings[i].toObject()["del"].toDouble(0.0));
+		// Scalar parameters.
+		if (s.contains("fgf")) SetFGF(nullptr, (float)s["fgf"].toDouble());
+		if (s.contains("va"))  SetVA (nullptr, (float)s["va"] .toDouble());
+		if (s.contains("co"))  SetCO (nullptr, (float)s["co"] .toDouble());
+
+		// Explicit flags object (native JSON format).
+		QJsonObject flags = s["flags"].toObject();
+		if (!flags.isEmpty()) {
+			m_bVapEnb = flags["vapor_enabled"] .toBool(m_bVapEnb);
+			m_bUptEnb = flags["uptake_enabled"].toBool(m_bUptEnb);
+			m_bRtnEnb = flags["return_enabled"].toBool(m_bRtnEnb);
+		}
+
+		// Agent settings (DEL).
+		QJsonArray agentSettings = s["agent_settings"].toArray();
+		for (int j = 0; j < agentSettings.size() && j < m_gasArray.size(); j++)
+			SetDEL(nullptr, j, (float)agentSettings[j].toObject()["del"].toDouble(0.0));
 	}
 
 	setCurrentFile(fileName);
@@ -3848,7 +3924,7 @@ QDomElement GasDoc::settingToXml(QDomDocument& doc, GasSample& sample)
 	GasAttributeMap attributes;
 	attributes["time"] = QString("%1:%2:%3").arg( hh, 2, 10, QLatin1Char( '0' ) ).arg( mm, 2, 10, QLatin1Char( '0' ) ).arg( ss, 2, 10, QLatin1Char( '0' ) );
 
-	float tmp = time/60000;
+	float tmp = time/60000.0F;
 	attributes["va"] = GetVA(tmp);
 	attributes["co"] = GetCO(tmp);
 	attributes["fgf"] = GetFGF(tmp, 0);
