@@ -1576,6 +1576,16 @@ static double jsonNum(const json& v, double dflt = 0.0)
     return dflt;
 }
 
+// dt_ms may be written either as a bare number/string (e.g. 6000) or, mirroring
+// the weight field, as an object {"value": 6000, "unit": "ms"}.  Accept both so
+// the natural {value,unit} form is honoured instead of silently ignored.
+static double jsonDtMs(const json& v)
+{
+    if (v.is_object() && v.contains("value"))
+        return jsonNum(v["value"]);
+    return jsonNum(v);
+}
+
 bool GasDoc::loadJsonFile(const char *jsonStr, int len)
 {
     if (!newDocument()) {
@@ -1670,7 +1680,7 @@ bool GasDoc::loadJsonParams(json& elem)
         }
         // tagName/XML scenarios may carry dt_ms at the params level too.
         if (name == "dt_ms")
-            applyManualDt(jsonNum(node.value()));
+            applyManualDt(jsonDtMs(node.value()));
     }
     return true;
 }
@@ -1692,7 +1702,7 @@ bool GasDoc::loadJsonPatient(json& elem)
         // Tolerate dt_ms placed inside the patient object (some converters nest
         // it there); the sticky flag means order vs the weight key is irrelevant.
         if (name == "dt_ms")
-            applyManualDt(jsonNum(node.value()));
+            applyManualDt(jsonDtMs(node.value()));
     }
     return true;
 }
@@ -2170,7 +2180,7 @@ bool GasDoc::loadNativeJsonParams(json& params)
     // sub-stepping — so this mainly controls output/sample granularity.  Absent
     // ⇒ unchanged behaviour (allometric, or plain DT for the ini-default weight).
     if (params.contains("dt_ms"))
-        applyManualDt(jsonNum(params["dt_ms"]));
+        applyManualDt(jsonDtMs(params["dt_ms"]));
 
     return true;
 }
