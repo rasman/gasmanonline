@@ -276,6 +276,20 @@ void GasDoc::SetTimeVariables(uint16_t dt)
     m_dwMaxTime = nMaxHours * 3600L * 1000L;
 }
 
+// Apply a scenario-specified integration step (ms).  Called from every place a
+// dt_ms can appear (top-level params, nested in patient; native or tagName).
+// Marks the step user-pinned so SetWeight()'s allometric DT cannot override it,
+// which makes the time grid identical across patient weights (so e.g. a setting
+// at 12:00:00 lands on a tick for every weight, instead of on a weight-dependent
+// allometric tick that drifts non-monotonically).
+void GasDoc::applyManualDt(double dtMs)
+{
+    if (dtMs >= 100.0 && dtMs <= 60000.0) {
+        SetTimeVariables(static_cast<uint16_t>(dtMs + 0.5));
+        m_dtManual = true;
+    }
+}
+
 bool GasDoc::duplicateAgents()
 {
     std::vector<std::string> agents;
@@ -1417,7 +1431,7 @@ void GasDoc::SetWeight(void *that, const float &fWeight)
     // convention) and consumes already-resolved scenario values, so reproducing
     // those cascades would diverge from the original's replay path.  Hence the
     // remaining Set* methods are deliberately bare assignments.
-    if (m_dwCalcTime == 0 && m_fWeight > 0.0F) {
+    if (m_dwCalcTime == 0 && m_fWeight > 0.0F && !m_dtManual) {
         double factor = 10.0F * sqrt(sqrt(m_fWeight)) / 28.92508F;
         SetTimeVariables(static_cast<uint16_t>(DT * factor + 0.5F));
     }
@@ -1654,6 +1668,9 @@ bool GasDoc::loadJsonParams(json& elem)
         if (name == "agents" && !loadJsonAgents(node.value())) {
             return false;
         }
+        // tagName/XML scenarios may carry dt_ms at the params level too.
+        if (name == "dt_ms")
+            applyManualDt(jsonNum(node.value()));
     }
     return true;
 }
@@ -1672,6 +1689,10 @@ bool GasDoc::loadJsonPatient(json& elem)
         if (name == "flows" && !loadJsonPatientFlows(node.value())) {
             return false;
         }
+        // Tolerate dt_ms placed inside the patient object (some converters nest
+        // it there); the sticky flag means order vs the weight key is irrelevant.
+        if (name == "dt_ms")
+            applyManualDt(jsonNum(node.value()));
     }
     return true;
 }
@@ -2148,11 +2169,8 @@ bool GasDoc::loadNativeJsonParams(json& params)
     // use exact exponential integration per step plus adaptive vernier
     // sub-stepping — so this mainly controls output/sample granularity.  Absent
     // ⇒ unchanged behaviour (allometric, or plain DT for the ini-default weight).
-    if (params.contains("dt_ms")) {
-        double dt = jsonNum(params["dt_ms"]);
-        if (dt >= 100.0 && dt <= 60000.0)
-            SetTimeVariables(static_cast<uint16_t>(dt + 0.5));
-    }
+    if (params.contains("dt_ms"))
+        applyManualDt(jsonNum(params["dt_ms"]));
 
     return true;
 }

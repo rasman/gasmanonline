@@ -158,6 +158,11 @@ private:
     bool loadNativeJsonSettings(json& arr);
     bool loadNativeJsonSetting(json& obj);
     bool loadNativeJsonAgentSetting(json& obj);
+    // Apply a manually specified integration step (ms) from a scenario's dt_ms,
+    // wherever it appears (top-level params, nested in patient, native or
+    // tagName/XML).  Validates the range and marks the step as user-pinned so
+    // the weight-derived allometric DT in SetWeight() can no longer override it.
+    void applyManualDt(double dtMs);
     //signals:
     //    void updateControl();
 
@@ -265,6 +270,11 @@ private:
         std::vector<float> del;   // one entry per active gas
     };
     PostLoadState m_postLoad;
+
+    // True once a scenario has pinned the integration step via dt_ms.  Stops
+    // SetWeight()'s allometric DT from overriding the user's explicit dt_ms,
+    // regardless of the order in which weight vs dt_ms are loaded.
+    bool m_dtManual = false;
 
     uint32_t m_SerializationFlags;
 
