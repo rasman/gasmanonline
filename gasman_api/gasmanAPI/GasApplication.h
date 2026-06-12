@@ -38,7 +38,10 @@ class GasApplication
 public:
     GasApplication();
     ~GasApplication();
-	static std::string createCSV(const char* jsonStr, int len, int startSecond, int endSecond, int everySeconds);
+	// outDtMs (optional) receives the integration step (ms) the engine actually
+	// used for this run — useful to confirm a scenario's dt_ms was applied
+	// rather than the weight-derived allometric default.
+	static std::string createCSV(const char* jsonStr, int len, int startSecond, int endSecond, int everySeconds, uint16_t* outDtMs = nullptr);
     // Read preferences from gasman.ini
     ProfileValue ReadProfile(const std::string &group, const std::string &param, const ProfileValue &defVal) const;
     void WriteProfile(const std::string &group, const std::string &param, const ProfileValue &val);

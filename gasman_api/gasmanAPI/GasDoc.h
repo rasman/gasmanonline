@@ -44,6 +44,7 @@ public:
     inline float GetDeliveredCost(int nGas) { return m_gasArray.at(nGas)->m_fResults[DEL] * GetCostRatio(nGas); }
     inline std::string GetCircuit() const { return m_strCircuit; }
     inline int GetSpeed() const { return m_nSpeed; }
+    inline uint16_t GetDtMs() const { return m_cMSec_dx; } // integration step actually in use (ms)
     inline int GetCurrentSpeed() const { return m_theState == RUNNING_STATE && m_bSpeedup ? AFAP : m_nSpeed; }
     inline float GetTime() const { return (float)(m_dwTime / 1000.0F); }
     inline float GetHighTime() const { return (float)(m_dwHighTime / 1000.0F); }

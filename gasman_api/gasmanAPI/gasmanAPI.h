@@ -83,6 +83,17 @@ GASMAN_API const char* GasManJsonToCsv(
 GASMAN_API int GasManLastError(void);
 
 /* ---------------------------------------------------------------------------
+ * GasManLastDtMs
+ *
+ * Return the integration time-step in milliseconds the engine actually used on
+ * the most recent GasManJsonToCsv call on the calling thread.  This equals the
+ * scenario's dt_ms when one was supplied and applied; otherwise it is the
+ * weight-derived allometric default.  Use it to confirm dt_ms took effect
+ * (e.g. expect 6000 when you set dt_ms=6000).  Returns 0 if no call has run.
+ * -------------------------------------------------------------------------*/
+GASMAN_API int GasManLastDtMs(void);
+
+/* ---------------------------------------------------------------------------
  * GasManErrorString
  *
  * Return a human-readable description for an error code.

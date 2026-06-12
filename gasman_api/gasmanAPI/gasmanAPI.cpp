@@ -31,6 +31,11 @@ static thread_local std::string tl_result;
 // Per-thread error code — set on every call, readable via GasManLastError().
 static thread_local int tl_lastError = GASMAN_OK;
 
+// Per-thread integration step (ms) the engine used on the last call, readable
+// via GasManLastDtMs().  Lets callers confirm a scenario's dt_ms was honored
+// rather than the weight-derived allometric default.  0 until the first run.
+static thread_local int tl_lastDtMs = 0;
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -86,7 +91,9 @@ extern "C" GASMAN_API const char* GasManJsonToCsv(
 
     // Run the simulation.
     try {
-        tl_result = GasApplication::createCSV(jsonStr, len, startSecond, endSecond, everySeconds);
+        uint16_t dtMs = 0;
+        tl_result = GasApplication::createCSV(jsonStr, len, startSecond, endSecond, everySeconds, &dtMs);
+        tl_lastDtMs = dtMs;
     } catch (const std::exception& e) {
         return setError(GASMAN_ERR_EXCEPTION, std::string("Error: ") + e.what());
     } catch (...) {
@@ -108,6 +115,16 @@ extern "C" GASMAN_API const char* GasManJsonToCsv(
 extern "C" GASMAN_API int GasManLastError(void)
 {
     return tl_lastError;
+}
+
+// ---------------------------------------------------------------------------
+// GasManLastDtMs — integration step (ms) the engine used on the last call.
+// Equals the scenario's dt_ms when supplied/applied, otherwise the
+// weight-derived allometric default.  0 if no call has run on this thread.
+// ---------------------------------------------------------------------------
+extern "C" GASMAN_API int GasManLastDtMs(void)
+{
+    return tl_lastDtMs;
 }
 
 // ---------------------------------------------------------------------------

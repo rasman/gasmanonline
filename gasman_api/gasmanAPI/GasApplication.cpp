@@ -103,18 +103,23 @@ GasApplication::~GasApplication()
     temporaryFiles.clear();
 }
 
-std::string GasApplication::createCSV(const char* jsonStr, int len, int startSecond, int endSecond, int everySeconds) {
+std::string GasApplication::createCSV(const char* jsonStr, int len, int startSecond, int endSecond, int everySeconds, uint16_t* outDtMs) {
     GasDoc gasdoc;
 
     bool loadResult = gasdoc.loadJsonFile(jsonStr, len);
-    
+
+    // Report the integration step actually in use (after dt_ms / allometric
+    // resolution), so callers can verify their dt_ms took effect.
+    if (outDtMs)
+        *outDtMs = gasdoc.GetDtMs();
+
     std::string csv;
     if (loadResult) {
         csv = gasdoc.dumpCSV(startSecond, endSecond, everySeconds);
     } else {
         csv = "Error: cannot parse data file";
     }
-    
+
     return csv;
 }
 
