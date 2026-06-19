@@ -248,6 +248,9 @@ protected:
     bool m_bUptEnb; // Uptake Enabled
     bool m_bVapEnb; // Vaporization Enabled
     bool m_bFlush; // User hit flush button
+    bool m_bIncludeCost = false; // Add UptakeCost/DeliveredCost CSV columns when requested
+    bool m_bIncludeMac = false;  // Add MAC (alveolar / agent MAC) CSV column when requested
+    bool m_bIncludeDelConc = false; // Add DeliveredConc (realized delivered vol%) CSV column when requested
     int m_nSpeed; // 1 for 1x, 2 for 2x,...
     bool m_bSpeedup; // Temporary AFAP
     AState m_theState; // Running, Stopped, Initial...

@@ -1530,7 +1530,14 @@ std::string GasDoc::dumpCSV(int startSecond, int endSecond, int everySeconds)
     const int dtSec = std::max(1, (static_cast<int>(m_cMSec_dx) + 999) / 1000); // ceil(DT/1000)
     const int step  = std::max(everySeconds, dtSec);
 
-    oss << "Time,Agent,FGF,VA,CO,CKT,ALV,ART,VRG,MUS,FAT,VEN,Uptake,Delivered\n"s;
+    oss << "Time,Agent,FGF,VA,CO,CKT,ALV,ART,VRG,MUS,FAT,VEN,Uptake,Delivered"s;
+    if (m_bIncludeCost)
+        oss << ",UptakeCost,DeliveredCost"s;
+    if (m_bIncludeMac)
+        oss << ",MAC"s;
+    if (m_bIncludeDelConc)
+        oss << ",DeliveredConc"s;
+    oss << "\n"s;
     for (int s = std::min(startSecond, maxSecond); s <= std::min(endSecond, maxSecond); s += step)
     {
         auto fMin = s / 60.0F;
@@ -1555,7 +1562,17 @@ std::string GasDoc::dumpCSV(int startSecond, int endSecond, int everySeconds)
                 << GetFAT(fMin, ng) << ","
                 << GetVEN(fMin, ng) << ","
                 << GetUptake(fMin, ng) << ","
-                << GetDelivered(fMin, ng) << "\n";
+                << GetDelivered(fMin, ng);
+            if (m_bIncludeCost)
+                oss << "," << GetUptakeCost(fMin, ng)
+                    << "," << GetDeliveredCost(fMin, ng);
+            if (m_bIncludeMac) {
+                float mac = m_anesArray[m_gasArray[ng]->m_nAgent]->m_fMAC;
+                oss << "," << (mac > 0.0F ? GetALV(fMin, ng) / mac : 0.0F);
+            }
+            if (m_bIncludeDelConc)
+                oss << "," << GetDEL(fMin, ng);
+            oss << "\n";
         }
     }
 
@@ -1603,6 +1620,21 @@ bool GasDoc::loadJsonFile(const char *jsonStr, int len)
 
     if (doc.contains("description"))
         SetDescription(doc["description"]);
+
+    // Optional output flag: add UptakeCost / DeliveredCost columns to the CSV.
+    // Off by default so existing output stays unchanged.  Accepts bool, number,
+    // or string ("true"/"1").
+    auto parseBoolFlag = [&](const char* key, bool& dst) {
+        if (!doc.contains(key)) return;
+        const json& v = doc[key];
+        if      (v.is_boolean()) dst = v.get<bool>();
+        else if (v.is_number())  dst = (v.get<double>() != 0.0);
+        else if (v.is_string())  { std::string s = v.get<std::string>();
+                                   dst = (s == "true" || s == "1"); }
+    };
+    parseBoolFlag("include_cost",    m_bIncludeCost);
+    parseBoolFlag("include_mac",     m_bIncludeMac);
+    parseBoolFlag("include_delconc", m_bIncludeDelConc);
 
     // ── Detect format ────────────────────────────────────────────────────────
     // Native format  — the core GasMan app's own JSON export:

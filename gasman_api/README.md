@@ -19,6 +19,7 @@ gasman_api/
 │   ├── gasman_template.xlsx  ← Excel template for scenario input
 │   ├── output.csv            ← sample simulation CSV output
 │   ├── python_example.py     ← Python reference: ctypes FFI to gasmanAPI
+│   ├── batch_example.py      ← Python parameter sweep → tidy DataFrame
 │   ├── r_example.R           ← R reference: CLI (system2) + DLL (Rcpp shim)
 │   └── matlab_example.m      ← MATLAB reference: loadlibrary/calllib + CLI
 │
@@ -266,6 +267,17 @@ const char* GasManErrorString(int code);
 ```
 Time, Agent, FGF, VA, CO, CKT, ALV, ART, VRG, MUS, FAT, VEN, Uptake, Delivered
 ```
+Optional top-level flags in the scenario JSON append extra columns (all off by
+default, so existing output is unchanged):
+
+| Flag | Adds columns | Meaning |
+|---|---|---|
+| `"include_cost": true` | `UptakeCost, DeliveredCost` | `Uptake`/`Delivered` (litres of vapour) × the agent's cost ratio, `1000 * BottleCost / (BottleSize * Volatility)` |
+| `"include_mac": true` | `MAC` | alveolar concentration in MAC multiples (`ALV / agent MAC`); 1.0 = one MAC |
+| `"include_delconc": true` | `DeliveredConc` | realized delivered concentration (vol %) entering the circuit each step — a computed result (ΔDelivered ÷ FGF ÷ dt), not the dial setpoint passed as `del` |
+
+The bottle constants and MAC come from the agent's `gasman.ini` section (or any
+agent override in the scenario).
 
 **Thread safety**: concurrent calls are serialised internally via a process-wide
 mutex.  Each thread has its own result buffer so callers on different threads can
@@ -401,6 +413,28 @@ only — no physiology beyond the straight line between real points. The
 
 This file is intentionally kept simple — use it as a starting point for
 integrating the shared library into a Python server or notebook.
+
+### `examples/batch_example.py` — Python parameter sweep
+
+Builds on `python_example.py` to show the full exploratory loop: build a
+scenario ("config") programmatically from parameters, sweep a range of patient
+weights, run each one into a tidy pandas DataFrame, and print the end-of-run
+values per weight plus a side-by-side comparison.
+
+```bash
+pip install pandas
+
+cd examples
+python batch_example.py
+```
+
+Everything you normally edit lives in the `CONFIGURATION` block at the top of
+the file: agent choice, weight range, duration, output cadence, an optional
+manual integration step (`DT_MS`), and the time-course `SETTINGS`.  Only the
+patient weight is sent to the engine — it scales its default compartment sizes
+by weight automatically.  The reusable pieces — `build_scenario()` (parameters
+→ native JSON) and `simulate_to_csv()` / `simulate_df()` (scenario → CSV /
+DataFrame) — can be imported into your own scripts or notebooks.
 
 ### `examples/r_example.R` — R reference
 

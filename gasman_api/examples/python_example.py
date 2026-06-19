@@ -513,6 +513,50 @@ def interpolate_csv(csv_text: str, step_sec: int = 1) -> str:
     return "\n".join(out) + "\n"
 
 
+def simulate_to_csv(data: dict, start_sec: int = 0, end_sec: int = -1,
+                    every_sec: int = 10, interp: int = 0, lib=None) -> str:
+    """
+    Run a parsed scenario *dict* through gasmanAPI and return the CSV text.
+
+    Same engine-call + interpolation logic as run(), but operating on an
+    in-memory scenario dict instead of a file — convenient for parameter sweeps
+    that build many scenarios programmatically (see batch_example.py).
+
+    Pass a preloaded *lib* (from load_gasmanAPI()) to avoid reloading the DLL on
+    every call.  end_sec / interp behave exactly as documented on run().
+    """
+    if lib is None:
+        lib = load_gasmanAPI()
+
+    # Remove embedded image data that bloats the payload without adding value.
+    if isinstance(data, dict):
+        data.pop("imageData", None)
+
+    if end_sec < 0:
+        end_sec = max(300, _last_setting_sec(data))
+
+    # When interpolating, ask the engine for its finest real grid (every_sec=1,
+    # which the DLL clamps up to DT) so the interpolation starts from DT ticks.
+    dll_every = 1 if interp > 0 else every_sec
+
+    payload = json.dumps(_serialize(data)).encode("utf-8")
+    result  = lib.GasManJsonToCsv(payload, len(payload), start_sec, end_sec, dll_every)
+    err_code = lib.GasManLastError()
+
+    if result is None:
+        raise RuntimeError("GasManJsonToCsv returned NULL.")
+
+    csv_text = result.decode("utf-8")
+    if err_code != 0:
+        err_msg = lib.GasManErrorString(err_code).decode("utf-8")
+        raise RuntimeError(f"Simulation failed [code {err_code}: {err_msg}] — {csv_text}")
+
+    if interp > 0:
+        csv_text = interpolate_csv(csv_text, interp)
+
+    return csv_text
+
+
 def run(input_file: str, output_file: str = "output.csv",
         start_sec: int = 0, end_sec: int = -1, every_sec: int = 10,
         interp: int = 0) -> None:
@@ -542,31 +586,8 @@ def run(input_file: str, output_file: str = "output.csv",
     else:
         raise ValueError(f"Unsupported file type: {ext!r}  (use .xml, .json, .csv, or .xlsx)")
 
-    # Remove embedded image data that bloats the payload without adding value.
-    if isinstance(data, dict):
-        data.pop("imageData", None)
-
-    if end_sec < 0:
-        end_sec = max(300, _last_setting_sec(data))
-
-    # When interpolating, ask the engine for its finest real grid (every_sec=1,
-    # which the DLL clamps up to DT) so the interpolation starts from DT ticks.
-    dll_every = 1 if interp > 0 else every_sec
-
-    payload = json.dumps(_serialize(data)).encode("utf-8")
-    result  = lib.GasManJsonToCsv(payload, len(payload), start_sec, end_sec, dll_every)
-    err_code = lib.GasManLastError()
-
-    if result is None:
-        raise RuntimeError("GasManJsonToCsv returned NULL.")
-
-    csv_text = result.decode("utf-8")
-    if err_code != 0:
-        err_msg = lib.GasManErrorString(err_code).decode("utf-8")
-        raise RuntimeError(f"Simulation failed [code {err_code}: {err_msg}] — {csv_text}")
-
-    if interp > 0:
-        csv_text = interpolate_csv(csv_text, interp)
+    csv_text = simulate_to_csv(data, start_sec=start_sec, end_sec=end_sec,
+                               every_sec=every_sec, interp=interp, lib=lib)
 
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(csv_text)
