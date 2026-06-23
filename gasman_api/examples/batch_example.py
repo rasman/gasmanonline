@@ -28,20 +28,19 @@ from pathlib import Path
 # ═════════════════════════════════════════════════════════════════════════════
 
 # ── Agent ────────────────────────────────────────────────────────────────────
-# Must match a section in gasman.ini.  Options:
+# Options:
 #   "Sevoflurane", "Desflurane", "Isoflurane", "Enflurane", "Halothane",
 #   "Ether", "Nitrogen", "Nitrous Oxide", "Xenon"
 AGENT = "Sevoflurane"
 
 # ── Sweep range ──────────────────────────────────────────────────────────────
-# Patient weight (kg).  The engine scales its default compartment sizes by
-# weight automatically (a weight/70 factor applied during integration), so you
-# only set weight here and the compartment sizes follow.
+# Patient weight (kg).  used by the API to calcuate compartment sizes and other
+# parameters automatically. 
 # Use None for an entry to fall back to the gasman.ini default weight (~70 kg).
 WEIGHTS = [40.0, 70.0, 100.0, 150.0]
 
 # ── Simulation timing ────────────────────────────────────────────────────────
-DURATION_MIN = 10*60+15                  # total simulated minutes
+DURATION_MIN = 10*60               # total simulated minutes
 EVERY_SEC    = 10                  # seconds between output rows
 
 # Optional manual integration step, in milliseconds (valid 100–60000).
@@ -111,6 +110,13 @@ INCLUDE_MAC = True
 # actually entering the circuit each step — a computed result, not the dial
 # setpoint you pass as `del`.  Off by default.
 INCLUDE_DELCONC = False
+
+# ── Post-processing: interpolation ────────────────────────────────────────────
+# All numeric columns are linearly interpolated against new time step < dt 
+# (including FGF/VA/CO).
+# None -> leave the engine's native rows as-is.
+#   e.g. INTERP_SEC = 1  -> 1-second resolution
+INTERP_SEC = 1
 
 # ═════════════════════════════════════════════════════════════════════════════
 # Machinery — usually no need to edit below here
@@ -200,12 +206,12 @@ def build_scenario(agent=AGENT, weight_kg=None, settings=None,
     return scenario
 
 
-def simulate_df(lib, scenario, start_sec=0, end_sec=600, every_sec=EVERY_SEC):
+def simulate_df(lib, scenario, start_sec=0, end_sec=600, every_sec=EVERY_SEC,
+                interp_sec=None):
     """Run one scenario through the engine and return a pandas DataFrame.
-
-    The DLL returns a CSV string (its only output format); pandas parses it
-    directly — no temp file or intermediate helper needed.
+    If interp_sec is set, the (single-agent) series is upsampled before returning.
     """
+    import numpy as np
     import pandas as pd
     payload = json.dumps(scenario).encode("utf-8")
     result  = lib.GasManJsonToCsv(payload, len(payload), start_sec, end_sec, every_sec)
@@ -215,12 +221,29 @@ def simulate_df(lib, scenario, start_sec=0, end_sec=600, every_sec=EVERY_SEC):
     if lib.GasManLastError() != 0:
         err = lib.GasManErrorString(lib.GasManLastError()).decode("utf-8")
         raise RuntimeError(f"Simulation failed: {err} — {csv_text}")
-    return pd.read_csv(io.StringIO(csv_text))
+
+    df = pd.read_csv(io.StringIO(csv_text))
+    if interp_sec:
+        t, agent = df["Time"].map(_hms_to_min).to_numpy(), df["Agent"].iloc[0]
+        interp_array = np.arange(round(t[0] * 60), round(t[-1] * 60) + 1, interp_sec) / 60.0
+        df = (df.set_index(t).select_dtypes("number")
+                .reindex(np.union1d(t, interp_array)).interpolate("index").reindex(interp_array)
+                .reset_index(drop=True))
+        df.insert(0, "Time", [_min_to_hms(x) for x in interp_array])
+        df.insert(1, "Agent", agent)
+    return df
 
 
 def _hms_to_min(t: str) -> float:
     h, m, s = (str(t).split(":") + ["0", "0", "0"])[:3]
     return int(h) * 60 + int(m) + int(s) / 60.0
+
+
+def _min_to_hms(t_min: float) -> str:
+    s = int(round(t_min * 60))
+    h, r = divmod(s, 3600)
+    m, sec = divmod(r, 60)
+    return f"{h}:{m}:{sec}"
 
 
 def run_sweep():
@@ -239,7 +262,8 @@ def run_sweep():
                                   include_cost=INCLUDE_COST,
                                   include_mac=INCLUDE_MAC,
                                   include_delconc=INCLUDE_DELCONC)
-        df = simulate_df(lib, scenario, end_sec=end_sec, every_sec=EVERY_SEC)
+        df = simulate_df(lib, scenario, end_sec=end_sec, every_sec=EVERY_SEC,
+                         interp_sec=INTERP_SEC)
 
         # Tag every row with the parameters + a numeric time axis.
         df.insert(0, "run_agent",     AGENT)
